@@ -1,0 +1,9 @@
+/* Changes the number color in Reading view */
+ol > li::marker {
+    color: #ffffff; 
+}
+
+/* Changes the number color in Live Preview / Source editing mode */
+.cm-s-obsidian :is(.cm-formatting-list-ol) {
+    color: #a1b2f7; 
+}

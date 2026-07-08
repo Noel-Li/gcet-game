@@ -15,9 +15,9 @@
               "state": {
                 "file": "game_loop.canvas",
                 "viewState": {
-                  "x": 686.3989928118956,
-                  "y": 468.79888034568427,
-                  "zoom": -0.5518594589940277
+                  "x": 887.0216606359913,
+                  "y": 290.83024691358025,
+                  "zoom": -1.0660005755478288
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -183,7 +183,9 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false
+      "bases:Create new base": false,
+      "obsidian-importer:Open Importer": false,
+      "obsidian-full-calendar:Open Full Calendar": false
     }
   },
   "active": "73cf510320941b1a",

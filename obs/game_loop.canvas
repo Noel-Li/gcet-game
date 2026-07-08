@@ -3,7 +3,7 @@
 		{"id":"f7636a2623777946","type":"text","text":"Interact with people\n\nWho are these people?\nwhat can they give me?\n\n?","x":465,"y":-560,"width":250,"height":165},
 		{"id":"3312a42c1e8523a7","type":"text","text":"unsuccessful action","x":249,"y":-718,"width":250,"height":60},
 		{"id":"92adfd6729f325de","type":"text","text":"successful action","x":249,"y":-854,"width":250,"height":60},
-		{"id":"dcd4758173ce9572","type":"text","text":"IF player wander around / afk\nIF NPC not interactable\n\"keep walking\"\n\"you should probably talk to some people\"\n\nwhere do I go now\n\n? ❌","x":780,"y":-583,"width":360,"height":212},
+		{"id":"dcd4758173ce9572","type":"text","text":"IF player wander around / afk\nIF NPC not interactable\n\"keep walking\"\n\"you should probably talk to some people\"\n\nwhere do I go now\n\n? ❌","x":780,"y":-583,"width":360,"height":223},
 		{"id":"2da52e885e1b0d27","type":"text","text":"simple guide to controls","x":124,"y":-593,"width":250,"height":60},
 		{"id":"f8b97eb25680dde5","type":"text","text":"player moves around","x":124,"y":-508,"width":250,"height":60},
 		{"id":"95e4a61d05ba3170","type":"text","text":"IF interactable:\nclick through conversation \nchoose response based on time period\n\nwhat are they saying?\n\n?","x":440,"y":-240,"width":301,"height":204},
@@ -15,7 +15,7 @@
 		{"id":"e85cec758bf22603","type":"text","text":"IF unsuccessful\neither start test again or go back to old area to learn characters\n\nI'm disappointed\n\n❌","x":890,"y":560,"width":330,"height":177},
 		{"id":"7ab86a5162d0fc57","type":"text","text":"find ancestor with npc (boss fight)\n(write out phrase using words previously known)\n\nI remember what I learned\n\n:)\n\n","x":376,"y":565,"width":428,"height":166},
 		{"id":"41060fa86731bd72","type":"text","text":"IF Successful\n**Next era & New charm**\n\nWhat's this?\n\n! :) ?","x":464,"y":836,"width":251,"height":160},
-		{"id":"350bb35e6457ad25","type":"text","text":"(in the past) \n1.\"Confucianism Era\"\n2.\"\\*undecided\"\n\nWhere can I go?\nexcited to explore\n\n?!","x":-179,"y":-573,"width":250,"height":193},
+		{"id":"350bb35e6457ad25","type":"text","text":"(in the past) \n1.\"Confucianism Era\"\n2.\"\\*undecided\"\n\nWhere can I go?\nexcited to explore\n\n?!","x":-179,"y":-573,"width":250,"height":213},
 		{"id":"77f9422a2c671837","type":"text","text":"start cutscene\n\nwhere are we going?\n\n??","x":-482,"y":-542,"width":250,"height":131},
 		{"id":"c16b898c734d1f76","type":"text","text":"ACTION\n\nTHOUGHTS\n\nEMOTIONS","x":-179,"y":-824,"width":250,"height":136,"color":"3"}
 	],
