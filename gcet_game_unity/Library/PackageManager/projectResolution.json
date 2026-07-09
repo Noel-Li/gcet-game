@@ -119,6 +119,15 @@
       "source": "registry",
       "testable": false
     },
+    "com.unity.feature.2d@2.0.2": {
+      "name": "com.unity.feature.2d",
+      "displayName": "2D",
+      "resolvedPath": "D:\\dev\\gcet-game\\gcet_game_unity\\Library\\PackageCache\\com.unity.feature.2d@0309d34ea7f2",
+      "fingerprint": "0309d34ea7f24c916d9ac46e556759d54f3b9f3e",
+      "version": "2.0.2",
+      "source": "builtin",
+      "testable": false
+    },
     "com.unity.ide.rider@3.0.40": {
       "name": "com.unity.ide.rider",
       "displayName": "JetBrains Rider Editor",
@@ -535,6 +544,16 @@
       "editorCompatibility": "6000.0.0a1",
       "version": "17.0.3",
       "source": "builtin",
+      "testable": false
+    },
+    "com.unity.2d.pixel-perfect@5.1.1": {
+      "name": "com.unity.2d.pixel-perfect",
+      "displayName": "2D Pixel Perfect",
+      "resolvedPath": "D:\\dev\\gcet-game\\gcet_game_unity\\Library\\PackageCache\\com.unity.2d.pixel-perfect@09d99455b901",
+      "fingerprint": "09d99455b9018d7a152bb766d42b2569236a7b4a",
+      "editorCompatibility": "2021.3.0a1",
+      "version": "5.1.1",
+      "source": "registry",
       "testable": false
     },
     "com.unity.burst@1.8.29": {

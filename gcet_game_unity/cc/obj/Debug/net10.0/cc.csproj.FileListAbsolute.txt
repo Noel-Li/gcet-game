@@ -1,0 +1,15 @@
+D:\dev\gcet-game\gcet_game_unity\cc\bin\Debug\net10.0\cc.exe
+D:\dev\gcet-game\gcet_game_unity\cc\bin\Debug\net10.0\cc.deps.json
+D:\dev\gcet-game\gcet_game_unity\cc\bin\Debug\net10.0\cc.runtimeconfig.json
+D:\dev\gcet-game\gcet_game_unity\cc\bin\Debug\net10.0\cc.dll
+D:\dev\gcet-game\gcet_game_unity\cc\bin\Debug\net10.0\cc.pdb
+D:\dev\gcet-game\gcet_game_unity\cc\obj\Debug\net10.0\cc.GeneratedMSBuildEditorConfig.editorconfig
+D:\dev\gcet-game\gcet_game_unity\cc\obj\Debug\net10.0\cc.AssemblyInfoInputs.cache
+D:\dev\gcet-game\gcet_game_unity\cc\obj\Debug\net10.0\cc.AssemblyInfo.cs
+D:\dev\gcet-game\gcet_game_unity\cc\obj\Debug\net10.0\cc.csproj.CoreCompileInputs.cache
+D:\dev\gcet-game\gcet_game_unity\cc\obj\Debug\net10.0\cc.sourcelink.json
+D:\dev\gcet-game\gcet_game_unity\cc\obj\Debug\net10.0\cc.dll
+D:\dev\gcet-game\gcet_game_unity\cc\obj\Debug\net10.0\refint\cc.dll
+D:\dev\gcet-game\gcet_game_unity\cc\obj\Debug\net10.0\cc.pdb
+D:\dev\gcet-game\gcet_game_unity\cc\obj\Debug\net10.0\cc.genruntimeconfig.cache
+D:\dev\gcet-game\gcet_game_unity\cc\obj\Debug\net10.0\ref\cc.dll
