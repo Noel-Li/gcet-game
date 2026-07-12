@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d037a544de6d55845a7ba3a44ce3edd1, type: 3}
+  m_Name: "Character_\u95EE"
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterData
+  characterName: "\u95EE"
+  strokes:
+  - strokeName: Dot
+    points:
+    - {x: -1, y: 1.55, z: 0}
+    - {x: -0.9, y: 1.15, z: 0}
+  - strokeName: 'Left Vertical '
+    points:
+    - {x: -1.15, y: 1.25, z: 0}
+    - {x: -1.15, y: -1.25, z: 0}
+  - strokeName: Outer Frame
+    points:
+    - {x: -0.75, y: 1.25, z: 0}
+    - {x: 1.45, y: 1.25, z: 0}
+    - {x: 1.45, y: -1.2, z: 0}
+    - {x: 0.95, y: -1.1, z: 0}
+  - strokeName: Inner Left Vertical
+    points:
+    - {x: -0.35, y: 0.45, z: 0}
+    - {x: -0.35, y: -0.45, z: 0}
+  - strokeName: Inner Horizontal Fold
+    points:
+    - {x: -0.35, y: 0.45, z: 0}
+    - {x: 0.55, y: 0.45, z: 0}
+    - {x: 0.55, y: -0.45, z: 0}
+  - strokeName: Bottom Horizontal
+    points:
+    - {x: -0.35, y: -0.45, z: 0}
+    - {x: 0.55, y: -0.45, z: 0}

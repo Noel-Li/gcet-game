@@ -2,39 +2,65 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// A clickable NPC. Clicking it changes its colour and unlocks the TOP exit of whichever Area
-/// currently contains it, letting the player leave that room upward. Clicking again does nothing.
-///
-/// Uses a 2D raycast (Physics2D.GetRayIntersection) because OnMouseDown only fires on 3D
-/// colliders and this NPC uses a BoxCollider2D.
+/// A clickable NPC. Clicking it opens the in-game placeholder dialogue (black square, top of screen) instead of
+/// instantly unlocking its room. The conversation <em>content</em> lives on a sibling <see cref="Conversation"/> component
+/// (editable in the Inspector, per-NPC); this class only knows how to open/advance it. Forward progress is gated the same way
+/// it was — the Top-exit gate the player movement already respects flips only on a correct trace, handled by
+/// <see cref="GameProgress"/>. Clicking again does nothing; after the gate has opened the NPC stays activated.
 /// </summary>
 [RequireComponent(typeof(Collider2D))]
 [RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(Conversation))]
 public class NpcController : MonoBehaviour
 {
-    [Header("Visual")]
-    [SerializeField] private Color activatedColor = Color.green;
-
-    private SpriteRenderer spriteRenderer;
-    private Color defaultColor;
+    private Conversation conversation;
     private bool activated = false;
     private Collider2D npcCollider;
     private Camera activeCamera;
 
     private void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
         npcCollider = GetComponent<Collider2D>();
-        if (spriteRenderer != null)
-        {
-            defaultColor = spriteRenderer.color;
-        }
-
         activeCamera = Camera.main;
         if (activeCamera == null)
         {
             activeCamera = FindObjectOfType<Camera>();
         }
+        conversation = GetComponent<Conversation>();
+    }
+
+    private void Start()
+    {
+        RefreshFromProgress();
+    }
+
+    private void RefreshFromProgress()
+    {
+        if (activated)
+        {
+            return;
+        }
+
+        if (Dialogue.Instance != null)
+        {
+            InjectInto(Dialogue.Instance);
+        }
+
+        if (GameProgress.Instance != null && GameProgress.Instance.tracePassed && Dialogue.Instance != null)
+        {
+            // Passed the trace mid-conversation: resume the post-writing lines automatically.
+            activated = true;
+            Dialogue.Instance.ResumeAfterWriting();
+        }
+    }
+
+    private void InjectInto(Dialogue d)
+    {
+        if (conversation == null)
+        {
+            return;
+        }
+        d.SetSteps(conversation.GetSteps());
     }
 
     private void Update()
@@ -49,38 +75,39 @@ public class NpcController : MonoBehaviour
         {
             return;
         }
-
-        // Raycast from the camera through the mouse position into the 2D physics world.
         if (activeCamera == null)
         {
             return;
         }
+
         Vector2 mousePos = mouse.position.ReadValue();
         Ray ray = activeCamera.ScreenPointToRay(mousePos);
         RaycastHit2D hit = Physics2D.GetRayIntersection(ray, Mathf.Infinity, ~0);
-
         if (hit.collider == null || hit.collider != npcCollider)
         {
             return;
         }
 
-        Activated();
+        OpenDialogue();
     }
 
-    private void Activated()
+    private void OpenDialogue()
     {
         activated = true;
 
-        if (spriteRenderer != null)
+        GameArea area = GameArea.GetAreaContaining(transform.position);
+        int col = area != null ? area.AreaCol : 0;
+        int row = area != null ? area.AreaRow : 0;
+
+        if (Dialogue.Instance == null)
         {
-            spriteRenderer.color = activatedColor;
+            var obj = new GameObject("Dialogue");
+            obj.AddComponent<Dialogue>();
         }
 
-        // Unlock the top exit of whatever room the NPC stands in so the player can move up.
-        GameArea area = GameArea.GetAreaContaining(transform.position);
-        if (area != null)
-        {
-            area.UnlockTopExit();
-        }
+        // Conversation.GetSteps() always returns a populated list (falling back to defaults when the Inspector list is
+        // empty), so the NPC always has something to say.
+        InjectInto(Dialogue.Instance);
+        Dialogue.Instance.Open(col, row);
     }
 }

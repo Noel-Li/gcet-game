@@ -506,11 +506,21 @@
 -analyzer:"Library/PackageCache/com.unity.ai.inference@9a123aee5df7/Runtime/Core/SourceGenerator/SourceGenerators.dll"
 -analyzer:"Library/PackageCache/com.unity.dt.app-ui@8ac7e730dd5d/Runtime/MVVM/SourceGenerators/netstandard2.0/MVVMSourceGenerators.dll"
 -analyzer:"Library/PackageCache/com.unity.dt.app-ui@8ac7e730dd5d/Runtime/SourceGenerators/netstandard2.0/EnumToLowerCase.dll"
+"Assets/Cainos/Pixel Art Top Down - Basic/Script/CameraFollow.cs"
+"Assets/Cainos/Pixel Art Top Down - Basic/Script/PropsAltar.cs"
+"Assets/Cainos/Pixel Art Top Down - Basic/Script/SpriteColorAnimation.cs"
+"Assets/Cainos/Pixel Art Top Down - Basic/Script/StairsLayerTrigger.cs"
+"Assets/Cainos/Pixel Art Top Down - Basic/Script/TopDownCharacterController.cs"
+"Assets/Scripts/CharacterData.cs"
 "Assets/Scripts/ColorSprite.cs"
+"Assets/Scripts/Conversation.cs"
+"Assets/Scripts/Dialogue.cs"
 "Assets/Scripts/FollowCamera.cs"
 "Assets/Scripts/GameArea.cs"
+"Assets/Scripts/GameProgress.cs"
 "Assets/Scripts/NpcController.cs"
 "Assets/Scripts/PlayerMovement.cs"
+"Assets/Scripts/Script1.cs"
 -langversion:9.0
 /deterministic
 /optimize+

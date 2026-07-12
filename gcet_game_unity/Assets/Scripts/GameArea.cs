@@ -189,4 +189,70 @@ public class GameArea : MonoBehaviour
 
         return pos;
     }
+
+    /// <summary>
+    /// Clamps a camera center so the whole orthographic viewport stays inside this Area's bounds, returning whether the
+    /// clamp positions changed. Each axis is pinned to the area center when the viewport is exactly the area width/height
+    /// (the current fit), and clamped to the centered slack band when it is smaller — which is what stops the view from
+    /// ever revealing the void or the adjacent/locked room while still letting a smaller camera follow the player.
+    /// </summary>
+    public bool ClampCamera(Vector2 viewportHalf, Vector3 center, out Vector3 clamped)
+    {
+        bool changed = false;
+        float cx = center.x;
+        float cy = center.y;
+        float cz = center.z;
+
+        Bounds b = Bounds;
+        float bandX = (Width * 0.5f) - viewportHalf.x;
+        float bandY = (Height * 0.5f) - viewportHalf.y;
+
+        float areaCenterX = b.min.x + Width * 0.5f;
+        float areaCenterY = b.min.y + Height * 0.5f;
+
+        // If the viewport is >= the area size along this axis there is no room to move — lock to the area center so
+        // the whole Area fills the screen and nothing outside (void/other rooms) is ever visible.
+        if (bandX <= 0f)
+        {
+            if (Mathf.Abs(cx - areaCenterX) > 0.0001f)
+            {
+                changed = true;
+            }
+            cx = areaCenterX;
+        }
+        else
+        {
+            float minCx = areaCenterX - bandX;
+            float maxCx = areaCenterX + bandX;
+            float ncx = Mathf.Clamp(cx, minCx, maxCx);
+            if (Mathf.Abs(ncx - cx) > 0.0001f)
+            {
+                changed = true;
+            }
+            cx = ncx;
+        }
+
+        if (bandY <= 0f)
+        {
+            if (Mathf.Abs(cy - areaCenterY) > 0.0001f)
+            {
+                changed = true;
+            }
+            cy = areaCenterY;
+        }
+        else
+        {
+            float minCy = areaCenterY - bandY;
+            float maxCy = areaCenterY + bandY;
+            float ncy = Mathf.Clamp(cy, minCy, maxCy);
+            if (Mathf.Abs(ncy - cy) > 0.0001f)
+            {
+                changed = true;
+            }
+            cy = ncy;
+        }
+
+        clamped = new Vector3(cx, cy, cz);
+        return changed;
+    }
 }

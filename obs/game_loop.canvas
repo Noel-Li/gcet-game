@@ -15,9 +15,9 @@
 		{"id":"e85cec758bf22603","type":"text","text":"IF unsuccessful\neither start test again or go back to old area to learn characters\n\nI'm disappointed\n\n❌","x":890,"y":560,"width":330,"height":177},
 		{"id":"7ab86a5162d0fc57","type":"text","text":"find ancestor with npc (boss fight)\n(write out phrase using words previously known)\n\nI remember what I learned\n\n:)\n\n","x":376,"y":565,"width":428,"height":166},
 		{"id":"41060fa86731bd72","type":"text","text":"IF Successful\n**Next era & New charm**\n\nWhat's this?\n\n! :) ?","x":464,"y":836,"width":251,"height":160},
-		{"id":"350bb35e6457ad25","type":"text","text":"(in the past) \n1.\"Confucianism Era\"\n2.\"\\*undecided\"\n\nWhere can I go?\nexcited to explore\n\n?!","x":-179,"y":-573,"width":250,"height":213},
 		{"id":"77f9422a2c671837","type":"text","text":"start cutscene\n\nwhere are we going?\n\n??","x":-482,"y":-542,"width":250,"height":131},
-		{"id":"c16b898c734d1f76","type":"text","text":"ACTION\n\nTHOUGHTS\n\nEMOTIONS","x":-179,"y":-824,"width":250,"height":136,"color":"3"}
+		{"id":"c16b898c734d1f76","type":"text","text":"ACTION\n\nTHOUGHTS\n\nEMOTIONS","x":-179,"y":-824,"width":250,"height":136,"color":"3"},
+		{"id":"350bb35e6457ad25","type":"text","text":"(in the past) \n1.\"Confucianism Era\"\n2.\"\\*undecided\"\n\nWhere can I go?\nexcited to explore\n\n?!","x":-179,"y":-584,"width":250,"height":213}
 	],
 	"edges":[
 		{"id":"e42d307eecef479b","fromNode":"77f9422a2c671837","fromSide":"right","toNode":"350bb35e6457ad25","toSide":"left"},

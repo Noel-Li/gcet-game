@@ -9,9 +9,9 @@ onBoardingDoNotAskAgain = true
 showPackageIndexes = false
 showStatusBar = false
 scopes = {
-	"picker_window_position_offset.00000000" = "68;413.1429;320;550.2858"
+	"picker_window_position_offset.00000000" = "-674.8571;76;320;550.2858"
 	"picker_visibility_flags.00000000" = "0"
-	"picker_item_size.00000000" = "32"
+	"picker_item_size.00000000" = "1"
 	"picker_inspector.00000000" = "0"
 }
 providers = {
