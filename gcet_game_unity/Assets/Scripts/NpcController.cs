@@ -1,36 +1,43 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 /// <summary>
-/// A clickable NPC. Clicking it opens the in-game placeholder dialogue (black square, top of screen) instead of
-/// instantly unlocking its room. The conversation <em>content</em> lives on a sibling <see cref="Conversation"/> component
-/// (editable in the Inspector, per-NPC); this class only knows how to open/advance it. Forward progress is gated the same way
-/// it was — the Top-exit gate the player movement already respects flips only on a correct trace, handled by
-/// <see cref="GameProgress"/>. Clicking again does nothing; after the gate has opened the NPC stays activated.
-/// </summary>
+/// A proximity-activated NPC. When the Player walks within <see cref="interactRange"/> units the NPC shows a "Press E to talk" prompt above its head; pressing E opens the dialogue. The <em>content</em> lives on a sibling <see cref="Conversation"/> component (editable in the Inspector, per-NPC); this class only knows how to open it. Forward progress is gated the same way it was — the Top-exit gate the player movement already respects flips only on a correct trace, handled by <see cref="GameProgress"/>. The NPC returns to an interactable state when the conversation ends.</summary>
 [RequireComponent(typeof(Collider2D))]
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(Conversation))]
 public class NpcController : MonoBehaviour
 {
+    [Header("Proximity")]
+    [Tooltip("World-unit distance within which the player can interact with the NPC.")]
+    [SerializeField] private float interactRange = 2.5f;
+
+    [Header("Prompt")]
+    [SerializeField] private string promptText = "Press E to talk";
+    [Range(0f, 3f)]
+    [SerializeField] private float promptVerticalOffset = 1.2f;
+    [SerializeField] private float promptFontSize = 22f;
+    [SerializeField] private Color promptColor = new Color(1f, 0.92f, 0.4f, 1f);
+
     private Conversation conversation;
     private bool activated = false;
-    private Collider2D npcCollider;
-    private Camera activeCamera;
+    private bool nearPlayer = false;
+    private Transform player;
+    private TextMeshPro promptTextObj;
+    private GameObject promptObj;
+    private const string PlayerName = "Player";
 
     private void Awake()
     {
-        npcCollider = GetComponent<Collider2D>();
-        activeCamera = Camera.main;
-        if (activeCamera == null)
-        {
-            activeCamera = FindObjectOfType<Camera>();
-        }
         conversation = GetComponent<Conversation>();
+        BuildPrompt();
     }
 
     private void Start()
     {
+        // Locate Player (may be destroyed/re-instantiated — refreshed in Update).
+        LocatePlayer();
         RefreshFromProgress();
     }
 
@@ -40,12 +47,10 @@ public class NpcController : MonoBehaviour
         {
             return;
         }
-
         if (Dialogue.Instance != null)
         {
             InjectInto(Dialogue.Instance);
         }
-
         if (GameProgress.Instance != null && GameProgress.Instance.tracePassed && Dialogue.Instance != null)
         {
             // Passed the trace mid-conversation: resume the post-writing lines automatically.
@@ -65,36 +70,40 @@ public class NpcController : MonoBehaviour
 
     private void Update()
     {
-        // Don't register clicks while paused — the pause overlay handles input itself.
-        if (PauseController.IsPaused || activated)
+        if (PauseController.IsPaused)
         {
             return;
         }
 
-        var mouse = Mouse.current;
-        if (mouse == null || !mouse.leftButton.wasPressedThisFrame)
+        // Keep a valid Player reference even after scene reloads.
+        if (player == null)
         {
-            return;
+            LocatePlayer();
         }
-        if (activeCamera == null)
+        nearPlayer = player != null && Vector2.Distance(transform.position, player.position) <= interactRange;
+
+        // Toggle the proximity prompt.
+        if (promptObj != null && promptObj.activeSelf != nearPlayer && !activated)
+        {
+            promptObj.SetActive(nearPlayer && !activated);
+        }
+
+        if (activated)
         {
             return;
         }
 
-        Vector2 mousePos = mouse.position.ReadValue();
-        Ray ray = activeCamera.ScreenPointToRay(mousePos);
-        RaycastHit2D hit = Physics2D.GetRayIntersection(ray, Mathf.Infinity, ~0);
-        if (hit.collider == null || hit.collider != npcCollider)
+        var kb = Keyboard.current;
+        if (kb != null && kb.eKey.wasPressedThisFrame && nearPlayer)
         {
-            return;
+            OpenDialogue();
         }
-
-        OpenDialogue();
     }
 
     private void OpenDialogue()
     {
         activated = true;
+        HidePrompt();
 
         GameArea area = GameArea.GetAreaContaining(transform.position);
         int col = area != null ? area.AreaCol : 0;
@@ -110,16 +119,76 @@ public class NpcController : MonoBehaviour
         // empty), so the NPC always has something to say.
         InjectInto(Dialogue.Instance);
 
-        // Subscribe ONCE to the close event so we can re-arm the NPC for subsequent conversations. Without this, `activated` stays true after the first click and the NPC can never be clicked again. Unsubscribe first to be idempotent across multiple Dialogue lifetimes.
+        // Subscribe ONCE to the close event so we can re-arm the NPC for subsequent conversations. Unsubscribe first to be idempotent across multiple Dialogue lifetimes.
         Dialogue.Instance.OnClosed -= OnConversationClosed;
         Dialogue.Instance.OnClosed += OnConversationClosed;
 
         Dialogue.Instance.Open(col, row);
     }
 
-    /// <summary>Callback when the conversation closes — clears `activated` so the NPC becomes clickable again. Multiple invocations are safe because re-opening the conversation will un/re-subscribe.</summary>
+    /// <summary>Callback when the conversation closes — clears <see cref="activated"/> so the player can E-interact again.</summary>
     private void OnConversationClosed()
     {
         activated = false;
+    }
+
+    private void BuildPrompt()
+    {
+        // A tiny billboarded TextMeshPro we can show/hide. Built inside the NPC's own transform and positioned above its head in world space.
+        if (promptObj != null)
+        {
+            return;
+        }
+        promptObj = new GameObject("NpcPrompt");
+        promptObj.transform.SetParent(transform, false);
+        promptObj.transform.localPosition = new Vector3(0f, promptVerticalOffset, 0f);
+        promptObj.SetActive(false);
+
+        promptTextObj = promptObj.AddComponent<TextMeshPro>();
+        if (TMP_Settings.defaultFontAsset != null)
+        {
+            promptTextObj.font = TMP_Settings.defaultFontAsset;
+        }
+        promptTextObj.text = promptText;
+        promptTextObj.fontSize = promptFontSize;
+        promptTextObj.color = promptColor;
+        promptTextObj.alignment = TextAlignmentOptions.Center;
+        promptTextObj.outlineWidth = 0.18f;
+        promptTextObj.outlineColor = Color.black;
+        promptTextObj.overflowMode = TextOverflowModes.Overflow;
+        promptTextObj.enableWordWrapping = false;
+        promptTextObj.raycastTarget = false;
+        // Scale the TMP so it stays roughly screen-fixed regardless of distance.
+        promptTextObj.rectTransform.localScale = new Vector3(0.07f, 0.07f, 0.07f);
+
+        // Face the camera.
+        var locked = promptObj.AddComponent<BillboardTowardsCamera>();
+        if (Camera.main != null) locked.Cache(Camera.main.transform);
+    }
+
+    private void LocatePlayer()
+    {
+        GameObject go = GameObject.Find(PlayerName);
+        if (go != null) player = go.transform;
+    }
+
+    public void ShowPrompt()
+    {
+        if (promptObj != null) promptObj.SetActive(true);
+    }
+
+    private void HidePrompt()
+    {
+        if (promptObj != null) promptObj.SetActive(false);
+    }
+
+    private class BillboardTowardsCamera : MonoBehaviour
+    {
+        private Transform cam;
+        public void Cache(Transform c) => cam = c;
+        private void LateUpdate()
+        {
+            if (cam != null) transform.forward = cam.forward;
+        }
     }
 }
