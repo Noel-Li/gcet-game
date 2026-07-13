@@ -1,19 +1,20 @@
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 using System.Collections.Generic;
-
-/// <summary>
-/// Line-renderer hanzi stroke tracer. Draws a guide stroke, captures the user's mouse-drawn stroke, and scores it on release.
-///
-/// Scoring (start/end proximity, point-coverage, average distance, and direction) is unchanged. The behaviour additions are:
-///   - Publishes a <see cref="OnCharacterDone"/> static event (true on correct completion, false otherwise)
-///     so other scripts / scenes (NPC dialogue flow, scene routing) can react to a correct trace without polling.
-///   - Loaded as a single-scene modal by <see cref="Dialogue"/> when its writing step is reached.
-///</summary>
+using TMPro;
 public class Script1 : MonoBehaviour
 {
+    /// <summary>Raised when a character is completed correctly. Subscribers include <see cref="GameProgress"/> which reloads the main scene so the conversation continues.</summary>
+    public static event Action<bool> OnCharacterDone;
+
     public CharacterData characterData;
+
+    private float hardTolerance = 0.85f;
+    private float minLengthRatio = 0.55f;
+    private float maxLengthRatio = 1.8f;
+
+    private bool wentTooFarFromStroke = false;
 
     public LineRenderer guideLine;
     public LineRenderer userLine;
@@ -34,6 +35,7 @@ public class Script1 : MonoBehaviour
     private float arrowRotationOffset = -90f;
 
     private int currentStrokeIndex = 0;
+    private bool characterComplete = false;
     private Vector3[] targetStroke
     {
         get
@@ -42,14 +44,10 @@ public class Script1 : MonoBehaviour
         }
     }
 
-    /// <summary>Fired on every scoring attempt. true = the whole character was completed correctly.</summary>
-    public static event Action<bool> OnCharacterDone;
-
-    /// <summary>True once the character has been fully and correctly traced.</summary>
-    public bool IsComplete { get; private set; }
-
     void Start()
     {
+        currentStrokeIndex = 0;
+        characterComplete = false;
 
         if (characterData == null || characterData.strokes.Count == 0)
         {
@@ -57,6 +55,8 @@ public class Script1 : MonoBehaviour
             enabled = false;
             return;
         }
+        
+
 
         for (int i = 0; i < characterData.strokes.Count; i++)
         {
@@ -68,6 +68,8 @@ public class Script1 : MonoBehaviour
             }
         }
 
+        
+
 
         mainCamera = Camera.main;
 
@@ -78,11 +80,16 @@ public class Script1 : MonoBehaviour
 
         userLine.positionCount = 0;
 
-        Debug.Log("Step 8 started: trace " + characterData.characterName + ". Stroke 1.");
+        Debug.Log("Step 8 started: trace 不. Stroke 1.");
     }
 
     void Update()
     {
+        if (characterComplete)
+        {
+            return;
+        }
+
         AnimateArrow();
 
         if (Mouse.current == null)
@@ -96,6 +103,8 @@ public class Script1 : MonoBehaviour
             userLine.positionCount = 0;
             SetLineColor(userLine, Color.red);
 
+            wentTooFarFromStroke = false;
+
             Vector3 startPoint = GetMouseWorldPosition();
             AddUserPoint(startPoint);
         }
@@ -104,12 +113,18 @@ public class Script1 : MonoBehaviour
         {
             Vector3 currentPoint = GetMouseWorldPosition();
 
+            float distanceToStroke = GetNearestDistanceToTargetStroke(currentPoint);
+
+            if (distanceToStroke > hardTolerance)
+            {
+                wentTooFarFromStroke = true;
+            }
+
             if (userPoints.Count == 0 || Vector3.Distance(userPoints[userPoints.Count - 1], currentPoint) > 0.05f)
             {
                 AddUserPoint(currentPoint);
             }
         }
-
         if (Mouse.current.leftButton.wasReleasedThisFrame)
         {
             CheckTrace();
@@ -205,7 +220,18 @@ public class Script1 : MonoBehaviour
 
         float directionScore = GetDirectionScore();
         bool directionCorrect = directionScore >= requiredDirectionScore;
+        float targetLength = GetTargetStrokeLength();
+        float userLength = GetUserPathLength();
 
+        float lengthRatio = userLength / targetLength;
+
+        bool lengthCorrect = lengthRatio >= minLengthRatio && lengthRatio <= maxLengthRatio;
+        bool didNotScribble = !wentTooFarFromStroke;
+
+        Debug.Log("User length: " + userLength.ToString("F2"));
+        Debug.Log("Target length: " + targetLength.ToString("F2"));
+        Debug.Log("Length ratio: " + lengthRatio.ToString("F2"));
+        Debug.Log("Went too far from stroke: " + wentTooFarFromStroke);
         Debug.Log("Stroke " + (currentStrokeIndex + 1));
         Debug.Log("Trace score: " + (score * 100f).ToString("F1") + "%");
         Debug.Log("Average distance: " + averageDistance.ToString("F2"));
@@ -214,12 +240,14 @@ public class Script1 : MonoBehaviour
         Debug.Log("Direction score: " + (directionScore * 100f).ToString("F1") + "%");
 
         if (
-            startedCorrectly &&
-            endedCorrectly &&
-            score >= requiredScore &&
-            averageDistance <= maxAverageDistance &&
-            directionCorrect
-        )
+        startedCorrectly &&
+        endedCorrectly &&
+        score >= requiredScore &&
+        averageDistance <= maxAverageDistance &&
+        directionCorrect &&
+        lengthCorrect &&
+        didNotScribble
+            )
         {
             Debug.Log("Good trace!");
             SetLineColor(userLine, Color.green);
@@ -229,7 +257,6 @@ public class Script1 : MonoBehaviour
         {
             Debug.Log("Bad trace. Try again.");
             SetLineColor(userLine, Color.red);
-            OnCharacterDone?.Invoke(false);
         }
     }
 
@@ -243,7 +270,10 @@ public class Script1 : MonoBehaviour
         {
             Debug.Log("Character " + characterData.characterName + " complete!");
 
-            IsComplete = true;
+            characterComplete = true;
+            OnCharacterDone?.Invoke(true);
+
+            guideLine.positionCount = 0;
             userLine.positionCount = 0;
 
             if (arrowTransform != null)
@@ -251,7 +281,6 @@ public class Script1 : MonoBehaviour
                 arrowTransform.gameObject.SetActive(false);
             }
 
-            OnCharacterDone?.Invoke(true);
             return;
         }
 
@@ -259,6 +288,18 @@ public class Script1 : MonoBehaviour
 
         userLine.positionCount = 0;
         DrawGuideStroke();
+    }
+
+    float GetUserPathLength()
+    {
+        float length = 0f;
+
+        for (int i = 0; i < userPoints.Count - 1; i++)
+        {
+            length += Vector3.Distance(userPoints[i], userPoints[i + 1]);
+        }
+
+        return length;
     }
 
     float GetNearestDistanceToTargetStroke(Vector3 userPoint)
@@ -480,4 +521,7 @@ public class Script1 : MonoBehaviour
             completedLine.SetPosition(i, userPoints[i]);
         }
     }
+
+    
+    
 }

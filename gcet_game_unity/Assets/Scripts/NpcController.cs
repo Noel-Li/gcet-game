@@ -65,7 +65,8 @@ public class NpcController : MonoBehaviour
 
     private void Update()
     {
-        if (activated)
+        // Don't register clicks while paused — the pause overlay handles input itself.
+        if (PauseController.IsPaused || activated)
         {
             return;
         }
@@ -108,6 +109,17 @@ public class NpcController : MonoBehaviour
         // Conversation.GetSteps() always returns a populated list (falling back to defaults when the Inspector list is
         // empty), so the NPC always has something to say.
         InjectInto(Dialogue.Instance);
+
+        // Subscribe ONCE to the close event so we can re-arm the NPC for subsequent conversations. Without this, `activated` stays true after the first click and the NPC can never be clicked again. Unsubscribe first to be idempotent across multiple Dialogue lifetimes.
+        Dialogue.Instance.OnClosed -= OnConversationClosed;
+        Dialogue.Instance.OnClosed += OnConversationClosed;
+
         Dialogue.Instance.Open(col, row);
+    }
+
+    /// <summary>Callback when the conversation closes — clears `activated` so the NPC becomes clickable again. Multiple invocations are safe because re-opening the conversation will un/re-subscribe.</summary>
+    private void OnConversationClosed()
+    {
+        activated = false;
     }
 }

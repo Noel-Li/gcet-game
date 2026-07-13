@@ -22,7 +22,7 @@ public class GameProgress : MonoBehaviour
     private bool dialogueResumed;
 
     /// <summary>The NPC scene to load back into.</summary>
-    [SerializeField] private string mainSceneName = "SampleScene";
+    [SerializeField] private string mainSceneName = "game1";
 
     /// <summary>The hanzi tracing scene to open on the writing step.</summary>
     [SerializeField] private string traceSceneName = "hanzi tracing base";

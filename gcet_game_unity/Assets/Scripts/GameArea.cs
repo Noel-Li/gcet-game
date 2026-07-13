@@ -28,9 +28,6 @@ public class GameArea : MonoBehaviour
     [Tooltip("When true AND a room exists above, the player may walk up into it. An NPC flips this.")]
     [SerializeField] private bool topExitUnlocked = false;
 
-    [Header("Visual")]
-    [SerializeField] private Color areaColor = new Color(0.12f, 0.12f, 0.16f, 1f);
-
     /// <summary>All live Areas.</summary>
     private static readonly System.Collections.Generic.List<GameArea> registered = new System.Collections.Generic.List<GameArea>();
 
@@ -46,11 +43,6 @@ public class GameArea : MonoBehaviour
         if (renderer != null)
         {
             renderer.sortingOrder = -10;
-        }
-        var colorSprite = GetComponentInChildren<ColorSprite>();
-        if (colorSprite != null)
-        {
-            colorSprite.SetColor(areaColor);
         }
     }
 

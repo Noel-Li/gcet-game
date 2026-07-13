@@ -19,6 +19,26 @@ public class DialogueStep
 
     /// <summary>Action taken when the player advances past this line. None continues the chat; Writing launches the hanzi tracing scene; GoTop tells the player to head upstairs.</summary>
     public DialogueAction action;
+
+    /// <summary>Optional choices presented in place of the default click-to-advance when this step is shown. Each choice jumps to targetStep (and runs its action first, matching the action flow). When empty/null the line advances on click as before.</summary>
+    [Tooltip("Player choices for this line. When set (non-empty), the player must pick one instead of clicking to advance. Each choice jumps to its targetStep.")]
+    public List<DialogueChoice> choices = new List<DialogueChoice>();
+}
+
+/// <summary>
+/// One choice shown to the player on a dialogue step. Selecting it runs the choice's action (Writing/GoTop/None) and jumps the conversation to <see cref="targetStep"/>. The label is what the player sees; branch the conversation differently per response.</summary>
+[System.Serializable]
+public class DialogueChoice
+{
+    [TextArea(1, 2)]
+    [Tooltip("The button text the player reads.")]
+    public string label;
+
+    [Tooltip("Step index to jump to when this choice is picked (0-based, indexing the Conversation's steps list).")]
+    public int targetStep;
+
+    [Tooltip("Action run when the player picks this choice. None jumps straight to targetStep; Writing/GoTop run their normal action before jumping.")]
+    public DialogueAction action;
 }
 
 public enum DialogueAction
@@ -59,6 +79,9 @@ public class Dialogue : MonoBehaviour
 
     public static Dialogue Instance { get; private set; }
 
+    /// <summary>Raised when the conversation ends (the player reached the final step or Close() was invoked externally). Subscribers use it to re-arm click-based triggers such as <see cref="NpcController"/>.</summary>
+    public event System.Action OnClosed;
+
     // Layout constants in panel-local pixels (the panel is positioned in anchored screen space; children use fixed local rects).
     private const float PortraitSize = 160f;
     private const float NameHeight = 52f;
@@ -71,6 +94,10 @@ public class Dialogue : MonoBehaviour
     private Image portraitImage;
     private TextMeshProUGUI nameTag;
     private TextMeshProUGUI body;
+
+    // Currently visible choice rows (TMP Text + their panel-local rects) so Update can hit-test mouse clicks against them. Rebuilt every RenderCurrent pass.
+    private readonly List<GameObject> activeChoiceRows = new List<GameObject>();
+    private readonly List<Rect> activeChoiceRects = new List<Rect>();
 
     private int index = 0;
     private bool open;
@@ -125,19 +152,67 @@ public class Dialogue : MonoBehaviour
         {
             canvas.gameObject.SetActive(false);
         }
+        // Give the opportunity for subscribers to react to the conversation ending — e.g. NpcController uses this to flip `activated` back to false so the NPC can be clicked again.
+        OnClosed?.Invoke();
     }
 
     private void Update()
     {
-        if (!open || !waitingInput)
+        if (PauseController.IsPaused || !open || !waitingInput)
         {
             return;
         }
 
-        var mouse = Mouse.current;
-        var kb = Keyboard.current;
-        bool pressed = (mouse != null && mouse.leftButton.wasPressedThisFrame)
-            || (kb != null && (kb.enterKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame));
+        // A choice step suspends plain click-to-advance: the player must pick one of the listed choices. Choice selection is handled before the global click because the click might land on a choice button.
+        DialogueStep currentStep = steps[index];
+        if (currentStep.choices != null && currentStep.choices.Count > 0)
+        {
+            int chosen = -1;
+
+            var kb = Keyboard.current;
+            if (kb != null)
+            {
+                // Pressing the digit keys 1..N selects that choice directly.
+                for (int i = 0; i < currentStep.choices.Count && i < 9; i++)
+                {
+                    if (KeyForDigit(i + 1, kb))
+                    {
+                        chosen = i;
+                        break;
+                    }
+                }
+            }
+
+            // Mouse click: hit-test against each choice rectangle (manual raycast, no EventSystem dependency).
+            if (chosen < 0)
+            {
+                var mouse = Mouse.current;
+                if (mouse != null && mouse.leftButton.wasPressedThisFrame)
+                {
+                    Vector2 mousePos = mouse.position.ReadValue();
+                    for (int i = 0; i < activeChoiceRects.Count; i++)
+                    {
+                        if (activeChoiceRects[i].Contains(mousePos))
+                        {
+                            chosen = i;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (chosen >= 0)
+            {
+                SelectChoice(chosen);
+            }
+            return;
+        }
+
+        // No choices — the existing click / Space / Enter advances to the next line.
+        var m = Mouse.current;
+        var k = Keyboard.current;
+        bool pressed = (m != null && m.leftButton.wasPressedThisFrame)
+            || (k != null && (k.enterKey.wasPressedThisFrame || k.spaceKey.wasPressedThisFrame));
 
         if (pressed)
         {
@@ -145,27 +220,93 @@ public class Dialogue : MonoBehaviour
         }
     }
 
+    private static bool KeyForDigit(int digit, Keyboard kb)
+    {
+        switch (digit)
+        {
+            case 1: return kb.digit1Key.wasPressedThisFrame;
+            case 2: return kb.digit2Key.wasPressedThisFrame;
+            case 3: return kb.digit3Key.wasPressedThisFrame;
+            case 4: return kb.digit4Key.wasPressedThisFrame;
+            case 5: return kb.digit5Key.wasPressedThisFrame;
+            case 6: return kb.digit6Key.wasPressedThisFrame;
+            case 7: return kb.digit7Key.wasPressedThisFrame;
+            case 8: return kb.digit8Key.wasPressedThisFrame;
+            case 9: return kb.digit9Key.wasPressedThisFrame;
+            default: return false;
+        }
+    }
+
     private void Advance()
     {
-        DialogueStep current = steps[index];
-        int nextIndex = index + 1;
+        Advance(toIndex: index + 1);
+    }
 
+    /// <summary>Advance (or, when skipping action handling, directly jump) to a concrete step index.</summary>
+    private void Advance(int? toIndex)
+    {
+        DialogueStep current = steps[index];
+
+        // Writing / GoTop fire their action exactly once — when leaving the line — no matter how we reach the next step. This keeps the "hands off to the hanzi scene then resume" flow correct whether the player clicked through normally or a Writing choice redirected them.
         if (current.action == DialogueAction.Writing)
         {
-            // Resume the conversation AFTER this writing step once the trace is resolved.
-            pendingResumeStep = nextIndex;
+            int resumeAt = toIndex ?? index + 1;
+            pendingResumeStep = resumeAt;
             Close();
             LaunchWriting();
             return;
         }
 
-        if (nextIndex >= steps.Count)
+        int target = toIndex ?? (index + 1);
+        if (target >= steps.Count)
         {
             Close();
             return;
         }
 
-        index = nextIndex;
+        index = target;
+        RenderCurrent();
+        ArmInput();
+    }
+
+    /// <summary>Select a choice on the current step: honor its own action, then jump to its target step.</summary>
+    private void SelectChoice(int choiceIndex)
+    {
+        DialogueStep current = steps[index];
+        if (current.choices == null || choiceIndex < 0 || choiceIndex >= current.choices.Count)
+        {
+            return;
+        }
+        DialogueChoice choice = current.choices[choiceIndex];
+
+        // A choice can require the player to trace/proceed (Writing) before advancing to its target step. Defer the actual jump until the action resolves so any Writing action re-enters the main scene and the Conversation resumes at choice.targetStep.
+        if (choice.action == DialogueAction.Writing)
+        {
+            pendingResumeStep = choice.targetStep;
+            Close();
+            LaunchWriting();
+            return;
+        }
+
+        // None / GoTop: jump straight to the target step.
+        if (choice.targetStep < 0 || choice.targetStep >= steps.Count)
+        {
+            Close();
+            return;
+        }
+        index = choice.targetStep;
+        RenderCurrent();
+        ArmInput();
+    }
+
+    /// <summary>Jump to an arbitrary step directly (used to implement choice selection uniformly). Exposed for tests / external scripts.</summary>
+    public void JumpTo(int targetStep)
+    {
+        if (targetStep < 0 || targetStep >= steps.Count || !open)
+        {
+            return;
+        }
+        index = targetStep;
         RenderCurrent();
         ArmInput();
     }
@@ -232,10 +373,7 @@ public class Dialogue : MonoBehaviour
             portraitImage.enabled = hasPortrait;
         }
 
-        // TMP only assigns its layout/material/font in the frame the component is created and recomputes glyph meshes on a
-        // later pass, so force an immediate mesh rebuild on both texts plus a canvas layout pass. The panel Image also only
-        // renders its quad when dirty, so mark it each step. Without these, the objects are present in the hierarchy but
-        // emit no vertices (render nothing).
+        // Repaint the existing texts and rebuild meshes so layout is current before we measure.
         if (panelImage != null)
         {
             panelImage.SetAllDirty();
@@ -244,6 +382,10 @@ public class Dialogue : MonoBehaviour
         nameTag.ForceMeshUpdate(true);
         body.ForceMeshUpdate(true);
         Canvas.ForceUpdateCanvases();
+
+        // Choices (if any). This is done first because adding rows changes the space the body can occupy, so we measure the body area *after* laying out the choices above it. Each choice is one clickable TMP row; we record its screen-space raycast rect for the Update hit-test.
+        TearDownChoices();
+        float choicesHeight = LayoutChoices(step);
 
         // TMP only wraps text once the field has a FIXED width. So instead of measuring the full unwrapped line and
         // letting the panel grow off-screen (the original overflow bug), we choose a content width first, force TMP to
@@ -274,7 +416,8 @@ public class Dialogue : MonoBehaviour
         panelWidth = UnityEngine.Mathf.Max(panelWidth, minWidth);
         panelWidth = UnityEngine.Mathf.Min(panelWidth, maxWidthUnits);
 
-        float panelHeight = Pad + NameHeight + Pad + bodyH + Pad;
+        // Reserve room at the top of the panel for the choice rows, then the standard name+body layout beneath them. Panel height still clamps to the configured fraction of the screen (the choices simply share that budget).
+        float panelHeight = Pad + choicesHeight + Pad + NameHeight + Pad + bodyH + Pad;
         panelHeight = UnityEngine.Mathf.Max(panelHeight, PortraitSize + Pad * 2f);
         panelHeight = UnityEngine.Mathf.Min(panelHeight, Screen.height > 0 ? Screen.height * maxHeightFraction : 400f);
 
@@ -291,8 +434,16 @@ public class Dialogue : MonoBehaviour
             pr.sizeDelta = new Vector2(PortraitSize, PortraitSize);
         }
 
-        nr.anchoredPosition = new Vector2(contentLeft + Pad, -Pad);
-        br.anchoredPosition = new Vector2(contentLeft + Pad, -(Pad + NameHeight + Pad));
+        // Choices are laid first from the panel top (closest to the screen edge). Name tag sits just below them, body below the name tag.
+        float choiceBlockOffset = Pad;
+        float nameOffsetY = Pad + choicesHeight + Pad;
+        float bodyOffsetY = Pad + choicesHeight + Pad + NameHeight + Pad;
+
+        // Position each choice row inside the panel (stacking downward). We already sized each row w  RF measuring its preferredHeight, so re-position them in a pass now that the panel height is final.
+        PositionChoiceRows(choiceBlockOffset);
+
+        nr.anchoredPosition = new Vector2(contentLeft + Pad, -nameOffsetY);
+        br.anchoredPosition = new Vector2(contentLeft + Pad, -bodyOffsetY);
 
         // First frame may report ~0 mesh sizes; re-measure next frame so the box never collapses to nothing.
         if (bodyH < 1f && open)
@@ -300,6 +451,106 @@ public class Dialogue : MonoBehaviour
             StopCoroutine("ReflowNextFrame");
             StartCoroutine(ReflowNextFrame());
         }
+    }
+
+    private void TearDownChoices()
+    {
+        for (int i = 0; i < activeChoiceRows.Count; i++)
+        {
+            if (activeChoiceRows[i] != null)
+            {
+                Destroy(activeChoiceRows[i]);
+            }
+        }
+        activeChoiceRows.Clear();
+        activeChoiceRects.Clear();
+    }
+
+    /// <summary>Lays out the current step's choices inside the panel and returns the total vertical space they occupy. Populates <see cref="activeChoiceRows"/> for cleanup and <see cref="activeChoiceRects"/> for click hit-testing.</summary>
+    private float LayoutChoices(DialogueStep step)
+    {
+        activeChoiceRects.Clear();
+        activeChoiceRows.Clear();
+        if (step.choices == null || step.choices.Count <= 0 || panel == null)
+        {
+            return 0f;
+        }
+
+        // The space available for choices is the wider panel-width minus horizontal padding. Sit choices inside the same column as the name tag/body so they line up.
+        bool hasPortrait = portrait != null;
+        float screenW = Screen.width > 0 ? Screen.width : 1280f;
+        float maxWidthUnits = screenW - OuterMargin * 2f;
+        float contentW = UnityEngine.Mathf.Max(120f, maxWidthUnits - Pad * 2f - (hasPortrait ? PortraitSize + Pad : 0f));
+        float contentLeft = hasPortrait ? PortraitSize + Pad : 0f;
+
+        float maxChoiceWidth = contentW;
+        float padBetween = 8f;
+        float offsetY = Pad; // first choice flush under the panel top
+
+        for (int i = 0; i < step.choices.Count; i++)
+        {
+            string text = string.IsNullOrEmpty(step.choices[i].label) ? "(...)" : $"{i + 1}. {step.choices[i].label}";
+            var rowObj = new GameObject($"Choice_{i}");
+            rowObj.transform.SetParent(panel.transform, false);
+            var tmp = MakeText(rowObj, new Color(0.95f, 0.95f, 1f, 1f), Mathf.Max(14, fontSize - 6), FontStyles.Normal, TextAlignmentOptions.TopLeft);
+            tmp.text = text;
+
+            var rowRt = rowObj.GetComponent<RectTransform>();
+            rowRt.anchorMin = new Vector2(0f, 1f);
+            rowRt.anchorMax = new Vector2(0f, 1f);
+            rowRt.pivot = new Vector2(0f, 1f);
+
+            // Size first, then measure TMP's preferred height so each row fits its label.
+            rowRt.sizeDelta = new Vector2(maxChoiceWidth, 0f);
+            tmp.ForceMeshUpdate(true);
+            Canvas.ForceUpdateCanvases();
+            float rowH = UnityEngine.Mathf.Max(tmp.preferredHeight, 1f);
+            rowRt.sizeDelta = new Vector2(maxChoiceWidth, rowH);
+            rowRt.anchoredPosition = new Vector2(contentLeft + Pad, -offsetY);
+
+            tmp.ForceMeshUpdate(true);
+            Canvas.ForceUpdateCanvases();
+
+            activeChoiceRows.Add(rowObj);
+
+            // Record the screen-space bounding rectangle of this row for mouse hit-testing.
+            Rect screenRect = RectTransformToScreenRect(rowRt);
+            activeChoiceRects.Add(screenRect);
+
+            offsetY += rowH + padBetween;
+        }
+
+        float totalHeight = 0f;
+        for (int i = 0; i < activeChoiceRows.Count; i++)
+        {
+            totalHeight += activeChoiceRows[i].GetComponent<RectTransform>().sizeDelta.y;
+            if (i > 0)
+            {
+                totalHeight += padBetween;
+            }
+        }
+        return totalHeight;
+    }
+
+    private void PositionChoiceRows(float choiceBlockOffset)
+    {
+        // LayoutChoices has already positioned the rows; this hook exists so future layout tweaks have a home. Kept no-op here to keep flow clear.
+    }
+
+    /// <summary>Convert a panel-space RectTransform to its screen-space bounding Rect (for manual click hit-testing). The panel itself is screen-space override anchored, so its children map directly to screen pixels.</summary>
+    private Rect RectTransformToScreenRect(RectTransform rt)
+    {
+        Vector3[] corners = new Vector3[4];
+        rt.GetWorldCorners(corners);
+        // Screen space: y inverted vs world in Canvas (but Dialogue canvas is ScreenSpaceOverlay at identity camera, so world y == already screen y). Bottom-left - top-right read directly.
+        float minX = corners[0].x, minY = corners[0].y;
+        float maxX = corners[2].x, maxY = corners[2].y;
+        // Clamp / guard against degenerate/NaN when corners are not yet valid (~first frame).
+        if (float.IsNaN(minX) || float.IsNaN(minY) || float.IsNaN(maxX) || float.IsNaN(maxY) || maxX < minX || maxY < minY)
+        {
+            return new Rect(0f, 0f, 0f, 0f);
+        }
+        return new Rect(minX, Screen.height - maxY, maxX - minX, maxY - minY);
     }
 
     private System.Collections.IEnumerator ReflowNextFrame()

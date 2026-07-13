@@ -52,17 +52,23 @@
     <Analyzer Include="D:\dev\gcet-game\gcet_game_unity\Library\PackageCache\com.unity.dt.app-ui@8ac7e730dd5d\Runtime\MVVM\SourceGenerators\netstandard2.0\MVVMSourceGenerators.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\PauseController.cs" />
     <Compile Include="Assets\Cainos\Pixel Art Top Down - Basic\Script\SpriteColorAnimation.cs" />
+    <Compile Include="Assets\Scripts\StartGame.cs" />
     <Compile Include="Assets\Scripts\Conversation.cs" />
+    <Compile Include="Assets\Scripts\PauseResume.cs" />
     <Compile Include="Assets\Scripts\Script1.cs" />
     <Compile Include="Assets\Cainos\Pixel Art Top Down - Basic\Script\CameraFollow.cs" />
     <Compile Include="Assets\Scripts\CharacterData.cs" />
     <Compile Include="Assets\Cainos\Pixel Art Top Down - Basic\Script\TopDownCharacterController.cs" />
+    <Compile Include="Assets\Scripts\IntroVideoPlayer.cs" />
+    <Compile Include="Assets\Scripts\RainBackground.cs" />
     <Compile Include="Assets\Scripts\Dialogue.cs" />
     <Compile Include="Assets\Cainos\Pixel Art Top Down - Basic\Script\PropsAltar.cs" />
     <Compile Include="Assets\Scripts\GameArea.cs" />
     <Compile Include="Assets\Scripts\GameProgress.cs" />
     <Compile Include="Assets\Scripts\PlayerMovement.cs" />
+    <Compile Include="Assets\FantasyEnvironments\Environments\Town\Scripts\Door.cs" />
     <Compile Include="Assets\Scripts\NpcController.cs" />
     <Compile Include="Assets\Scripts\FollowCamera.cs" />
     <Compile Include="Assets\Cainos\Pixel Art Top Down - Basic\Script\StairsLayerTrigger.cs" />
