@@ -79,6 +79,9 @@ public class Dialogue : MonoBehaviour
 
     public static Dialogue Instance { get; private set; }
 
+    /// <summary>True while the dialogue is showing and the player is interacting with it.</summary>
+    public bool IsOpen => open;
+
     /// <summary>Raised when the conversation ends (the player reached the final step or Close() was invoked externally). Subscribers use it to re-arm click-based triggers such as <see cref="NpcController"/>.</summary>
     public event System.Action OnClosed;
 

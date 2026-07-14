@@ -21,6 +21,12 @@ public class GameProgress : MonoBehaviour
     [SerializeField] private int resumeStep = -1;
     private bool dialogueResumed;
 
+    /// <summary>
+    /// The player position captured just before leaving for the tracing scene, so the reload can put the
+    /// player back where they were instead of at the scene's authored default. Null until BeginTrace runs.
+    /// </summary>
+    private Vector3? savedPlayerPosition;
+
     /// <summary>The NPC scene to load back into.</summary>
     [SerializeField] private string mainSceneName = "game1";
 
@@ -48,11 +54,47 @@ public class GameProgress : MonoBehaviour
         tracePassed = false;
         dialogueResumed = false;
 
+        // Capture the player's position now, while the main scene (and the Player it spawns) still exists.
+        // The main scene is about to be unloaded for the tracing scene, which destroys the Player; we'll
+        // restore this position in OnSceneLoaded when the player returns so they don't snap back to the
+        // scene's authored default.
+        PlayerMovement pm = FindObjectOfType<PlayerMovement>();
+        savedPlayerPosition = pm != null ? pm.transform.position : (Vector3?)null;
+
         if (SceneManager.GetSceneByName(traceSceneName).isLoaded)
         {
             return;
         }
         SceneManager.LoadScene(traceSceneName);
+    }
+
+    /// <summary>Repositions the freshly-spawned Player back to where they were when the trace began.</summary>
+    private void ApplySavedPlayerPosition()
+    {
+        if (!savedPlayerPosition.HasValue)
+        {
+            return;
+        }
+
+        PlayerMovement pm = FindObjectOfType<PlayerMovement>();
+        if (pm != null)
+        {
+            // Rigidbody-driven movement: move through the body so collision stays consistent and physics
+            // doesn't fight the teleport.
+            Rigidbody2D body = pm.GetComponent<Rigidbody2D>();
+            if (body != null)
+            {
+                body.position = savedPlayerPosition.Value;
+                body.linearVelocity = Vector2.zero;
+                body.angularVelocity = 0f;
+            }
+            else
+            {
+                pm.transform.position = savedPlayerPosition.Value;
+            }
+        }
+
+        savedPlayerPosition = null;
     }
 
     /// <summary>Fired by <see cref="Script1.OnCharacterDone"/> when the character is traced correctly.</summary>
@@ -108,7 +150,10 @@ public class GameProgress : MonoBehaviour
     {
         if (scene.name == mainSceneName)
         {
+            // Run first so the fresh Player exists at its (default) position before we restore the
+            // pre-trace position onto it.
             ApplyForwardUnlock();
+            ApplySavedPlayerPosition();
         }
 
         bool traceLoaded = SceneManager.GetSceneByName(traceSceneName).isLoaded;
