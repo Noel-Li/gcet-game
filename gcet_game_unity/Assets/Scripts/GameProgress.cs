@@ -21,16 +21,16 @@ public class GameProgress : MonoBehaviour
     [SerializeField] private int resumeStep = -1;
     private bool dialogueResumed;
 
-<<<<<<< HEAD
+
     [SerializeField] private int requiredTraceCount = 1;
     [SerializeField] private int completedTraceCount;
-=======
+
     /// <summary>
     /// The player position captured just before leaving for the tracing scene, so the reload can put the
     /// player back where they were instead of at the scene's authored default. Null until BeginTrace runs.
     /// </summary>
     private Vector3? savedPlayerPosition;
->>>>>>> 2c2d1b97148ec011665f29748ec2acf48d562863
+
 
     /// <summary>The NPC scene to load back into.</summary>
     [SerializeField] private string mainSceneName = "game1";
@@ -77,12 +77,12 @@ public class GameProgress : MonoBehaviour
         SceneManager.LoadScene(traceSceneName);
     }
 
-<<<<<<< HEAD
+
     /// <summary>
     /// Fired by <see cref="Script1.OnCharacterDone"/> whenever one character is traced correctly.
     /// The tracing scene remains open until every character requested by the dialogue has been completed.
     /// </summary>
-=======
+
     /// <summary>Repositions the freshly-spawned Player back to where they were when the trace began.</summary>
     private void ApplySavedPlayerPosition()
     {
@@ -113,7 +113,7 @@ public class GameProgress : MonoBehaviour
     }
 
     /// <summary>Fired by <see cref="Script1.OnCharacterDone"/> when the character is traced correctly.</summary>
->>>>>>> 2c2d1b97148ec011665f29748ec2acf48d562863
+
     public void OnTraceCorrect()
     {
         if (tracePassed)
