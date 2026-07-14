@@ -20,6 +20,15 @@ public class NpcController : MonoBehaviour
     [Header("Prompt")]
     [SerializeField] private string promptText = "Press E to talk";
 
+    [Tooltip("Optional image (e.g. the 'E' key prompt) shown above the NPC while the player is nearby. If left empty the text prompt is used on its own.")]
+    [SerializeField] private Sprite interactSprite;
+
+    [Tooltip("World-space size of the displayed interact image (X/Y in local units).")]
+    [SerializeField] private Vector2 interactImageSize = new Vector2(0.6f, 0.6f);
+
+    [Tooltip("How far above the NPC the interact image hovers, in world units.")]
+    [SerializeField] private float interactImageVerticalOffset = 1.4f;
+
     [Range(0f, 3f)]
     [SerializeField] private float promptVerticalOffset = 1.2f;
 
@@ -42,12 +51,16 @@ public class NpcController : MonoBehaviour
     private TextMeshPro promptTextObj;
     private GameObject promptObj;
 
+    private GameObject interactObj;
+    private SpriteRenderer interactSpriteRenderer;
+
     private const string PlayerName = "Player";
 
     private void Awake()
     {
         conversation = GetComponent<Conversation>();
         BuildPrompt();
+        BuildInteractImage();
     }
 
     private void Start()
@@ -80,15 +93,17 @@ public class NpcController : MonoBehaviour
             Vector2.Distance(transform.position, player.position)
             <= interactRange;
 
-        // Show or hide the "Press E to talk" message.
-        if (promptObj != null)
-        {
-            bool shouldShow = nearPlayer && !activated;
+        // Show or hide the prompts above the NPC while the player is nearby and no dialogue is open.
+        bool shouldShow = nearPlayer && !activated;
 
-            if (promptObj.activeSelf != shouldShow)
-            {
-                promptObj.SetActive(shouldShow);
-            }
+        if (promptObj != null && promptObj.activeSelf != shouldShow)
+        {
+            promptObj.SetActive(shouldShow);
+        }
+
+        if (interactObj != null && interactObj.activeSelf != shouldShow)
+        {
+            interactObj.SetActive(shouldShow);
         }
 
         // Do not allow another interaction while dialogue is active.
@@ -238,6 +253,50 @@ public class NpcController : MonoBehaviour
         activated = false;
     }
 
+    /// <summary>
+    /// Builds a small floating image (the "E to interact" prompt) that hovers
+    /// above the NPC and billboards toward the camera, mirroring the text prompt.
+    /// Uses a world-space SpriteRenderer so it needs no Canvas.
+    /// </summary>
+    private void BuildInteractImage()
+    {
+        if (interactSprite == null)
+        {
+            return;
+        }
+
+        if (interactObj != null)
+        {
+            return;
+        }
+
+        // Spawn at the root so the NPC's (0.3) scale does not shrink the world
+        // offset/size. The billboard child keeps it positioned above the NPC in
+        // true world units.
+        interactObj = new GameObject("InteractPrompt");
+        interactObj.transform.SetParent(null, false);
+        interactObj.transform.position = transform.position + Vector3.up * interactImageVerticalOffset;
+
+        interactObj.SetActive(false);
+
+        interactSpriteRenderer = interactObj.AddComponent<SpriteRenderer>();
+        interactSpriteRenderer.sprite = interactSprite;
+        interactSpriteRenderer.sortingLayerID = -1371232619;
+        interactSpriteRenderer.sortingOrder = 1;
+        interactSpriteRenderer.size = interactImageSize;
+        interactSpriteRenderer.drawMode = SpriteDrawMode.Simple;
+
+        BillboardTowardsCamera billboard =
+            interactObj.AddComponent<BillboardTowardsCamera>();
+
+        if (Camera.main != null)
+        {
+            billboard.Cache(Camera.main.transform);
+        }
+
+        billboard.Follow(transform, Vector3.up * interactImageVerticalOffset);
+    }
+
     private void BuildPrompt()
     {
         if (promptObj != null)
@@ -304,6 +363,10 @@ public class NpcController : MonoBehaviour
         {
             promptObj.SetActive(true);
         }
+        if (interactObj != null)
+        {
+            interactObj.SetActive(true);
+        }
     }
 
     private void HidePrompt()
@@ -312,19 +375,39 @@ public class NpcController : MonoBehaviour
         {
             promptObj.SetActive(false);
         }
+        if (interactObj != null)
+        {
+            interactObj.SetActive(false);
+        }
     }
 
     private class BillboardTowardsCamera : MonoBehaviour
     {
         private Transform cameraTransform;
+        private Transform followTarget;
+        private Vector3 followOffset;
 
         public void Cache(Transform targetCamera)
         {
             cameraTransform = targetCamera;
         }
 
+        /// <summary>Optional: hang this object at a world-space offset above the given target each frame.</summary>
+        public void Follow(Transform target, Vector3 worldOffset)
+        {
+            followTarget = target;
+            followOffset = worldOffset;
+        }
+
         private void LateUpdate()
         {
+            // Keep a floating image pinned above its owner in world space, so the
+            // owner's Transform.scale never shrinks the hover height.
+            if (followTarget != null)
+            {
+                transform.position = followTarget.position + followOffset;
+            }
+
             if (cameraTransform != null)
             {
                 transform.forward = cameraTransform.forward;
