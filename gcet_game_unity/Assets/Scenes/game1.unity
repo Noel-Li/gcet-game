@@ -2349,7 +2349,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interactRange: 2.5
   promptText: Press E to talk
-  promptVerticalOffset: 1.2
+  interactSprite: {fileID: -2983803142128348173, guid: d9840369a815df6478c698adc42a790b, type: 3}
+  interactImageSize: {x: 0.3, y: 0.3}
+  promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
 --- !u!114 &200000026
@@ -3136,7 +3138,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 1171502059
-  m_SortingLayer: 7
+  m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 7cdb3fec66ce542478a9d92dc7043191, type: 3}
@@ -3147,7 +3149,7 @@ SpriteRenderer:
   m_Size: {x: 5.12, y: 5.12}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!4 &337387862
 Transform:
@@ -13771,7 +13773,7 @@ SpriteRenderer:
   m_Size: {x: 5.12, y: 5.12}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!4 &1461174516
 Transform:

@@ -24,10 +24,7 @@ public class NpcController : MonoBehaviour
     [SerializeField] private Sprite interactSprite;
 
     [Tooltip("World-space size of the displayed interact image (X/Y in local units).")]
-    [SerializeField] private Vector2 interactImageSize = new Vector2(0.6f, 0.6f);
-
-    [Tooltip("How far above the NPC the interact image hovers, in world units.")]
-    [SerializeField] private float interactImageVerticalOffset = 1.4f;
+    [SerializeField] private Vector2 interactImageSize = new Vector2(0.4f, 0.4f);
 
     [Range(0f, 3f)]
     [SerializeField] private float promptVerticalOffset = 1.2f;
@@ -260,8 +257,22 @@ public class NpcController : MonoBehaviour
     /// </summary>
     private void BuildInteractImage()
     {
-        if (interactSprite == null)
+        // Resolve the sprite: prefer the serialized reference, but if it came
+        // back null (e.g. the YAML PPtr did not survive a reload), fall back to
+        // looking the asset up by its known import GUID. This keeps the prompt
+        // working even when the serialized reference fails to deserialize.
+        Sprite resolved = interactSprite != null
+            ? interactSprite
+            : LoadInteractSprite();
+
+        if (resolved == null)
         {
+            Debug.LogError(
+                "[NpcController] interactSprite is null on " + name +
+                " — assign Assets/misc/interactE to the Interact Sprite field in the " +
+                "Inspector, or re-save the scene. No E-prompt will show.",
+                this
+            );
             return;
         }
 
@@ -270,21 +281,33 @@ public class NpcController : MonoBehaviour
             return;
         }
 
-        // Spawn at the root so the NPC's (0.3) scale does not shrink the world
-        // offset/size. The billboard child keeps it positioned above the NPC in
-        // true world units.
+        // Hang the image just above the NPC's real visual top edge, computed
+        // from its SpriteRenderer bounds. Bounding the offset to the actual head
+        // puts the prompt above the body (never in the middle) across any sprite,
+        // scale, or pivot, regardless of the NPC's 0.3 world scale.
+        SpriteRenderer npcRenderer = GetComponent<SpriteRenderer>();
+        Bounds headBounds = npcRenderer.bounds;
+        float gapAboveHead = 0.15f;
+        float imageHalfHeight = interactImageSize.y * 0.5f;
+        float worldTopY = headBounds.max.y + gapAboveHead + imageHalfHeight;
+        float offsetY = worldTopY - transform.position.y;
+
+        // Parent to the root so the NPC's scale cannot shrink the offset or image.
         interactObj = new GameObject("InteractPrompt");
         interactObj.transform.SetParent(null, false);
-        interactObj.transform.position = transform.position + Vector3.up * interactImageVerticalOffset;
-
+        interactObj.transform.position = transform.position + Vector3.up * offsetY;
         interactObj.SetActive(false);
 
         interactSpriteRenderer = interactObj.AddComponent<SpriteRenderer>();
-        interactSpriteRenderer.sprite = interactSprite;
-        interactSpriteRenderer.sortingLayerID = -1371232619;
-        interactSpriteRenderer.sortingOrder = 1;
+        interactSpriteRenderer.sprite = resolved;
+        // Sort above the NPC so the prompt is never occluded by the body.
+        interactSpriteRenderer.sortingLayerID = npcRenderer.sortingLayerID;
+        interactSpriteRenderer.sortingOrder = npcRenderer.sortingOrder + 1;
         interactSpriteRenderer.size = interactImageSize;
         interactSpriteRenderer.drawMode = SpriteDrawMode.Simple;
+        // A runtime-created SpriteRenderer has no material of its own; the URP
+        // 2D renderer draws sprites through the scene-view path, so it renders
+        // without an explicit material assignment.
 
         BillboardTowardsCamera billboard =
             interactObj.AddComponent<BillboardTowardsCamera>();
@@ -294,7 +317,42 @@ public class NpcController : MonoBehaviour
             billboard.Cache(Camera.main.transform);
         }
 
-        billboard.Follow(transform, Vector3.up * interactImageVerticalOffset);
+        billboard.Follow(transform, Vector3.up * offsetY);
+
+        Debug.Log(
+            "[NpcController] E-prompt image ready on " + name +
+            " (sprite=" + resolved.name + ", offsetY=" + offsetY.ToString("F2") + ")",
+            this
+        );
+    }
+
+    /// <summary>
+    /// Best-effort fallback that loads the interact-prompt sprite by its import
+    /// GUID when the serialized field is empty. Editor-only; returns null at
+    /// runtime in a built player (the serialized reference is the real path).
+    /// </summary>
+    private static Sprite LoadInteractSprite()
+    {
+#if UNITY_EDITOR
+        // The interact sprite is a sub-asset of a texture (spriteMode: 2), so we
+        // search for any imported asset whose name starts with "interactE" and
+        // return the first Sprite we find among it (the texture) and its sub-sprites.
+        string[] guids = UnityEditor.AssetDatabase.FindAssets("interactE");
+        foreach (string guid in guids)
+        {
+            string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+            UnityEngine.Object[] assets =
+                UnityEditor.AssetDatabase.LoadAllAssetsAtPath(path);
+            foreach (UnityEngine.Object a in assets)
+            {
+                if (a is Sprite s)
+                {
+                    return s;
+                }
+            }
+        }
+#endif
+        return null;
     }
 
     private void BuildPrompt()

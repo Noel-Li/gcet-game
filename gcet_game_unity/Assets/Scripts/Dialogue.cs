@@ -20,6 +20,10 @@ public class DialogueStep
     /// <summary>Action taken when the player advances past this line. None continues the chat; Writing launches the hanzi tracing scene; GoTop tells the player to head upstairs.</summary>
     public DialogueAction action;
 
+    [Min(1)]
+    [Tooltip("How many characters must be completed when this step launches the tracer.")]
+    public int requiredTraceCount = 1;
+
     /// <summary>Optional choices presented in place of the default click-to-advance when this step is shown. Each choice jumps to targetStep (and runs its action first, matching the action flow). When empty/null the line advances on click as before.</summary>
     [Tooltip("Player choices for this line. When set (non-empty), the player must pick one instead of clicking to advance. Each choice jumps to its targetStep.")]
     public List<DialogueChoice> choices = new List<DialogueChoice>();
@@ -39,6 +43,10 @@ public class DialogueChoice
 
     [Tooltip("Action run when the player picks this choice. None jumps straight to targetStep; Writing/GoTop run their normal action before jumping.")]
     public DialogueAction action;
+
+    [Min(1)]
+    [Tooltip("How many characters must be completed when this choice launches the tracer.")]
+    public int requiredTraceCount = 1;
 }
 
 public enum DialogueAction
@@ -79,6 +87,9 @@ public class Dialogue : MonoBehaviour
 
     public static Dialogue Instance { get; private set; }
 
+    /// <summary>True while the dialogue is showing and the player is interacting with it.</summary>
+    public bool IsOpen => open;
+
     /// <summary>Raised when the conversation ends (the player reached the final step or Close() was invoked externally). Subscribers use it to re-arm click-based triggers such as <see cref="NpcController"/>.</summary>
     public event System.Action OnClosed;
 
@@ -104,6 +115,7 @@ public class Dialogue : MonoBehaviour
     private int pendingCol;
     private int pendingRow;
     private int pendingResumeStep = -1;
+    private int pendingRequiredTraceCount = 1;
     private bool waitingInput;
 
     private void Awake()
@@ -252,6 +264,7 @@ public class Dialogue : MonoBehaviour
         {
             int resumeAt = toIndex ?? index + 1;
             pendingResumeStep = resumeAt;
+            pendingRequiredTraceCount = Mathf.Max(1, current.requiredTraceCount);
             Close();
             LaunchWriting();
             return;
@@ -283,6 +296,7 @@ public class Dialogue : MonoBehaviour
         if (choice.action == DialogueAction.Writing)
         {
             pendingResumeStep = choice.targetStep;
+            pendingRequiredTraceCount = Mathf.Max(1, choice.requiredTraceCount);
             Close();
             LaunchWriting();
             return;
@@ -318,7 +332,11 @@ public class Dialogue : MonoBehaviour
             var carrier = new GameObject("GameProgress");
             carrier.AddComponent<GameProgress>();
         }
-        GameProgress.Instance.BeginTrace(pendingCol, pendingRow, pendingResumeStep);
+        GameProgress.Instance.BeginTrace(
+            pendingCol,
+            pendingRow,
+            pendingResumeStep,
+            pendingRequiredTraceCount);
     }
 
     /// <summary>Re-enter the dialogue after the hanzi scene resolves, at the step set when the Writing line was read.</summary>

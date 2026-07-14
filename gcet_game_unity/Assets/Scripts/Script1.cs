@@ -5,10 +5,19 @@ using System.Collections.Generic;
 using TMPro;
 public class Script1 : MonoBehaviour
 {
-    /// <summary>Raised when a character is completed correctly. Subscribers include <see cref="GameProgress"/> which reloads the main scene so the conversation continues.</summary>
+    /// <summary>Raised once whenever one requested character has been completed correctly.</summary>
     public static event Action<bool> OnCharacterDone;
 
-    public CharacterData characterData;
+    [Header("Character library")]
+    [Tooltip("Add every CharacterData asset that dialogue may request.")]
+    [SerializeField] private List<CharacterData> availableCharacters = new List<CharacterData>();
+
+    [Header("Fallback for testing this scene directly")]
+    [SerializeField] private CharacterData characterData;
+
+    private readonly List<CharacterData> activeSequence = new List<CharacterData>();
+    private readonly List<GameObject> completedStrokeObjects = new List<GameObject>();
+    private int currentCharacterIndex = 0;
 
     private float hardTolerance = 0.85f;
     private float minLengthRatio = 0.55f;
@@ -36,51 +45,156 @@ public class Script1 : MonoBehaviour
 
     private int currentStrokeIndex = 0;
     private bool characterComplete = false;
+
+    private CharacterData CurrentCharacterData
+    {
+        get
+        {
+            if (activeSequence.Count > 0 &&
+                currentCharacterIndex >= 0 &&
+                currentCharacterIndex < activeSequence.Count)
+            {
+                return activeSequence[currentCharacterIndex];
+            }
+
+            return characterData;
+        }
+    }
+
     private Vector3[] targetStroke
     {
         get
         {
-            return characterData.strokes[currentStrokeIndex].points.ToArray();
+            return CurrentCharacterData.strokes[currentStrokeIndex].points.ToArray();
         }
     }
 
     void Start()
     {
-        currentStrokeIndex = 0;
-        characterComplete = false;
+        mainCamera = Camera.main;
 
-        if (characterData == null || characterData.strokes.Count == 0)
+        if (mainCamera == null)
         {
-            Debug.LogError("No character data assigned!");
+            Debug.LogError("[Script1] No Main Camera found.");
             enabled = false;
             return;
         }
-        
 
-
-        for (int i = 0; i < characterData.strokes.Count; i++)
+        if (guideLine == null || userLine == null)
         {
-            if (characterData.strokes[i].points == null || characterData.strokes[i].points.Count < 2)
+            Debug.LogError("[Script1] Guide Line and User Line must be assigned.");
+            enabled = false;
+            return;
+        }
+
+        SetupLine(guideLine, 0.12f, 0, Color.gray);
+        SetupLine(userLine, 0.10f, 10, Color.red);
+
+        if (!BuildActiveSequence())
+        {
+            enabled = false;
+            return;
+        }
+
+        currentCharacterIndex = 0;
+        LoadCurrentCharacter();
+    }
+
+    private bool BuildActiveSequence()
+    {
+        activeSequence.Clear();
+
+        int requestedCount = 1;
+        if (GameProgress.Instance != null)
+        {
+            requestedCount = Mathf.Max(1, GameProgress.Instance.RequiredTraceCount);
+        }
+
+        if (availableCharacters != null && availableCharacters.Count > 0)
+        {
+            if (availableCharacters.Count < requestedCount)
             {
-                Debug.LogError("Stroke " + (i + 1) + " does not have enough points.");
+                Debug.LogError(
+                    "[Script1] This task requires " + requestedCount +
+                    " characters, but Available Characters contains only " +
+                    availableCharacters.Count + "."
+                );
+                return false;
+            }
+
+            for (int i = 0; i < requestedCount; i++)
+            {
+                if (availableCharacters[i] == null)
+                {
+                    Debug.LogError(
+                        "[Script1] Available Characters element " + i + " is empty."
+                    );
+                    return false;
+                }
+
+                activeSequence.Add(availableCharacters[i]);
+            }
+        }
+        else if (requestedCount == 1 && characterData != null)
+        {
+            activeSequence.Add(characterData);
+        }
+
+        if (activeSequence.Count == 0)
+        {
+            Debug.LogError(
+                "[Script1] Assign the required CharacterData assets to Available Characters."
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+    private void LoadCurrentCharacter()
+    {
+        CharacterData data = CurrentCharacterData;
+
+        if (data == null || data.strokes == null || data.strokes.Count == 0)
+        {
+            Debug.LogError("[Script1] Current character has no stroke data.");
+            enabled = false;
+            return;
+        }
+
+        for (int i = 0; i < data.strokes.Count; i++)
+        {
+            if (data.strokes[i].points == null || data.strokes[i].points.Count < 2)
+            {
+                Debug.LogError(
+                    "[Script1] Stroke " + (i + 1) + " of " + data.characterName +
+                    " does not have enough points."
+                );
                 enabled = false;
                 return;
             }
         }
 
-        
+        currentStrokeIndex = 0;
+        characterComplete = false;
+        wentTooFarFromStroke = false;
+        arrowProgress = 0f;
+        userPoints.Clear();
+        guideLine.positionCount = 0;
+        userLine.positionCount = 0;
+        SetLineColor(userLine, Color.red);
 
-
-        mainCamera = Camera.main;
-
-        SetupLine(guideLine, 0.12f, 0, Color.gray);
-        SetupLine(userLine, 0.10f, 10, Color.red);
+        if (arrowTransform != null)
+        {
+            arrowTransform.gameObject.SetActive(true);
+        }
 
         DrawGuideStroke();
 
-        userLine.positionCount = 0;
-
-        Debug.Log("Step 8 started: trace 不. Stroke 1.");
+        Debug.Log(
+            "[Script1] Now tracing " + data.characterName +
+            " (" + (currentCharacterIndex + 1) + "/" + activeSequence.Count + "), stroke 1."
+        );
     }
 
     void Update()
@@ -263,31 +377,71 @@ public class Script1 : MonoBehaviour
     void MoveToNextStroke()
     {
         SaveCompletedStroke();
-
         currentStrokeIndex++;
 
-        if (currentStrokeIndex >= characterData.strokes.Count)
+        if (currentStrokeIndex >= CurrentCharacterData.strokes.Count)
         {
-            Debug.Log("Character " + characterData.characterName + " complete!");
-
-            characterComplete = true;
-            OnCharacterDone?.Invoke(true);
-
-            guideLine.positionCount = 0;
-            userLine.positionCount = 0;
-
-            if (arrowTransform != null)
-            {
-                arrowTransform.gameObject.SetActive(false);
-            }
-
+            Debug.Log(
+                "[Script1] Character " + CurrentCharacterData.characterName + " complete!"
+            );
+            MoveToNextRequestedCharacter();
             return;
         }
 
-        Debug.Log("Now trace stroke " + (currentStrokeIndex + 1));
-
+        userPoints.Clear();
         userLine.positionCount = 0;
         DrawGuideStroke();
+
+        Debug.Log(
+            "[Script1] Now trace stroke " + (currentStrokeIndex + 1) +
+            " of " + CurrentCharacterData.characterName + "."
+        );
+    }
+
+    private void MoveToNextRequestedCharacter()
+    {
+        currentCharacterIndex++;
+
+        if (currentCharacterIndex < activeSequence.Count)
+        {
+            ClearCompletedStrokes();
+            LoadCurrentCharacter();
+            OnCharacterDone?.Invoke(true);
+            return;
+        }
+
+        FinishTracingTask();
+    }
+
+    private void FinishTracingTask()
+    {
+        characterComplete = true;
+        guideLine.positionCount = 0;
+        userLine.positionCount = 0;
+
+        if (arrowTransform != null)
+        {
+            arrowTransform.gameObject.SetActive(false);
+        }
+
+        Debug.Log("[Script1] All requested characters completed.");
+        OnCharacterDone?.Invoke(true);
+    }
+
+    private void ClearCompletedStrokes()
+    {
+        for (int i = 0; i < completedStrokeObjects.Count; i++)
+        {
+            if (completedStrokeObjects[i] != null)
+            {
+                Destroy(completedStrokeObjects[i]);
+            }
+        }
+
+        completedStrokeObjects.Clear();
+        userPoints.Clear();
+        guideLine.positionCount = 0;
+        userLine.positionCount = 0;
     }
 
     float GetUserPathLength()
@@ -508,12 +662,17 @@ public class Script1 : MonoBehaviour
 
     void SaveCompletedStroke()
     {
-        GameObject completedObject = new GameObject("CompletedStroke " + (currentStrokeIndex + 1));
+        GameObject completedObject = new GameObject(
+            CurrentCharacterData.characterName +
+            "_CompletedStroke_" +
+            (currentStrokeIndex + 1)
+        );
+
+        completedObject.transform.SetParent(transform, true);
+        completedStrokeObjects.Add(completedObject);
 
         LineRenderer completedLine = completedObject.AddComponent<LineRenderer>();
-
         SetupLine(completedLine, 0.12f, 5, Color.green);
-
         completedLine.positionCount = userPoints.Count;
 
         for (int i = 0; i < userPoints.Count; i++)
@@ -522,6 +681,6 @@ public class Script1 : MonoBehaviour
         }
     }
 
-    
-    
+
+
 }
