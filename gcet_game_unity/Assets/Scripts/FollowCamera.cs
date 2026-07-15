@@ -27,6 +27,7 @@ public class FollowCamera : MonoBehaviour
     private float defaultZ;
     private Camera cam;
     private GameArea lastArea;
+    private InvisibleWall lastWall;
     private Vector2 viewportHalf;
 
     private void Reset()
@@ -92,23 +93,69 @@ public class FollowCamera : MonoBehaviour
         {
             lastArea = area;
         }
-        GameArea target = area ?? lastArea;
-        if (target == null)
+
+        // The wall sits on top of an empty cell (no Area), so when the player walks into that cell the camera must
+        // still frame it — otherwise the player walks off-screen to reach a wall that the popup can only show on-screen.
+        // A wall-governed cell acts as its own room; track it as the last valid target.
+        InvisibleWall wall = InvisibleWall.GetCellContaining(player.position);
+        if (wall != null)
         {
-            return;
+            lastWall = wall;
         }
 
+        // Decide purely on WHERE the player stands, not on the clamp result. Pin to the current room/cell if one
+        // contains them; otherwise pin to the last room/cell — but ONLY while the player is still within its bounds.
+        // The wall is a GATE, not a room to live in: once the player walks through it into a region that has no room,
+        // no area and no wall-cell contains them, so any fallback clamp would pin the camera to an old center and slide
+        // the player off-screen. In that case free-follow the player instead of pinning.
         CacheViewportHalf();
+        Vector3 clampedPos = transform.position;
+        bool pin;
 
-        // Smoothly ease toward the player, then clamp so the viewport stays inside the room. Clamping guarantees the
-        // camera can never reveal void or the next room even right up against a boundary.
+        if (area != null)
+        {
+            pin = true;
+            ClampThrough(area.ClampCamera, out clampedPos);
+        }
+        else if (wall != null)
+        {
+            pin = true;
+            ClampThrough(wall.ClampCamera, out clampedPos);
+        }
+        else if (lastArea != null && lastArea.ContainsPoint(player.position))
+        {
+            pin = true;
+            ClampThrough(lastArea.ClampCamera, out clampedPos);
+        }
+        else if (lastWall != null && lastWall.CellBounds.Contains(player.position))
+        {
+            pin = true;
+            ClampThrough(lastWall.ClampCamera, out clampedPos);
+        }
+        else
+        {
+            pin = false;
+        }
+
+        transform.position = pin ? clampedPos : DesiredUnclamped();
+    }
+
+    /// <summary>Smooth-eases toward the player then runs the supplied room/wall clamp. Used when a valid target contains the player.</summary>
+    private void ClampThrough(CameraClamp clamp, out Vector3 clamped)
+    {
         float targetX = Mathf.SmoothDamp(transform.position.x, player.position.x, ref velocityX, smoothTime);
         float targetY = Mathf.SmoothDamp(transform.position.y, player.position.y, ref velocityY, smoothTime);
-
-        Vector3 desired = new Vector3(targetX, targetY, defaultZ);
-        Vector3 clamped;
-        target.ClampCamera(viewportHalf, desired, out clamped);
-
-        transform.position = clamped;
+        clamp(viewportHalf, new Vector3(targetX, targetY, defaultZ), out clamped);
     }
+
+    /// <summary>Smooth-eases the camera toward the player with no room clamp — used once the player has left every room.</summary>
+    private Vector3 DesiredUnclamped()
+    {
+        float targetX = Mathf.SmoothDamp(transform.position.x, player.position.x, ref velocityX, smoothTime);
+        float targetY = Mathf.SmoothDamp(transform.position.y, player.position.y, ref velocityY, smoothTime);
+        return new Vector3(targetX, targetY, defaultZ);
+    }
+
+    /// <summary>A camera-clamp: pins a desired center so the viewport stays inside one room. Shared by rooms and wall cells.</summary>
+    private delegate bool CameraClamp(Vector2 viewportHalf, Vector3 center, out Vector3 clamped);
 }

@@ -76,6 +76,8 @@ public class PlayerMovement : MonoBehaviour
         pos.y += input.y * speed * Time.deltaTime;
 
         ClampToArea(pos, out pos);
+        float playerHalf = transform.localScale.x * 0.5f + 0.001f;
+        InvisibleWall.ClampPlayer(pos, playerHalf, ref pos);
         transform.position = pos;
     }
 

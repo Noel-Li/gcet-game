@@ -5,12 +5,13 @@ using UnityEngine;
 /// always fills the screen precisely (no void visible around it). The player is clamped to
 /// the Area's bounds (PlayerMovement.ClampToArea) so they can never go off-camera.
 ///
-/// Areas tile a grid by <see cref="areaCol"/>/<see cref="areaRow"/>. Movement in each direction
-/// is gated independently:
-///   - Right / Top require both an unlock flag AND a neighbour area in that direction.
-///   - Left / Bottom are existence-gated only (no neighbour = the void, always blocked).
+/// Areas tile a grid by <see cref="areaCol"/>/<see cref="areaRow"/>. Movement in each direction is
+/// gated only by whether the destination cell exists: it must hold a neighbour Area OR an
+/// <see cref="InvisibleWall">InvisibleWall</see> (whose own logic then permits or blocks passage).
+/// An empty cell is the void and is always shut. The old right/top UNLOCK flags are retired —
+/// area limits are off, and the invisible wall is now the only forward gate.
 /// The camera snaps to whichever room the player occupies, so the view always shows exactly one
-/// full Area and never a locked-off region.
+/// full Area (or wall-governed cell) and never a locked-off region.
 /// </summary>
 public class GameArea : MonoBehaviour
 {
@@ -153,21 +154,32 @@ public class GameArea : MonoBehaviour
     }
 
     /// <summary>
+    /// True if the player is allowed to leave this room toward the cell (col,row): the destination
+    /// holds a neighbour Area OR is governed by an InvisibleWall (which itself blocks/permits passage).
+    /// Retires the old right/top unlock flags — area limits are off; only the wall gates progress now.
+    /// </summary>
+    public static bool IsExitOpen(int col, int row)
+    {
+        return GetAreaAt(col, row) != null || InvisibleWall.GetWallAt(col, row) != null;
+    }
+
+    /// <summary>
     /// Clamps a player position so the player stays on-camera. Each edge is blocked unless the
-    /// player may actually leave through it: Right/Top need their unlock flag AND a neighbour;
-    /// Left/Bottom need only a neighbour (no neighbour is the void). This guarantees the player
-    /// can never walk into an empty direction or a locked room.
+    /// player may actually leave through it: the destination cell must contain a neighbour Area OR
+    /// an InvisibleWall (an empty cell is the void and stays shut). This guarantees the player can
+    /// never walk into the void; the only forward gate is the invisible wall, opened by the conversation.
     /// </summary>
     public Vector3 ClampPlayer(Vector3 pos, float playerHalf)
     {
         Bounds b = Bounds;
 
-        // An open edge lifts its wall entirely so the player may step through into the neighbour.
-        // A closed edge keeps both walls, trapping the player inside this room.
-        bool leftOpen = GetAreaAt(areaCol - 1, areaRow) != null;
-        bool rightOpen = rightExitUnlocked && GetAreaAt(areaCol + 1, areaRow) != null;
-        bool bottomOpen = GetAreaAt(areaCol, areaRow - 1) != null;
-        bool topOpen = topExitUnlocked && GetAreaAt(areaCol, areaRow + 1) != null;
+        // An open edge lifts its wall entirely so the player may step through into the neighbour
+        // (or through to a wall-governed cell, whose own InvisibleWall then decides). A closed edge
+        // is the void — the player is kept inside this room.
+        bool leftOpen = IsExitOpen(areaCol - 1, areaRow);
+        bool rightOpen = IsExitOpen(areaCol + 1, areaRow);
+        bool bottomOpen = IsExitOpen(areaCol, areaRow - 1);
+        bool topOpen = IsExitOpen(areaCol, areaRow + 1);
 
         float minX = b.min.x + playerHalf;
         float maxX = b.max.x - playerHalf;

@@ -43,6 +43,9 @@ public class NpcController : MonoBehaviour
     // Stops the post-tracing dialogue from being restored repeatedly.
     private bool resumedAfterTrace = false;
 
+    // Lets the Conversation serve the first-time exchange once, then the (Inspector-authored or default) repeat exchange.
+    private bool hasSpokenBefore = false;
+
     private Transform player;
 
     private TextMeshPro promptTextObj;
@@ -194,16 +197,18 @@ public class NpcController : MonoBehaviour
     }
 
     /// <summary>
-    /// Gives this NPC's conversation lines to the Dialogue system.
+    /// Gives this NPC's conversation lines to the Dialogue system. <paramref name="firstTime"/> selects the full
+    /// first-time exchange (default — also what the post-trace resume relies on, since its saved step index only exists there)
+    /// or the shorter repeat exchange for later visits.
     /// </summary>
-    private void InjectInto(Dialogue dialogue)
+    private void InjectInto(Dialogue dialogue, bool firstTime = true)
     {
         if (conversation == null || dialogue == null)
         {
             return;
         }
 
-        dialogue.SetSteps(conversation.GetSteps());
+        dialogue.SetSteps(conversation.GetSteps(firstTime));
     }
 
     /// <summary>
@@ -232,7 +237,8 @@ public class NpcController : MonoBehaviour
             return;
         }
 
-        InjectInto(Dialogue.Instance);
+        // First visit gets the full conversation; every later visit gets the repeat exchange.
+        InjectInto(Dialogue.Instance, firstTime: !hasSpokenBefore);
 
         // Subscribe once to the dialogue-close event.
         Dialogue.Instance.OnClosed -= OnConversationClosed;
@@ -243,11 +249,12 @@ public class NpcController : MonoBehaviour
 
     /// <summary>
     /// Called when the dialogue closes.
-    /// Allows the player to speak to the NPC again.
+    /// Allows the player to speak to the NPC again, and marks that first conversation as done so the next visit plays the repeat exchange.
     /// </summary>
     private void OnConversationClosed()
     {
         activated = false;
+        hasSpokenBefore = true;
     }
 
     /// <summary>

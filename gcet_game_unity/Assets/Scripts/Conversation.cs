@@ -8,22 +8,57 @@ using UnityEngine;
 [RequireComponent(typeof(NpcController))]
 public class Conversation : MonoBehaviour
 {
-    [Tooltip("Dialogue lines in speaking order.")]
+    [Header("Dialogue")]
+
+    [Tooltip("Dialogue lines shown the FIRST time the player talks to this NPC.")]
     [SerializeField]
     private List<DialogueStep> steps = new List<DialogueStep>();
 
+    [Tooltip("Dialogue lines shown on the SECOND and later conversations. Leave empty to use a short default 'move along' exchange.")]
+    [SerializeField]
+    private List<DialogueStep> repeatSteps = new List<DialogueStep>();
+
     /// <summary>
-    /// Uses dialogue entered in the Inspector when available.
-    /// Otherwise, it uses the default dialogue below.
+    /// Returns which conversation this is for this NPC: the full first-time exchange when <paramref name="firstTime"/> is true,
+    /// otherwise the (Inspector-authored or default) repeat exchange. Override the per-NPC dialogue by filling the lists above.
     /// </summary>
-    public List<DialogueStep> GetSteps()
+    public List<DialogueStep> GetSteps(bool firstTime = true)
     {
-        if (steps != null && steps.Count > 0)
+        if (firstTime)
         {
-            return steps;
+            if (steps != null && steps.Count > 0)
+            {
+                return steps;
+            }
+            return DefaultSteps();
         }
 
-        return DefaultSteps();
+        if (repeatSteps != null && repeatSteps.Count > 0)
+        {
+            return new List<DialogueStep>(repeatSteps);
+        }
+        return DefaultRepeatSteps();
+    }
+
+    /// <summary>Short, reusable exchange shown on repeat visits when the NPC has nothing specific to add.</summary>
+    private static List<DialogueStep> DefaultRepeatSteps()
+    {
+        return new List<DialogueStep>
+        {
+            new DialogueStep
+            {
+                speakerName = "soldier",
+                text = "Remember our talk. 继续走！(Jìxù zǒu!)\nGo on — don't keep 王喜悦 waiting.",
+                action = DialogueAction.None
+            },
+
+            new DialogueStep
+            {
+                speakerName = "player",
+                text = "好的。(Hǎo de.)",
+                action = DialogueAction.None
+            }
+        };
     }
 
     private static List<DialogueStep> DefaultSteps()

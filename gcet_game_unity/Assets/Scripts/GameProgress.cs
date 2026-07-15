@@ -37,6 +37,11 @@ public class GameProgress : MonoBehaviour
     [SerializeField] private int targetCol;
     [SerializeField] private int targetRow;
 
+    /// <summary>Grid coordinate of the invisible wall that gates forward progress until the conversation completes.
+    /// Mirrors <see cref="targetCol"/>/<see cref="targetRow"/> but for the wall, which is now the only forward gate.</summary>
+    [SerializeField] private int wallCol = 1;
+    [SerializeField] private int wallRow = 1;
+
     /// <summary>Set the moment the hanzi tracer finishes a character correctly.</summary>
     public bool tracePassed { get; private set; }
 
@@ -110,18 +115,45 @@ public class GameProgress : MonoBehaviour
         SceneManager.LoadScene(mainSceneName);
     }
 
-    /// <summary>Flips the NPC's forward exit once the main scene has reloaded and its Areas are registered.</summary>
+    /// <summary>Flips the forward gate once the main scene has reloaded and its Areas are registered.
+    /// Area exits are open now, so the only thing sealing the way ahead is the invisible wall — unlock it.</summary>
     private void ApplyForwardUnlock()
     {
         if (!tracePassed)
         {
             return;
         }
-        GameArea area = GameArea.GetAreaAt(targetCol, targetRow);
-        if (area != null)
+        InvisibleWall.UnlockWallAt(wallCol, wallRow);
+    }
+
+    /// <summary>Ensures the invisible wall governing forward progress exists in the main scene. It is an invisible,
+    /// non-persistent GameObject, so it is rebuilt whenever (re)entering the main scene — exactly like the dialogue.</summary>
+    private void EnsureWallBootstrap()
+    {
+        if (InvisibleWall.GetWallAt(wallCol, wallRow) != null)
         {
-            area.UnlockTopExit();
+            return;
         }
+        var wallObj = new GameObject($"InvisibleWall_{wallCol}_{wallRow}");
+        var wall = wallObj.AddComponent<InvisibleWall>();
+        wall.Col = wallCol;
+        wall.Row = wallRow;
+    }
+
+    /// <summary>
+    /// The invisible wall is bootstrapped from <see cref="OnSceneLoaded"/>, so <see cref="GameProgress"/> must exist before the
+    /// main scene finishes loading — but it is otherwise only created on the conversation's writing step. Create it here at
+    /// startup (inert until a trace begins) so the wall — and the door into its cell — exist from the first frame.
+    /// </summary>
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void AutoCreate()
+    {
+        if (Instance != null)
+        {
+            return;
+        }
+        var carrier = new GameObject("GameProgress");
+        carrier.AddComponent<GameProgress>();
     }
 
     private void Awake()
@@ -151,7 +183,8 @@ public class GameProgress : MonoBehaviour
         if (scene.name == mainSceneName)
         {
             // Run first so the fresh Player exists at its (default) position before we restore the
-            // pre-trace position onto it.
+            // pre-trace position onto it — and bootstrap the (non-persistent) invisible wall before either.
+            EnsureWallBootstrap();
             ApplyForwardUnlock();
             ApplySavedPlayerPosition();
         }
