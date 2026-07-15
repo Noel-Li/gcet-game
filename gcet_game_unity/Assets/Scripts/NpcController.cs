@@ -204,6 +204,7 @@ public class NpcController : MonoBehaviour
         }
 
         dialogue.SetSteps(conversation.GetSteps());
+        dialogue.SetPortrait(conversation.GetPortrait());
     }
 
     /// <summary>

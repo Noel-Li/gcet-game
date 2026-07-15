@@ -57,8 +57,8 @@ public enum DialogueAction
 }
 
 /// <summary>
-/// A click-to-advance in-game dialogue, not a popup. Renders as a black square panel pinned to the top of the screen: a
-/// square character portrait on the left, a speaker name tag, and large white text with a black outline that grows to fit
+/// A click-to-advance in-game dialogue, not a popup. Renders as a compact black panel along the bottom of the screen, with
+/// character art beside it, a speaker name tag, and large white text with a black outline that grows to fit
 /// its content, all reading purely horizontal. Non-diegetic UI (an overlay the player reads) shown through a runtime-built
 /// TMP Canvas so it needs no hand-authored Prefab/EventSystem wiring. Advancing reads the mouse or Enter/Space, matching
 /// the NPC's existing click-driven interaction.
@@ -94,7 +94,8 @@ public class Dialogue : MonoBehaviour
     public event System.Action OnClosed;
 
     // Layout constants in panel-local pixels (the panel is positioned in anchored screen space; children use fixed local rects).
-    private const float PortraitSize = 160f;
+    private const float PortraitWidth = 190f;
+    private const float PortraitHeight = 250f;
     private const float NameHeight = 52f;
     private const float Pad = 24f;
     private const float OuterMargin = 24f;
@@ -141,6 +142,12 @@ public class Dialogue : MonoBehaviour
     public void SetSteps(List<DialogueStep> newSteps)
     {
         steps = newSteps != null ? new List<DialogueStep>(newSteps) : new List<DialogueStep>();
+    }
+
+    /// <summary>Sets the current speaker art. Kept separate from the dialogue lines so expressions can be swapped later.</summary>
+    public void SetPortrait(Sprite newPortrait)
+    {
+        portrait = newPortrait;
     }
 
     /// <summary>Open the dialogue over the room (col,row) that gates progress, starting from the first line.</summary>
@@ -381,7 +388,7 @@ public class Dialogue : MonoBehaviour
         nameTag.text = speakerName;
         body.text = step.text;
 
-        // Decide layout mode: with a portrait reserve a square on the left; without one use the full width.
+        // Portrait art sits beside the black panel rather than inside it, so it never steals text space.
         bool hasPortrait = portrait != null;
         nameTag.gameObject.SetActive(true);
         body.gameObject.SetActive(true);
@@ -409,11 +416,12 @@ public class Dialogue : MonoBehaviour
         // letting the panel grow off-screen (the original overflow bug), we choose a content width first, force TMP to
         // wrap to it, then read the wrapped height and size the panel to fit -- constrained to the screen.
         float screenW = Screen.width > 0 ? Screen.width : 1280f;
-        float maxWidthUnits = screenW - OuterMargin * 2f;
-        float maxContentWidth = Mathf.Max(120f, maxWidthUnits - Pad * 2f - (hasPortrait ? PortraitSize + Pad : 0f));
+        float portraitSpace = hasPortrait ? PortraitWidth + Pad : 0f;
+        float maxWidthUnits = screenW - OuterMargin * 2f - portraitSpace;
+        float maxContentWidth = Mathf.Max(120f, maxWidthUnits - Pad * 2f);
 
         // Give body a fixed width first; TMP then reports the height needed to wrap the text to that width.
-        float contentLeft = hasPortrait ? PortraitSize + Pad : 0f;
+        float contentLeft = 0f;
         var br = body.GetComponent<RectTransform>();
         br.sizeDelta = new Vector2(maxContentWidth, 0f);
         body.ForceMeshUpdate(true);
@@ -430,26 +438,25 @@ public class Dialogue : MonoBehaviour
         nameTag.ForceMeshUpdate(true);
         Canvas.ForceUpdateCanvases();
 
-        float panelWidth = bodyW + Pad * 2f + (hasPortrait ? PortraitSize + Pad : 0f);
+        float panelWidth = bodyW + Pad * 2f;
         panelWidth = UnityEngine.Mathf.Max(panelWidth, minWidth);
         panelWidth = UnityEngine.Mathf.Min(panelWidth, maxWidthUnits);
 
         // Reserve room at the top of the panel for the choice rows, then the standard name+body layout beneath them. Panel height still clamps to the configured fraction of the screen (the choices simply share that budget).
         float panelHeight = Pad + choicesHeight + Pad + NameHeight + Pad + bodyH + Pad;
-        panelHeight = UnityEngine.Mathf.Max(panelHeight, PortraitSize + Pad * 2f);
         panelHeight = UnityEngine.Mathf.Min(panelHeight, Screen.height > 0 ? Screen.height * maxHeightFraction : 400f);
 
         if (panel != null)
         {
             panel.sizeDelta = new Vector2(panelWidth, panelHeight);
+            panel.anchoredPosition = new Vector2(OuterMargin + portraitSpace, OuterMargin);
         }
 
         if (portraitImage != null)
         {
-            // Top-left anchored: the rectangle occupies down/right from its anchored point.
             var pr = portraitImage.GetComponent<RectTransform>();
-            pr.anchoredPosition = new Vector2(Pad, -Pad);
-            pr.sizeDelta = new Vector2(PortraitSize, PortraitSize);
+            pr.anchoredPosition = new Vector2(OuterMargin, OuterMargin);
+            pr.sizeDelta = new Vector2(PortraitWidth, PortraitHeight);
         }
 
         // Choices are laid first from the panel top (closest to the screen edge). Name tag sits just below them, body below the name tag.
@@ -495,11 +502,11 @@ public class Dialogue : MonoBehaviour
         }
 
         // The space available for choices is the wider panel-width minus horizontal padding. Sit choices inside the same column as the name tag/body so they line up.
-        bool hasPortrait = portrait != null;
         float screenW = Screen.width > 0 ? Screen.width : 1280f;
-        float maxWidthUnits = screenW - OuterMargin * 2f;
-        float contentW = UnityEngine.Mathf.Max(120f, maxWidthUnits - Pad * 2f - (hasPortrait ? PortraitSize + Pad : 0f));
-        float contentLeft = hasPortrait ? PortraitSize + Pad : 0f;
+        float portraitSpace = portrait != null ? PortraitWidth + Pad : 0f;
+        float maxWidthUnits = screenW - OuterMargin * 2f - portraitSpace;
+        float contentW = UnityEngine.Mathf.Max(120f, maxWidthUnits - Pad * 2f);
+        float contentLeft = 0f;
 
         float maxChoiceWidth = contentW;
         float padBetween = 8f;
@@ -662,7 +669,7 @@ public class Dialogue : MonoBehaviour
         canvasRect.offsetMin = Vector2.zero;
         canvasRect.offsetMax = Vector2.zero;
 
-        // Panel: a fixed-position black square pinned to the top-left of the screen. Its children are positioned in its
+        // Panel: a fixed-position black box along the bottom. Its children are positioned in its
         // local space inside RenderCurrent().
         var panelObj = new GameObject("Panel");
         panelObj.transform.SetParent(canvasObj.transform, false);
@@ -670,10 +677,10 @@ public class Dialogue : MonoBehaviour
         panelImage = panelObj.AddComponent<Image>();
         panelImage.sprite = SolidSprite();
         panelImage.color = panelColor;
-        panel.anchorMin = new Vector2(0f, 1f);
-        panel.anchorMax = new Vector2(0f, 1f);
-        panel.pivot = new Vector2(0f, 1f);
-        panel.anchoredPosition = new Vector2(OuterMargin, -OuterMargin);
+        panel.anchorMin = new Vector2(0f, 0f);
+        panel.anchorMax = new Vector2(0f, 0f);
+        panel.pivot = new Vector2(0f, 0f);
+        panel.anchoredPosition = new Vector2(OuterMargin, OuterMargin);
         panel.sizeDelta = Vector2.zero;
         panelImage.raycastTarget = false;
 
@@ -681,16 +688,16 @@ public class Dialogue : MonoBehaviour
         // panel's height clamp would render outside the black box. The panel carries an Image, which RectMask2D needs.
         panelObj.AddComponent<RectMask2D>();
 
-        // Portrait is created whether or not one is set; hidden per-step when the active speaker has none. Top-left anchored
-        // like the rest so its panel-local positions match the others.
+        // Portrait is a Canvas sibling, not a panel child: the black background never covers it and the art is not clipped.
         var portraitObj = new GameObject("Portrait");
-        portraitObj.transform.SetParent(panelObj.transform, false);
+        portraitObj.transform.SetParent(canvasObj.transform, false);
         portraitImage = portraitObj.AddComponent<Image>();
         portraitImage.raycastTarget = false;
+        portraitImage.preserveAspect = true;
         var prt = portraitImage.GetComponent<RectTransform>();
-        prt.anchorMin = new Vector2(0f, 1f);
-        prt.anchorMax = new Vector2(0f, 1f);
-        prt.pivot = new Vector2(0f, 1f);
+        prt.anchorMin = new Vector2(0f, 0f);
+        prt.anchorMax = new Vector2(0f, 0f);
+        prt.pivot = new Vector2(0f, 0f);
         prt.anchoredPosition = Vector2.zero;
         prt.sizeDelta = Vector2.zero;
 

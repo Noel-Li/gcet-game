@@ -8,6 +8,11 @@ using UnityEngine;
 [RequireComponent(typeof(NpcController))]
 public class Conversation : MonoBehaviour
 {
+    [Header("Speaker presentation")]
+    [Tooltip("Portrait shown beside this NPC's dialogue box. This can be replaced with expression-specific art later.")]
+    [SerializeField] private Sprite portrait;
+
+    [Header("Dialogue")]
     [Tooltip("Dialogue lines in speaking order.")]
     [SerializeField]
     private List<DialogueStep> steps = new List<DialogueStep>();
@@ -24,6 +29,11 @@ public class Conversation : MonoBehaviour
         }
 
         return DefaultSteps();
+    }
+
+    public Sprite GetPortrait()
+    {
+        return portrait;
     }
 
     private static List<DialogueStep> DefaultSteps()
@@ -69,13 +79,8 @@ public class Conversation : MonoBehaviour
                 action = DialogueAction.None
             },
 
-            // Step 3
-            new DialogueStep
-            {
-                speakerName = "soldier",
-                text = "What is the purpose of you being here?",
-                action = DialogueAction.None
-            },
+           
+            
 
             // =========================================================
             // FIRST TRANSLATION QUESTION

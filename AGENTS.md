@@ -95,6 +95,7 @@ Explicit cell list `{(cx,cy,index)}`:
 
 ### Other scenes
 
+- **`game1.unity`** — the current playable scene. Its NPC `Conversation` component is wired to `character_img/soldierMain.PNG` as the default dialogue portrait; `Dialogue` builds a bottom-screen black text panel with that portrait beside it at runtime.
 - **`SampleScene.unity`** — the playable scene: `Player` (`PlayerMovement` + `ColorSprite`), Areas/Regions (`GameArea`/`GameRegion`), `NPC`, `FollowCamera`. See README for wiring. Has its **own copy** of the wall sprite reused on the Player/Area/Camera sprite renderers (guards in the detection scripts filter on `TX Tileset Wall` name prefix, not just the sprite).
 - **`background.unity`**, **`hanzi tracing base.unity`** — separate; see their own hierarchy.
 
