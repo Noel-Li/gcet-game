@@ -209,6 +209,11 @@ public class NpcController : MonoBehaviour
         }
 
         dialogue.SetSteps(conversation.GetSteps(firstTime));
+        dialogue.SetSpeakerBackgrounds(conversation.GetSpeakerBackgrounds());
+        dialogue.SetSpeakerPortraits(conversation.GetSpeakerPortraits());
+        dialogue.SetAuxiliaryPanelBackgrounds(
+            conversation.GetGameVoiceBackground(),
+            conversation.GetMultipleChoiceBackground());
     }
 
     /// <summary>

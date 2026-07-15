@@ -2228,9 +2228,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c8221bfa6541bd4f86e75a52582cc80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Conversation
-  portrait: {fileID: 8889751883436875671, guid: 91c1b18b9d763ab4396d9b8c3aa349f2, type: 3}
   steps: []
   repeatSteps: []
+  speakerBackgrounds:
+  - speakerName: player
+    background: {fileID: 5026058822647386680, guid: 90632d7d2df81e34cb10bd441244ebb5, type: 3}
+  - speakerName: soldier
+    background: {fileID: -3455137392175450448, guid: 3e2e77e6ee131f0498686baff89fc13b, type: 3}
+  speakerPortraits:
+  - speakerName: player
+    expression: normal
+    portrait: {fileID: 367173573683222419, guid: 6eafc250f344d7848bb41726d712aa81, type: 3}
+  - speakerName: player
+    expression: confused
+    portrait: {fileID: -196453758366477838, guid: d99d95ba23aa5544f810e2700b8f14e1, type: 3}
+  - speakerName: player
+    expression: excited
+    portrait: {fileID: 7377018004420343006, guid: aeeb714301957a540aa0c83917ba04b8, type: 3}
+  - speakerName: player
+    expression: worried
+    portrait: {fileID: 6055673445537903171, guid: 955bf497ff0fea848accd9a03062b402, type: 3}
+  - speakerName: soldier
+    expression: normal
+    portrait: {fileID: 8889751883436875671, guid: 91c1b18b9d763ab4396d9b8c3aa349f2, type: 3}
+  - speakerName: soldier
+    expression: confused
+    portrait: {fileID: -1527613631952655527, guid: c2e13064d5e0f2c4b93373a8c3a3770d, type: 3}
+  - speakerName: soldier
+    expression: surprised
+    portrait: {fileID: -5182312528558031716, guid: 52d0edefabf453048ae9329f966b5161, type: 3}
+  - speakerName: soldier
+    expression: stern
+    portrait: {fileID: 8889751883436875671, guid: 91c1b18b9d763ab4396d9b8c3aa349f2, type: 3}
+  gameVoiceBackground: {fileID: 8702785369876850875, guid: 6183e110186ac8a42bad440dacedf15a, type: 3}
+  multipleChoiceBackground: {fileID: -9018818332010216090, guid: dd1d2b4546a5cb34a817cf814d3cecf5, type: 3}
 --- !u!50 &200000027
 Rigidbody2D:
   serializedVersion: 5

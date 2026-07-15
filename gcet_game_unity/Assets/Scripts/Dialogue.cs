@@ -14,11 +14,20 @@ public class DialogueStep
     [Tooltip("Who says this line. The speaker name shown in the name-tag; defaults to the global NPC/Player name when empty.")]
     public string speakerName;
 
+    [Tooltip("Portrait expression key for this line, such as normal, confused, excited, surprised, worried, or stern.")]
+    public string expression = "normal";
+
+    [Tooltip("Speaker uses the character frame; GameVoice uses the yellow narrator/instruction frame.")]
+    public DialoguePanelStyle panelStyle = DialoguePanelStyle.Speaker;
+
     [TextArea(2, 4)]
     public string text;
 
     /// <summary>Action taken when the player advances past this line. None continues the chat; Writing launches the hanzi tracing scene; GoTop tells the player to head upstairs.</summary>
     public DialogueAction action;
+
+    [Tooltip("Optional step to open on normal click-to-advance. Leave at -1 to continue to the next list item.")]
+    public int nextStep = -1;
 
     [Min(1)]
     [Tooltip("How many characters must be completed when this step launches the tracer.")]
@@ -27,6 +36,9 @@ public class DialogueStep
     /// <summary>Optional choices presented in place of the default click-to-advance when this step is shown. Each choice jumps to targetStep (and runs its action first, matching the action flow). When empty/null the line advances on click as before.</summary>
     [Tooltip("Player choices for this line. When set (non-empty), the player must pick one instead of clicking to advance. Each choice jumps to its targetStep.")]
     public List<DialogueChoice> choices = new List<DialogueChoice>();
+
+    [Tooltip("Show choices in the dedicated bottom-right Multiple Choice frame. Leave off for an inline action such as Start Tracing.")]
+    public bool useMultipleChoicePanel;
 }
 
 /// <summary>
@@ -49,6 +61,32 @@ public class DialogueChoice
     public int requiredTraceCount = 1;
 }
 
+/// <summary>Inspector-authored panel art for one dialogue speaker.</summary>
+[System.Serializable]
+public class SpeakerDialogueBackground
+{
+    [Tooltip("Speaker name matched against DialogueStep.speakerName (case-insensitive).")]
+    public string speakerName;
+
+    [Tooltip("Complete dialogue-frame artwork for this speaker.")]
+    public Sprite background;
+}
+
+/// <summary>Inspector-authored portrait for one speaker and expression.</summary>
+[System.Serializable]
+public class SpeakerDialoguePortrait
+{
+    public string speakerName;
+    public string expression = "normal";
+    public Sprite portrait;
+}
+
+public enum DialoguePanelStyle
+{
+    Speaker,
+    GameVoice
+}
+
 public enum DialogueAction
 {
     None,
@@ -57,9 +95,8 @@ public enum DialogueAction
 }
 
 /// <summary>
-/// A click-to-advance in-game dialogue, not a popup. Renders as a compact black panel along the bottom of the screen, with
-/// character art beside it, a speaker name tag, and large white text with a black outline that grows to fit
-/// its content, all reading purely horizontal. Non-diegetic UI (an overlay the player reads) shown through a runtime-built
+/// A click-to-advance in-game dialogue, not a popup. Renders speaker-specific dialogue-frame art along the bottom of the
+/// screen, with readable text in the frame's content area. Non-diegetic UI (an overlay the player reads) shown through a runtime-built
 /// TMP Canvas so it needs no hand-authored Prefab/EventSystem wiring. Advancing reads the mouse or Enter/Space, matching
 /// the NPC's existing click-driven interaction.
 ///
@@ -76,10 +113,27 @@ public class Dialogue : MonoBehaviour
     [Header("Portrait (optional)")]
     [SerializeField] private Sprite portrait;
 
+    [Header("Speaker backgrounds")]
+    [Tooltip("Panel artwork selected by DialogueStep.speakerName.")]
+    [SerializeField] private List<SpeakerDialogueBackground> speakerBackgrounds = new List<SpeakerDialogueBackground>();
+
+    [Header("Speaker portraits")]
+    [Tooltip("Portrait selected by the current line's speakerName and expression.")]
+    [SerializeField] private List<SpeakerDialoguePortrait> speakerPortraits = new List<SpeakerDialoguePortrait>();
+
+    [Header("Auxiliary panels")]
+    [SerializeField] private Sprite gameVoiceBackground;
+    [SerializeField] private Sprite multipleChoiceBackground;
+
     [Header("Panel look")]
     [SerializeField] private Color panelColor = new Color(0f, 0f, 0f, 1f);
     [SerializeField] private Color textColor = Color.white;
-    [SerializeField] private float fontSize = 24f;
+    [Tooltip("Text color used over the light speaker-frame artwork.")]
+    [SerializeField] private Color speakerBackgroundTextColor = new Color(0.08f, 0.08f, 0.1f, 1f);
+    [Tooltip("Base size used for long dialogue lines.")]
+    [SerializeField] private float fontSize = 26f;
+    [Tooltip("Largest size used for short prompts and answers.")]
+    [SerializeField] private float shortLineFontSize = 32f;
     [SerializeField] private float outlineWidth = 0.14f;
     [Range(0.1f, 0.8f)]
     [SerializeField] private float maxHeightFraction = 0.45f;
@@ -93,16 +147,20 @@ public class Dialogue : MonoBehaviour
     /// <summary>Raised when the conversation ends (the player reached the final step or Close() was invoked externally). Subscribers use it to re-arm click-based triggers such as <see cref="NpcController"/>.</summary>
     public event System.Action OnClosed;
 
-    // Layout constants in panel-local pixels (the panel is positioned in anchored screen space; children use fixed local rects).
-    private const float PortraitWidth = 190f;
-    private const float PortraitHeight = 250f;
-    private const float NameHeight = 52f;
-    private const float Pad = 24f;
+    // The authored dialogue frames are 700x211. Keep that aspect ratio and reserve the left 28% for the frame's
+    // built-in portrait/name treatment; dialogue content belongs in the open area to its right.
+    private const float BackgroundAspect = 700f / 211f;
+    private const float MaxPanelWidth = 1000f;
+    private const float ContentLeftFraction = 0.28f;
+    private const float Pad = 18f;
     private const float OuterMargin = 24f;
 
     private Canvas canvas;
     private RectTransform panel;
     private Image panelImage;
+    private RectTransform choicePanel;
+    private Image choicePanelImage;
+    private Sprite fallbackPanelSprite;
     private Image portraitImage;
     private TextMeshProUGUI nameTag;
     private TextMeshProUGUI body;
@@ -142,6 +200,27 @@ public class Dialogue : MonoBehaviour
     public void SetSteps(List<DialogueStep> newSteps)
     {
         steps = newSteps != null ? new List<DialogueStep>(newSteps) : new List<DialogueStep>();
+    }
+
+    /// <summary>Supplies the reusable speaker-to-frame mapping authored on the NPC's Conversation component.</summary>
+    public void SetSpeakerBackgrounds(List<SpeakerDialogueBackground> newBackgrounds)
+    {
+        speakerBackgrounds = newBackgrounds != null
+            ? new List<SpeakerDialogueBackground>(newBackgrounds)
+            : new List<SpeakerDialogueBackground>();
+    }
+
+    public void SetSpeakerPortraits(List<SpeakerDialoguePortrait> newPortraits)
+    {
+        speakerPortraits = newPortraits != null
+            ? new List<SpeakerDialoguePortrait>(newPortraits)
+            : new List<SpeakerDialoguePortrait>();
+    }
+
+    public void SetAuxiliaryPanelBackgrounds(Sprite gameVoice, Sprite multipleChoice)
+    {
+        gameVoiceBackground = gameVoice;
+        multipleChoiceBackground = multipleChoice;
     }
 
     /// <summary>Sets the current speaker art. Kept separate from the dialogue lines so expressions can be swapped later.</summary>
@@ -258,7 +337,7 @@ public class Dialogue : MonoBehaviour
 
     private void Advance()
     {
-        Advance(toIndex: index + 1);
+        Advance(toIndex: null);
     }
 
     /// <summary>Advance (or, when skipping action handling, directly jump) to a concrete step index.</summary>
@@ -269,7 +348,7 @@ public class Dialogue : MonoBehaviour
         // Writing / GoTop fire their action exactly once — when leaving the line — no matter how we reach the next step. This keeps the "hands off to the hanzi scene then resume" flow correct whether the player clicked through normally or a Writing choice redirected them.
         if (current.action == DialogueAction.Writing)
         {
-            int resumeAt = toIndex ?? index + 1;
+            int resumeAt = toIndex ?? (current.nextStep >= 0 ? current.nextStep : index + 1);
             pendingResumeStep = resumeAt;
             pendingRequiredTraceCount = Mathf.Max(1, current.requiredTraceCount);
             Close();
@@ -277,7 +356,7 @@ public class Dialogue : MonoBehaviour
             return;
         }
 
-        int target = toIndex ?? (index + 1);
+        int target = toIndex ?? (current.nextStep >= 0 ? current.nextStep : index + 1);
         if (target >= steps.Count)
         {
             Close();
@@ -385,90 +464,131 @@ public class Dialogue : MonoBehaviour
         // fall back to a neutral name rather than rendering a blank tag.
         string speakerName = !string.IsNullOrEmpty(step.speakerName) ? step.speakerName : "???";
 
+        bool isGameVoice = step.panelStyle == DialoguePanelStyle.GameVoice;
+        bool hasChoices = step.choices != null && step.choices.Count > 0;
+        bool usesSeparateChoicePanel = hasChoices && step.useMultipleChoicePanel;
+        Sprite background = isGameVoice ? ResolveGameVoiceBackground() : FindBackground(speakerName);
+        Sprite currentPortrait = FindPortrait(speakerName, step.expression);
+        bool hasPanelArtwork = background != null;
+        bool hasSpeakerBackground = !isGameVoice && hasPanelArtwork;
+        bool hasPortrait = !isGameVoice && currentPortrait != null;
+
         nameTag.text = speakerName;
         body.text = step.text;
-
-        // Portrait art sits beside the black panel rather than inside it, so it never steals text space.
-        bool hasPortrait = portrait != null;
-        nameTag.gameObject.SetActive(true);
+        body.color = hasPanelArtwork ? speakerBackgroundTextColor : textColor;
+        nameTag.gameObject.SetActive(!isGameVoice && !hasSpeakerBackground);
         body.gameObject.SetActive(true);
-        if (portraitImage != null)
+
+        float screenW = Screen.width > 0 ? Screen.width : 1280f;
+        float screenH = Screen.height > 0 ? Screen.height : 720f;
+        float availableWidth = usesSeparateChoicePanel
+            ? (screenW - OuterMargin * 3f) * 0.5f
+            : screenW - OuterMargin * 2f;
+        float panelWidth = Mathf.Max(minWidth, Mathf.Min(MaxPanelWidth, availableWidth));
+        float panelHeight = panelWidth / BackgroundAspect;
+        float maxPanelHeight = screenH * maxHeightFraction;
+        if (panelHeight > maxPanelHeight)
         {
-            portraitImage.sprite = portrait;
-            portraitImage.enabled = hasPortrait;
+            panelHeight = maxPanelHeight;
+            panelWidth = panelHeight * BackgroundAspect;
         }
 
-        // Repaint the existing texts and rebuild meshes so layout is current before we measure.
+        panel.sizeDelta = new Vector2(panelWidth, panelHeight);
+        panel.anchoredPosition = new Vector2(OuterMargin, OuterMargin);
+
         if (panelImage != null)
         {
+            panelImage.sprite = hasPanelArtwork ? background : fallbackPanelSprite;
+            panelImage.color = hasPanelArtwork ? Color.white : panelColor;
             panelImage.SetAllDirty();
             panelImage.SetVerticesDirty();
         }
-        nameTag.ForceMeshUpdate(true);
-        body.ForceMeshUpdate(true);
-        Canvas.ForceUpdateCanvases();
 
-        // Choices (if any). This is done first because adding rows changes the space the body can occupy, so we measure the body area *after* laying out the choices above it. Each choice is one clickable TMP row; we record its screen-space raycast rect for the Update hit-test.
-        TearDownChoices();
-        float choicesHeight = LayoutChoices(step);
-
-        // TMP only wraps text once the field has a FIXED width. So instead of measuring the full unwrapped line and
-        // letting the panel grow off-screen (the original overflow bug), we choose a content width first, force TMP to
-        // wrap to it, then read the wrapped height and size the panel to fit -- constrained to the screen.
-        float screenW = Screen.width > 0 ? Screen.width : 1280f;
-        float portraitSpace = hasPortrait ? PortraitWidth + Pad : 0f;
-        float maxWidthUnits = screenW - OuterMargin * 2f - portraitSpace;
-        float maxContentWidth = Mathf.Max(120f, maxWidthUnits - Pad * 2f);
-
-        // Give body a fixed width first; TMP then reports the height needed to wrap the text to that width.
-        float contentLeft = 0f;
-        var br = body.GetComponent<RectTransform>();
-        br.sizeDelta = new Vector2(maxContentWidth, 0f);
-        body.ForceMeshUpdate(true);
-        Canvas.ForceUpdateCanvases();
-        float bodyW = maxContentWidth;
-        float bodyH = UnityEngine.Mathf.Max(body.preferredHeight, 1f);
-        // Drive the rect height from the measurement so TMP glyphs never render with a stale/zero-sized rect (the original
-        // overflow "text outside the box" symptom). The panel mask clips anything that still exceeds the panel's own clamp.
-        br.sizeDelta = new Vector2(maxContentWidth, bodyH);
-
-        // Name tag width matches content too (it wraps within the same bounded width).
-        var nr = nameTag.GetComponent<RectTransform>();
-        nr.sizeDelta = new Vector2(maxContentWidth, NameHeight);
-        nameTag.ForceMeshUpdate(true);
-        Canvas.ForceUpdateCanvases();
-
-        float panelWidth = bodyW + Pad * 2f;
-        panelWidth = UnityEngine.Mathf.Max(panelWidth, minWidth);
-        panelWidth = UnityEngine.Mathf.Min(panelWidth, maxWidthUnits);
-
-        // Reserve room at the top of the panel for the choice rows, then the standard name+body layout beneath them. Panel height still clamps to the configured fraction of the screen (the choices simply share that budget).
-        float panelHeight = Pad + choicesHeight + Pad + NameHeight + Pad + bodyH + Pad;
-        panelHeight = UnityEngine.Mathf.Min(panelHeight, Screen.height > 0 ? Screen.height * maxHeightFraction : 400f);
-
-        if (panel != null)
-        {
-            panel.sizeDelta = new Vector2(panelWidth, panelHeight);
-            panel.anchoredPosition = new Vector2(OuterMargin + portraitSpace, OuterMargin);
-        }
-
+        // The supplied artwork includes a portrait window. Keep optional portrait art inside that window instead of
+        // reserving a separate box beside the panel.
         if (portraitImage != null)
         {
+            portraitImage.sprite = currentPortrait;
+            portraitImage.enabled = hasPortrait;
             var pr = portraitImage.GetComponent<RectTransform>();
-            pr.anchoredPosition = new Vector2(OuterMargin, OuterMargin);
-            pr.sizeDelta = new Vector2(PortraitWidth, PortraitHeight);
+            pr.anchoredPosition = panel.anchoredPosition + new Vector2(panelWidth * 0.047f, panelHeight * 0.284f);
+            pr.sizeDelta = new Vector2(panelWidth * 0.216f, panelHeight * 0.483f);
         }
 
-        // Choices are laid first from the panel top (closest to the screen edge). Name tag sits just below them, body below the name tag.
-        float choiceBlockOffset = Pad;
-        float nameOffsetY = Pad + choicesHeight + Pad;
-        float bodyOffsetY = Pad + choicesHeight + Pad + NameHeight + Pad;
+        float contentLeft = hasSpeakerBackground ? panelWidth * ContentLeftFraction : Pad;
+        float contentWidth = Mathf.Max(120f, panelWidth - contentLeft - Pad);
+        float bodyOffsetY = Pad;
 
-        // Position each choice row inside the panel (stacking downward). We already sized each row w  RF measuring its preferredHeight, so re-position them in a pass now that the panel height is final.
-        PositionChoiceRows(choiceBlockOffset);
+        var nr = nameTag.GetComponent<RectTransform>();
+        if (!hasSpeakerBackground)
+        {
+            const float fallbackNameHeight = 36f;
+            nr.sizeDelta = new Vector2(contentWidth, fallbackNameHeight);
+            nr.anchoredPosition = new Vector2(contentLeft, -Pad);
+            bodyOffsetY += fallbackNameHeight + 6f;
+            nameTag.ForceMeshUpdate(true);
+        }
 
-        nr.anchoredPosition = new Vector2(contentLeft + Pad, -nameOffsetY);
-        br.anchoredPosition = new Vector2(contentLeft + Pad, -bodyOffsetY);
+        // Give TMP a fixed width before measuring so dialogue wraps inside the artwork's open right-hand area.
+        var br = body.GetComponent<RectTransform>();
+        body.fontSize = ResponsiveFontSize(step.text);
+        body.alignment = TextAlignmentOptions.Center;
+        br.sizeDelta = new Vector2(contentWidth, 0f);
+        br.anchoredPosition = new Vector2(contentLeft, -bodyOffsetY);
+        body.ForceMeshUpdate(true);
+        Canvas.ForceUpdateCanvases();
+        float bodyH = Mathf.Max(body.preferredHeight, 1f);
+        br.sizeDelta = new Vector2(contentWidth, bodyH);
+        br.anchoredPosition = new Vector2(
+            contentLeft,
+            -Mathf.Max(Pad, (panelHeight - bodyH) * 0.5f));
+
+        TearDownChoices();
+        if (choicePanel != null)
+        {
+            choicePanel.gameObject.SetActive(usesSeparateChoicePanel);
+        }
+
+        if (usesSeparateChoicePanel && choicePanel != null)
+        {
+            choicePanel.sizeDelta = new Vector2(panelWidth, panelHeight);
+            choicePanel.anchoredPosition = new Vector2(screenW - OuterMargin - panelWidth, OuterMargin);
+
+            Sprite choiceBackground = ResolveMultipleChoiceBackground();
+            choicePanelImage.sprite = choiceBackground != null ? choiceBackground : fallbackPanelSprite;
+            choicePanelImage.color = choiceBackground != null ? Color.white : panelColor;
+            choicePanelImage.SetAllDirty();
+
+            float choiceHeight = LayoutChoices(
+                step,
+                choicePanel,
+                Pad,
+                Mathf.Max(120f, panelWidth - Pad * 2f),
+                0f,
+                choiceBackground != null
+                    ? speakerBackgroundTextColor
+                    : new Color(0.95f, 0.95f, 1f, 1f));
+            PositionChoiceRows(Mathf.Max(Pad, (panelHeight - choiceHeight) * 0.5f));
+            RefreshChoiceRects();
+        }
+        else if (hasChoices)
+        {
+            float choiceHeight = LayoutChoices(
+                step,
+                panel,
+                contentLeft,
+                contentWidth,
+                0f,
+                hasPanelArtwork
+                    ? speakerBackgroundTextColor
+                    : new Color(0.95f, 0.95f, 1f, 1f));
+            float groupHeight = bodyH + 8f + choiceHeight;
+            float groupTop = Mathf.Max(Pad, (panelHeight - groupHeight) * 0.5f);
+            br.anchoredPosition = new Vector2(contentLeft, -groupTop);
+            PositionChoiceRows(groupTop + bodyH + 8f);
+            RefreshChoiceRects();
+        }
+        Canvas.ForceUpdateCanvases();
 
         // First frame may report ~0 mesh sizes; re-measure next frame so the box never collapses to nothing.
         if (bodyH < 1f && open)
@@ -476,6 +596,187 @@ public class Dialogue : MonoBehaviour
             StopCoroutine("ReflowNextFrame");
             StartCoroutine(ReflowNextFrame());
         }
+    }
+
+    private Sprite FindBackground(string speakerName)
+    {
+        if (string.IsNullOrWhiteSpace(speakerName))
+        {
+            return null;
+        }
+
+        for (int i = 0; speakerBackgrounds != null && i < speakerBackgrounds.Count; i++)
+        {
+            SpeakerDialogueBackground entry = speakerBackgrounds[i];
+            if (entry != null &&
+                entry.background != null &&
+                string.Equals(entry.speakerName, speakerName, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return entry.background;
+            }
+        }
+
+#if UNITY_EDITOR
+        // If game1 was already open when its serialized Conversation mapping changed on disk, Play mode may still see
+        // the older in-memory list. Resolve the two shipped defaults directly in the Editor so the player never falls
+        // back to the black box; builds continue to use the serialized mapping above.
+        string assetPath = null;
+        if (string.Equals(speakerName, "player", System.StringComparison.OrdinalIgnoreCase))
+        {
+            assetPath = "Assets/CharacterBackground/guoxiaoDialogue.jpeg";
+        }
+        else if (string.Equals(speakerName, "soldier", System.StringComparison.OrdinalIgnoreCase))
+        {
+            assetPath = "Assets/CharacterBackground/soldierDialogue.jpeg";
+        }
+
+        if (!string.IsNullOrEmpty(assetPath))
+        {
+            UnityEngine.Object[] assets = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(assetPath);
+            for (int i = 0; i < assets.Length; i++)
+            {
+                if (assets[i] is Sprite sprite)
+                {
+                    return sprite;
+                }
+            }
+        }
+#endif
+
+        return null;
+    }
+
+    private Sprite ResolveGameVoiceBackground()
+    {
+        if (gameVoiceBackground != null)
+        {
+            return gameVoiceBackground;
+        }
+
+#if UNITY_EDITOR
+        return LoadFirstEditorSprite("Assets/CharacterBackground/gamevoiceDialogue.jpeg");
+#else
+        return null;
+#endif
+    }
+
+    private Sprite ResolveMultipleChoiceBackground()
+    {
+        if (multipleChoiceBackground != null)
+        {
+            return multipleChoiceBackground;
+        }
+
+#if UNITY_EDITOR
+        return LoadFirstEditorSprite("Assets/CharacterBackground/multichoiceDialogue.jpeg");
+#else
+        return null;
+#endif
+    }
+
+#if UNITY_EDITOR
+    private static Sprite LoadFirstEditorSprite(string assetPath)
+    {
+        UnityEngine.Object[] assets = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(assetPath);
+        for (int i = 0; i < assets.Length; i++)
+        {
+            if (assets[i] is Sprite sprite)
+            {
+                return sprite;
+            }
+        }
+
+        return null;
+    }
+#endif
+
+    private Sprite FindPortrait(string speakerName, string expression)
+    {
+        string requestedExpression = string.IsNullOrWhiteSpace(expression) ? "normal" : expression;
+        SpeakerDialoguePortrait normalFallback = null;
+
+        for (int i = 0; speakerPortraits != null && i < speakerPortraits.Count; i++)
+        {
+            SpeakerDialoguePortrait entry = speakerPortraits[i];
+            if (entry == null || entry.portrait == null ||
+                !string.Equals(entry.speakerName, speakerName, System.StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (string.Equals(entry.expression, requestedExpression, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return entry.portrait;
+            }
+
+            if (string.Equals(entry.expression, "normal", System.StringComparison.OrdinalIgnoreCase))
+            {
+                normalFallback = entry;
+            }
+        }
+
+        if (normalFallback != null)
+        {
+            return normalFallback.portrait;
+        }
+
+#if UNITY_EDITOR
+        string assetPath = EditorPortraitPath(speakerName, requestedExpression);
+        if (!string.IsNullOrEmpty(assetPath))
+        {
+            UnityEngine.Object[] assets = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(assetPath);
+            for (int i = 0; i < assets.Length; i++)
+            {
+                if (assets[i] is Sprite sprite)
+                {
+                    return sprite;
+                }
+            }
+        }
+#endif
+
+        return portrait;
+    }
+
+#if UNITY_EDITOR
+    private static string EditorPortraitPath(string speakerName, string expression)
+    {
+        string speaker = speakerName.ToLowerInvariant();
+        string mood = expression.ToLowerInvariant();
+
+        if (speaker == "player")
+        {
+            if (mood == "confused") return "Assets/character_img/xiaoyueConfused.PNG";
+            if (mood == "excited") return "Assets/character_img/xiaoyueExcited.PNG";
+            if (mood == "worried") return "Assets/character_img/xiaoyueWorries.PNG";
+            return "Assets/character_img/xiaoyueMain.PNG";
+        }
+
+        if (speaker == "soldier")
+        {
+            if (mood == "confused") return "Assets/character_img/soldierConfused.PNG";
+            if (mood == "surprised") return "Assets/character_img/soldierSurprised.PNG";
+            return "Assets/character_img/soldierMain.PNG";
+        }
+
+        return null;
+    }
+#endif
+
+    private float ResponsiveFontSize(string text)
+    {
+        int length = string.IsNullOrWhiteSpace(text) ? 0 : text.Length;
+        if (length <= 48)
+        {
+            return Mathf.Max(fontSize, shortLineFontSize);
+        }
+
+        if (length <= 100)
+        {
+            return Mathf.Lerp(fontSize, Mathf.Max(fontSize, shortLineFontSize), 0.5f);
+        }
+
+        return fontSize;
     }
 
     private void TearDownChoices()
@@ -492,32 +793,36 @@ public class Dialogue : MonoBehaviour
     }
 
     /// <summary>Lays out the current step's choices inside the panel and returns the total vertical space they occupy. Populates <see cref="activeChoiceRows"/> for cleanup and <see cref="activeChoiceRects"/> for click hit-testing.</summary>
-    private float LayoutChoices(DialogueStep step)
+    private float LayoutChoices(
+        DialogueStep step,
+        RectTransform hostPanel,
+        float contentLeft,
+        float contentWidth,
+        float startOffsetY,
+        Color choiceTextColor)
     {
         activeChoiceRects.Clear();
         activeChoiceRows.Clear();
-        if (step.choices == null || step.choices.Count <= 0 || panel == null)
+        if (step.choices == null || step.choices.Count <= 0 || hostPanel == null)
         {
             return 0f;
         }
 
-        // The space available for choices is the wider panel-width minus horizontal padding. Sit choices inside the same column as the name tag/body so they line up.
-        float screenW = Screen.width > 0 ? Screen.width : 1280f;
-        float portraitSpace = portrait != null ? PortraitWidth + Pad : 0f;
-        float maxWidthUnits = screenW - OuterMargin * 2f - portraitSpace;
-        float contentW = UnityEngine.Mathf.Max(120f, maxWidthUnits - Pad * 2f);
-        float contentLeft = 0f;
-
-        float maxChoiceWidth = contentW;
+        float maxChoiceWidth = contentWidth;
         float padBetween = 8f;
-        float offsetY = Pad; // first choice flush under the panel top
+        float offsetY = startOffsetY;
 
         for (int i = 0; i < step.choices.Count; i++)
         {
             string text = string.IsNullOrEmpty(step.choices[i].label) ? "(...)" : $"{i + 1}. {step.choices[i].label}";
             var rowObj = new GameObject($"Choice_{i}");
-            rowObj.transform.SetParent(panel.transform, false);
-            var tmp = MakeText(rowObj, new Color(0.95f, 0.95f, 1f, 1f), Mathf.Max(14, fontSize - 6), FontStyles.Normal, TextAlignmentOptions.TopLeft);
+            rowObj.transform.SetParent(hostPanel.transform, false);
+            var tmp = MakeText(
+                rowObj,
+                choiceTextColor,
+                ResponsiveFontSize(step.choices[i].label),
+                FontStyles.Normal,
+                TextAlignmentOptions.Center);
             tmp.text = text;
 
             var rowRt = rowObj.GetComponent<RectTransform>();
@@ -531,7 +836,7 @@ public class Dialogue : MonoBehaviour
             Canvas.ForceUpdateCanvases();
             float rowH = UnityEngine.Mathf.Max(tmp.preferredHeight, 1f);
             rowRt.sizeDelta = new Vector2(maxChoiceWidth, rowH);
-            rowRt.anchoredPosition = new Vector2(contentLeft + Pad, -offsetY);
+            rowRt.anchoredPosition = new Vector2(contentLeft, -offsetY);
 
             tmp.ForceMeshUpdate(true);
             Canvas.ForceUpdateCanvases();
@@ -559,7 +864,26 @@ public class Dialogue : MonoBehaviour
 
     private void PositionChoiceRows(float choiceBlockOffset)
     {
-        // LayoutChoices has already positioned the rows; this hook exists so future layout tweaks have a home. Kept no-op here to keep flow clear.
+        const float padBetween = 8f;
+        float offsetY = choiceBlockOffset;
+
+        for (int i = 0; i < activeChoiceRows.Count; i++)
+        {
+            RectTransform row = activeChoiceRows[i].GetComponent<RectTransform>();
+            row.anchoredPosition = new Vector2(row.anchoredPosition.x, -offsetY);
+            offsetY += row.sizeDelta.y + padBetween;
+        }
+    }
+
+    private void RefreshChoiceRects()
+    {
+        Canvas.ForceUpdateCanvases();
+        activeChoiceRects.Clear();
+        for (int i = 0; i < activeChoiceRows.Count; i++)
+        {
+            activeChoiceRects.Add(
+                RectTransformToScreenRect(activeChoiceRows[i].GetComponent<RectTransform>()));
+        }
     }
 
     /// <summary>Convert a panel-space RectTransform to its screen-space bounding Rect (for manual click hit-testing). The panel itself is screen-space override anchored, so its children map directly to screen pixels.</summary>
@@ -575,7 +899,7 @@ public class Dialogue : MonoBehaviour
         {
             return new Rect(0f, 0f, 0f, 0f);
         }
-        return new Rect(minX, Screen.height - maxY, maxX - minX, maxY - minY);
+        return new Rect(minX, minY, maxX - minX, maxY - minY);
     }
 
     private System.Collections.IEnumerator ReflowNextFrame()
@@ -669,13 +993,14 @@ public class Dialogue : MonoBehaviour
         canvasRect.offsetMin = Vector2.zero;
         canvasRect.offsetMax = Vector2.zero;
 
-        // Panel: a fixed-position black box along the bottom. Its children are positioned in its
-        // local space inside RenderCurrent().
+        // Panel: a fixed-position speaker frame along the bottom. Its children are positioned in its
+        // local space inside RenderCurrent(). A solid sprite remains as a safe fallback for unmapped speakers.
         var panelObj = new GameObject("Panel");
         panelObj.transform.SetParent(canvasObj.transform, false);
         panel = panelObj.AddComponent<RectTransform>();
         panelImage = panelObj.AddComponent<Image>();
-        panelImage.sprite = SolidSprite();
+        fallbackPanelSprite = SolidSprite();
+        panelImage.sprite = fallbackPanelSprite;
         panelImage.color = panelColor;
         panel.anchorMin = new Vector2(0f, 0f);
         panel.anchorMax = new Vector2(0f, 0f);
@@ -687,6 +1012,22 @@ public class Dialogue : MonoBehaviour
         // Clip children (name tag, body, portrait) to the panel's own rectangle. Without this, a line taller than the
         // panel's height clamp would render outside the black box. The panel carries an Image, which RectMask2D needs.
         panelObj.AddComponent<RectMask2D>();
+
+        // Choices use their own artwork and stay at the bottom-right, independent of the prompt/speaker frame.
+        var choicePanelObj = new GameObject("MultipleChoicePanel");
+        choicePanelObj.transform.SetParent(canvasObj.transform, false);
+        choicePanel = choicePanelObj.AddComponent<RectTransform>();
+        choicePanelImage = choicePanelObj.AddComponent<Image>();
+        choicePanelImage.sprite = fallbackPanelSprite;
+        choicePanelImage.color = panelColor;
+        choicePanelImage.raycastTarget = false;
+        choicePanel.anchorMin = new Vector2(0f, 0f);
+        choicePanel.anchorMax = new Vector2(0f, 0f);
+        choicePanel.pivot = new Vector2(0f, 0f);
+        choicePanel.anchoredPosition = new Vector2(OuterMargin, OuterMargin);
+        choicePanel.sizeDelta = Vector2.zero;
+        choicePanelObj.AddComponent<RectMask2D>();
+        choicePanelObj.SetActive(false);
 
         // Portrait is a Canvas sibling, not a panel child: the black background never covers it and the art is not clipped.
         var portraitObj = new GameObject("Portrait");
