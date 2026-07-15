@@ -491,7 +491,8 @@ public class Conversation : MonoBehaviour
                     {
                         label = "Start tracing 不 and 要",
                         targetStep = 26,
-                        action = DialogueAction.Writing
+                        action = DialogueAction.Writing,
+                        requiredTraceCount = 2
                     }
                 }
             },
