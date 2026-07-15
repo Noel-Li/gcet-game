@@ -21,11 +21,16 @@ public class GameProgress : MonoBehaviour
     [SerializeField] private int resumeStep = -1;
     private bool dialogueResumed;
 
+
+    [SerializeField] private int requiredTraceCount = 1;
+    [SerializeField] private int completedTraceCount;
+
     /// <summary>
     /// The player position captured just before leaving for the tracing scene, so the reload can put the
     /// player back where they were instead of at the scene's authored default. Null until BeginTrace runs.
     /// </summary>
     private Vector3? savedPlayerPosition;
+
 
     /// <summary>The NPC scene to load back into.</summary>
     [SerializeField] private string mainSceneName = "game1";
@@ -46,16 +51,20 @@ public class GameProgress : MonoBehaviour
     public bool tracePassed { get; private set; }
 
     public int ResumeStep => resumeStep;
+    public int RequiredTraceCount => requiredTraceCount;
+    public int CompletedTraceCount => completedTraceCount;
 
     /// <summary>
     /// Called from the dialogue's writing step. Records which room this NPC gates and which conversation step to resume
     /// at on return, then opens the tracing scene. The player may move forward only once the trace completes.
     /// </summary>
-    public void BeginTrace(int areaCol, int areaRow, int stepToResume)
+    public void BeginTrace(int areaCol, int areaRow, int stepToResume, int charactersToComplete = 1)
     {
         targetCol = areaCol;
         targetRow = areaRow;
         resumeStep = stepToResume;
+        requiredTraceCount = Mathf.Max(1, charactersToComplete);
+        completedTraceCount = 0;
         tracePassed = false;
         dialogueResumed = false;
 
@@ -72,6 +81,12 @@ public class GameProgress : MonoBehaviour
         }
         SceneManager.LoadScene(traceSceneName);
     }
+
+
+    /// <summary>
+    /// Fired by <see cref="Script1.OnCharacterDone"/> whenever one character is traced correctly.
+    /// The tracing scene remains open until every character requested by the dialogue has been completed.
+    /// </summary>
 
     /// <summary>Repositions the freshly-spawned Player back to where they were when the trace began.</summary>
     private void ApplySavedPlayerPosition()
@@ -103,12 +118,20 @@ public class GameProgress : MonoBehaviour
     }
 
     /// <summary>Fired by <see cref="Script1.OnCharacterDone"/> when the character is traced correctly.</summary>
+
     public void OnTraceCorrect()
     {
         if (tracePassed)
         {
             return;
         }
+
+        completedTraceCount++;
+        if (completedTraceCount < requiredTraceCount)
+        {
+            return;
+        }
+
         tracePassed = true;
 
         // The Areas live in the main scene, which is currently unloaded. Defer the gate unlock to OnSceneLoaded.

@@ -282,10 +282,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 581058598}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05dd7fa4373806c46aff40abf06c16a0, type: 3}
+  m_Script: {fileID: 11500000, guid: c9f7d57b66426c84ba3f9e3a11dc1de7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script1
-  characterData: {fileID: 11400000, guid: d20011f479119984088667a8d7046fc7, type: 2}
+  availableCharacters:
+  - {fileID: 11400000, guid: d20011f479119984088667a8d7046fc7, type: 2}
+  - {fileID: 11400000, guid: 7a378ccb49dd35d479f2c3addd4a4c43, type: 2}
+  characterData: {fileID: 0}
   guideLine: {fileID: 744876928}
   userLine: {fileID: 1155666593}
   arrowTransform: {fileID: 1450664754}
