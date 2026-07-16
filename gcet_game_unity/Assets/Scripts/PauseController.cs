@@ -43,6 +43,7 @@ public class PauseController : MonoBehaviour
         }
         else
         {
+            ControlsOverlayController.CloseIfOpen();
             Pause();
         }
     }

@@ -8,7 +8,6 @@ using UnityEngine.InputSystem;
 /// that Area.ExitUnlocked is true (an NPC flips that). Once unlocked the player walks up
 /// into the next room and the camera follows.
 /// </summary>
-[RequireComponent(typeof(SpriteRenderer))]
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Input")]
@@ -19,6 +18,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float speed = 5f;
 
     private InputAction moveAction;
+
+    /// <summary>
+    /// The latest movement input after gameplay locks such as dialogue have been applied.
+    /// Visual components can use this without reading the input device a second time.
+    /// </summary>
+    public Vector2 MoveInput { get; private set; }
 
     private void Awake()
     {
@@ -54,6 +59,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnDisable()
     {
+        MoveInput = Vector2.zero;
+
         if (moveAction != null)
         {
             moveAction.Disable();
@@ -66,10 +73,12 @@ public class PlayerMovement : MonoBehaviour
         // the NPC into a locked region). Update still runs so the input device stays live.
         if (Dialogue.Instance != null && Dialogue.Instance.IsOpen)
         {
+            MoveInput = Vector2.zero;
             return;
         }
 
         Vector2 input = moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
+        MoveInput = input;
         Vector3 pos = transform.position;
 
         pos.x += input.x * speed * Time.deltaTime;

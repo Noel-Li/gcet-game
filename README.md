@@ -42,6 +42,8 @@ gcet-game/
 │   │   │   └── SampleScene.unity   # the only scene right now — everything lives here
 │   │   ├── Scripts/
 │   │   │   ├── PlayerMovement.cs   # WASD movement + keeps the player out of gated regions
+│   │   │   ├── PlayerWalkAnimation.cs # movement-driven player flip + bounce
+│   │   │   ├── ControlsOverlayController.cs # Tab-toggled additive controls reference
 │   │   │   ├── GameArea.cs          # an Area on the world grid: bounds + camera clamp + region registry
 │   │   │   ├── GameRegion.cs       # a gated sub-area inside an Area (blocked until unlocked)
 │   │   │   ├── NpcController.cs     # clickable NPC: changes color + unlocks a region

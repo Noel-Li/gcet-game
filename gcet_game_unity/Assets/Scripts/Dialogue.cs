@@ -280,7 +280,7 @@ public class Dialogue : MonoBehaviour
 
     private void Update()
     {
-        if (PauseController.IsPaused || !open || !waitingInput)
+        if (PauseController.IsPaused || ControlsOverlayController.IsOpen || !open || !waitingInput)
         {
             return;
         }
@@ -294,7 +294,7 @@ public class Dialogue : MonoBehaviour
             var kb = Keyboard.current;
             if (kb != null)
             {
-                // Pressing the digit keys 1..N selects that choice directly.
+                // Pressing the top-row or numeric-keypad keys 1..N selects that choice directly.
                 for (int i = 0; i < currentStep.choices.Count && i < 9; i++)
                 {
                     if (KeyForDigit(i + 1, kb))
@@ -346,15 +346,15 @@ public class Dialogue : MonoBehaviour
     {
         switch (digit)
         {
-            case 1: return kb.digit1Key.wasPressedThisFrame;
-            case 2: return kb.digit2Key.wasPressedThisFrame;
-            case 3: return kb.digit3Key.wasPressedThisFrame;
-            case 4: return kb.digit4Key.wasPressedThisFrame;
-            case 5: return kb.digit5Key.wasPressedThisFrame;
-            case 6: return kb.digit6Key.wasPressedThisFrame;
-            case 7: return kb.digit7Key.wasPressedThisFrame;
-            case 8: return kb.digit8Key.wasPressedThisFrame;
-            case 9: return kb.digit9Key.wasPressedThisFrame;
+            case 1: return kb.digit1Key.wasPressedThisFrame || kb.numpad1Key.wasPressedThisFrame;
+            case 2: return kb.digit2Key.wasPressedThisFrame || kb.numpad2Key.wasPressedThisFrame;
+            case 3: return kb.digit3Key.wasPressedThisFrame || kb.numpad3Key.wasPressedThisFrame;
+            case 4: return kb.digit4Key.wasPressedThisFrame || kb.numpad4Key.wasPressedThisFrame;
+            case 5: return kb.digit5Key.wasPressedThisFrame || kb.numpad5Key.wasPressedThisFrame;
+            case 6: return kb.digit6Key.wasPressedThisFrame || kb.numpad6Key.wasPressedThisFrame;
+            case 7: return kb.digit7Key.wasPressedThisFrame || kb.numpad7Key.wasPressedThisFrame;
+            case 8: return kb.digit8Key.wasPressedThisFrame || kb.numpad8Key.wasPressedThisFrame;
+            case 9: return kb.digit9Key.wasPressedThisFrame || kb.numpad9Key.wasPressedThisFrame;
             default: return false;
         }
     }
