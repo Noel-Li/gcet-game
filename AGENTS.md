@@ -96,6 +96,8 @@ Explicit cell list `{(cx,cy,index)}`:
 ### Other scenes
 
 - **`game1.unity`** — the current playable scene. Its NPC `Conversation` component maps `player` to `CharacterBackground/guoxiaoDialogue.jpeg` and `soldier` to `CharacterBackground/soldierDialogue.jpeg`, plus expression-keyed portraits (`normal`, `confused`, `excited`, `worried`, `surprised`, `stern`) from `character_img/`. It also wires `gamevoiceDialogue.jpeg` for narrator/instruction prompts and `multichoiceDialogue.jpeg` for answers. `Dialogue` builds 700×211-aspect frames along the bottom: the active speaker or Game Voice prompt on the left and, on choice steps, a separate Multiple Choice frame on the right.
+- **`StartScene.unity`** — build index 0 and the game's intro/menu scene. Its screen-space Canvas stretches `game-related scenes/startScreen.png` across a 1920×1080 reference layout. A transparent 820×170 `BeginButton` hit area sits over the painted **Begin** control and calls `StartGame.LoadGame()` with `gameSceneName: game1`. The former title, sprite backdrop, and video host remain inactive so the supplied template is shown immediately.
+- **`PauseScene.unity`** — loaded additively by `game1`'s `PauseController` when Escape is pressed, preserving the live game scene underneath while `Time.timeScale` is zero. Its screen-space Canvas stretches `game-related scenes/pauseScreen.png`; a transparent 820×170 `UnpauseButton` hit area overlays the painted **Unpause** control and calls `PauseResume.Resume()`. Its local camera, AudioListener, EventSystem, rain, and legacy text are disabled because the additive game scene supplies input/rendering.
 - **`SampleScene.unity`** — the playable scene: `Player` (`PlayerMovement` + `ColorSprite`), Areas/Regions (`GameArea`/`GameRegion`), `NPC`, `FollowCamera`. See README for wiring. Has its **own copy** of the wall sprite reused on the Player/Area/Camera sprite renderers (guards in the detection scripts filter on `TX Tileset Wall` name prefix, not just the sprite).
 - **`background.unity`**, **`hanzi tracing base.unity`** — separate; see their own hierarchy.
 
@@ -119,6 +121,8 @@ Several non-wall objects (Player, Area_Left, Main Camera, the Tilemap GO, LAYER 
 ## Scripts (Assets/Scripts)
 
 `PlayerMovement.cs`, `GameArea.cs`, `GameRegion.cs`, `NpcController.cs`, `FollowCamera.cs`, `ColorSprite.cs`. All in `Assembly-CSharp` (no `.asmdef`). See README for the message flow.
+
+Editor-only utility: `Assets/Editor/PlayModeStartScene.cs` assigns `StartScene.unity` to `EditorSceneManager.playModeStartScene` after script reloads. Therefore the Unity Play button always enters through the intro even while a gameplay scene is open; the `Tools > GCET > Set Intro as Play Mode Start Scene` menu item can reapply it manually.
 
 ---
 
