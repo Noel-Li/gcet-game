@@ -154,6 +154,11 @@ public class Dialogue : MonoBehaviour
     private const float ContentLeftFraction = 0.28f;
     private const float Pad = 18f;
     private const float OuterMargin = 24f;
+    private const float PortraitSlotLeft = 0.047f;
+    private const float PortraitSlotBottom = 0.284f;
+    private const float PortraitSlotWidth = 0.216f;
+    private const float PortraitSlotHeight = 0.483f;
+    private const float PortraitFill = 0.9f;
 
     private Canvas canvas;
     private RectTransform panel;
@@ -168,6 +173,7 @@ public class Dialogue : MonoBehaviour
     // Currently visible choice rows (TMP Text + their panel-local rects) so Update can hit-test mouse clicks against them. Rebuilt every RenderCurrent pass.
     private readonly List<GameObject> activeChoiceRows = new List<GameObject>();
     private readonly List<Rect> activeChoiceRects = new List<Rect>();
+    private readonly Dictionary<Sprite, Sprite> centeredPortraitSprites = new Dictionary<Sprite, Sprite>();
 
     private int index = 0;
     private bool open;
@@ -191,6 +197,15 @@ public class Dialogue : MonoBehaviour
 
     private void OnDestroy()
     {
+        foreach (Sprite runtimeSprite in centeredPortraitSprites.Values)
+        {
+            if (runtimeSprite != null)
+            {
+                Destroy(runtimeSprite);
+            }
+        }
+        centeredPortraitSprites.Clear();
+
         if (Instance == this)
         {
             Instance = null;
@@ -508,11 +523,32 @@ public class Dialogue : MonoBehaviour
         // reserving a separate box beside the panel.
         if (portraitImage != null)
         {
-            portraitImage.sprite = currentPortrait;
+            portraitImage.sprite = CenteredPortrait(currentPortrait);
             portraitImage.enabled = hasPortrait;
             var pr = portraitImage.GetComponent<RectTransform>();
-            pr.anchoredPosition = panel.anchoredPosition + new Vector2(panelWidth * 0.047f, panelHeight * 0.284f);
-            pr.sizeDelta = new Vector2(panelWidth * 0.216f, panelHeight * 0.483f);
+
+            float slotWidth = panelWidth * PortraitSlotWidth;
+            float slotHeight = panelHeight * PortraitSlotHeight;
+            float portraitWidth = slotWidth * PortraitFill;
+            float portraitHeight = slotHeight * PortraitFill;
+
+            if (currentPortrait != null && currentPortrait.rect.height > 0f)
+            {
+                float aspect = currentPortrait.rect.width / currentPortrait.rect.height;
+                portraitWidth = portraitHeight * aspect;
+                float maxWidth = slotWidth * PortraitFill;
+                if (portraitWidth > maxWidth)
+                {
+                    portraitWidth = maxWidth;
+                    portraitHeight = portraitWidth / aspect;
+                }
+            }
+
+            pr.pivot = new Vector2(0.5f, 0.5f);
+            pr.anchoredPosition = panel.anchoredPosition + new Vector2(
+                panelWidth * (PortraitSlotLeft + PortraitSlotWidth * 0.5f),
+                panelHeight * (PortraitSlotBottom + PortraitSlotHeight * 0.5f));
+            pr.sizeDelta = new Vector2(portraitWidth, portraitHeight);
         }
 
         float contentLeft = hasSpeakerBackground ? panelWidth * ContentLeftFraction : Pad;
@@ -736,6 +772,36 @@ public class Dialogue : MonoBehaviour
 #endif
 
         return portrait;
+    }
+
+    /// <summary>
+    /// Portrait imports currently use a bottom-left pivot. UI Image respects that pivot when building its geometry,
+    /// so create and cache a centered-pivot view of the same texture rectangle for predictable placement.
+    /// </summary>
+    private Sprite CenteredPortrait(Sprite source)
+    {
+        if (source == null)
+        {
+            return null;
+        }
+
+        if (centeredPortraitSprites.TryGetValue(source, out Sprite centered))
+        {
+            return centered;
+        }
+
+        centered = Sprite.Create(
+            source.texture,
+            source.rect,
+            new Vector2(0.5f, 0.5f),
+            source.pixelsPerUnit,
+            0,
+            SpriteMeshType.FullRect,
+            source.border);
+        centered.name = source.name + "_DialogueCentered";
+        centered.hideFlags = HideFlags.HideAndDontSave;
+        centeredPortraitSprites.Add(source, centered);
+        return centered;
     }
 
 #if UNITY_EDITOR
