@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -106,6 +107,14 @@ public enum DialogueAction
 /// </summary>
 public class Dialogue : MonoBehaviour
 {
+    private const string PinyinFontAssetName = "LiberationSans SDF";
+
+    // The main dialogue font is a Chinese typeface whose accented Latin glyphs use full CJK advances. Select the
+    // project's Latin TMP font for parenthesized pinyin so tone-marked vowels retain normal Latin spacing.
+    private static readonly Regex ParenthesizedPinyin = new Regex(
+        @"\((?=[^)]*[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜüĀÁǍÀĒÉĚÈĪÍǏÌŌÓǑÒŪÚǓÙǕǗǙǛÜ])[^)]*\)",
+        RegexOptions.CultureInvariant);
+
     [Header("Content")]
     [TextArea(2, 4)]
     [SerializeField] private List<DialogueStep> steps = new List<DialogueStep>();
@@ -489,7 +498,7 @@ public class Dialogue : MonoBehaviour
         bool hasPortrait = !isGameVoice && currentPortrait != null;
 
         nameTag.text = speakerName;
-        body.text = step.text;
+        body.text = FormatPinyin(step.text);
         body.color = hasPanelArtwork ? speakerBackgroundTextColor : textColor;
         nameTag.gameObject.SetActive(!isGameVoice && !hasSpeakerBackground);
         body.gameObject.SetActive(true);
@@ -880,7 +889,9 @@ public class Dialogue : MonoBehaviour
 
         for (int i = 0; i < step.choices.Count; i++)
         {
-            string text = string.IsNullOrEmpty(step.choices[i].label) ? "(...)" : $"{i + 1}. {step.choices[i].label}";
+            string text = string.IsNullOrEmpty(step.choices[i].label)
+                ? "(...)"
+                : $"{i + 1}. {FormatPinyin(step.choices[i].label)}";
             var rowObj = new GameObject($"Choice_{i}");
             rowObj.transform.SetParent(hostPanel.transform, false);
             var tmp = MakeText(
@@ -1041,6 +1052,22 @@ public class Dialogue : MonoBehaviour
         rt.anchoredPosition = Vector2.zero;
         rt.sizeDelta = Vector2.zero;
         return tmp;
+    }
+
+    /// <summary>
+    /// Wraps tone-marked pinyin in a TMP font tag. Chinese characters stay in the project's Chinese font while the
+    /// pronunciation uses Latin glyph metrics, preventing the wide gaps previously visible around accented vowels.
+    /// </summary>
+    private static string FormatPinyin(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return text;
+        }
+
+        return ParenthesizedPinyin.Replace(
+            text,
+            match => $"<font=\"{PinyinFontAssetName}\">{match.Value}</font>");
     }
 
     private void Build()

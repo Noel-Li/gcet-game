@@ -122,7 +122,9 @@ Several non-wall objects (Player, Area_Left, Main Camera, the Tilemap GO, LAYER 
 
 `PlayerMovement.cs`, `GameArea.cs`, `GameRegion.cs`, `NpcController.cs`, `FollowCamera.cs`, `ColorSprite.cs`. All in `Assembly-CSharp` (no `.asmdef`). See README for the message flow.
 
-Editor-only utility: `Assets/Editor/PlayModeStartScene.cs` assigns `StartScene.unity` to `EditorSceneManager.playModeStartScene` after script reloads. Therefore the Unity Play button always enters through the intro even while a gameplay scene is open; the `Tools > GCET > Set Intro as Play Mode Start Scene` menu item can reapply it manually.
+Editor-only utility: `Assets/misc/Editor/PlayModeStartScene.cs` assigns `StartScene.unity` to `EditorSceneManager.playModeStartScene` after script reloads. Therefore the Unity Play button always enters through the intro even while a gameplay scene is open; the `Tools > GCET > Set Intro as Play Mode Start Scene` menu item can reapply it manually.
+
+Dialogue pinyin is authored with standard tone marks in `Conversation.cs`. `Dialogue.FormatPinyin` wraps every tone-marked parenthetical pronunciation in the dynamic `LiberationSans SDF` font, keeping Latin glyph spacing normal while the surrounding Chinese text continues to use the default Chinese TMP font.
 
 ---
 

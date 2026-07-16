@@ -91,7 +91,7 @@ public class Conversation : MonoBehaviour
             {
                 speakerName = "player",
                 expression = "normal",
-                text = "不。(Bù.)"
+                text = "不。 (Bù.)"
             },
 
             // 3 — Soldier asks the question in the character panel.
@@ -99,7 +99,7 @@ public class Conversation : MonoBehaviour
             {
                 speakerName = "soldier",
                 expression = "normal",
-                text = "你叫什么名字？(Nǐ jiào shénme míngzì?)"
+                text = "你叫什么名字？ (Nǐ jiào shénme míngzi?)"
             },
 
             // 4 — Game Voice prompt on the left; answers appear in the Multiple Choice panel on the right.
@@ -122,7 +122,7 @@ public class Conversation : MonoBehaviour
             {
                 speakerName = "player",
                 expression = "normal",
-                text = "我很好。(Wǒ hěn hǎo.)"
+                text = "我很好。 (Wǒ hěn hǎo.)"
             },
             new DialogueStep
             {
@@ -130,7 +130,7 @@ public class Conversation : MonoBehaviour
                 expression = "normal",
                 text =
                     "I didn't ask how you are. I asked “你叫什么名字？” My name is 李沅诺 " +
-                    "(Lǐ yuán nuò). 你叫什么名字？(Nǐ jiào shénme míngzì?)",
+                    "(Lǐ Yuánnuò). 你叫什么名字？ (Nǐ jiào shénme míngzi?)",
                 nextStep = 4
             },
 
@@ -139,7 +139,7 @@ public class Conversation : MonoBehaviour
             {
                 speakerName = "player",
                 expression = "normal",
-                text = "美国。(Měiguó.)"
+                text = "美国。 (Měiguó.)"
             },
             new DialogueStep
             {
@@ -147,7 +147,7 @@ public class Conversation : MonoBehaviour
                 expression = "normal",
                 text =
                     "I didn't ask where you are from. I asked “你叫什么名字？” My name is 李沅诺 " +
-                    "(Lǐ yuán nuò). 你叫什么名字？(Nǐ jiào shénme míngzì?)",
+                    "(Lǐ Yuánnuò). 你叫什么名字？ (Nǐ jiào shénme míngzi?)",
                 nextStep = 4
             },
 
@@ -156,7 +156,7 @@ public class Conversation : MonoBehaviour
             {
                 speakerName = "player",
                 expression = "normal",
-                text = "过小月。(Guò xiǎo yuè.)"
+                text = "郭小月。 (Guō Xiǎoyuè.)"
             },
 
             // 10-11 — Split so the soldier changes from normal to confused.
@@ -164,13 +164,13 @@ public class Conversation : MonoBehaviour
             {
                 speakerName = "soldier",
                 expression = "normal",
-                text = "Hello, 小月 (xiǎo yuè). My name is 李沅诺 (Lǐ yuán nuò)."
+                text = "Hello, 小月 (Xiǎoyuè). My name is 李沅诺 (Lǐ Yuánnuò)."
             },
             new DialogueStep
             {
                 speakerName = "soldier",
                 expression = "confused",
-                text = "Wait... did you say 过 (Guò)?"
+                text = "Wait... did you say 郭 (Guō)?"
             },
 
             // 12-15 — Family connection.
@@ -184,7 +184,7 @@ public class Conversation : MonoBehaviour
             {
                 speakerName = "soldier",
                 expression = "confused",
-                text = "Are you related to 过品玉 (Guò pǐn yù)?"
+                text = "Are you related to 郭品玉 (Guō Pǐnyù)?"
             },
             new DialogueStep
             {
@@ -245,9 +245,9 @@ public class Conversation : MonoBehaviour
                 speakerName = "soldier",
                 expression = "stern",
                 text =
-                    "她从不 (Tā cóng bù) stay 同一地方 (tóngyī dìfāng), but I'm sure 王喜悦 " +
+                    "她从不 (Tā cóng bù) stay 同一地方 (tóng yī dìfāng), but I'm sure 王喜悦 " +
                     "(Wáng Xǐyuè) knows where she is. She sells her silk in town. You can 问她 (Wèn tā). " +
-                    "She is just up ahead. 不要 (Bùyào) cause any trouble."
+                    "She is just up ahead. 不要 (Bú yào) cause any trouble."
             },
 
             // 21 — Game Voice prompt + bottom-right Multiple Choice panel.
@@ -279,7 +279,7 @@ public class Conversation : MonoBehaviour
             {
                 speakerName = "player",
                 expression = "excited",
-                text = "谢谢！(Xièxiè!)"
+                text = "谢谢！ (Xièxie!)"
             },
 
             // 24 — Game Voice instruction. The later task traces 不 again, followed by 要.
@@ -307,14 +307,14 @@ public class Conversation : MonoBehaviour
             {
                 speakerName = "soldier",
                 expression = "normal",
-                text = "很好！(Hěn hǎo!) You remembered 不 and 要. 王喜悦 is just up ahead.",
+                text = "很好！ (Hěn hǎo!) You remembered 不 and 要. 王喜悦 is just up ahead.",
                 action = DialogueAction.GoTop
             },
             new DialogueStep
             {
                 speakerName = "player",
                 expression = "normal",
-                text = "I will find her. 谢谢！(Xièxiè!)"
+                text = "I will find her. 谢谢！ (Xièxie!)"
             }
         };
     }
