@@ -21,6 +21,10 @@ public class GameProgress : MonoBehaviour
     [SerializeField] private int resumeStep = -1;
     private bool dialogueResumed;
 
+    [Header("Opening Dialogue")]
+    [Tooltip("Persists across scene reloads so the player's opening line is shown only on the first arrival in game1.")]
+    [SerializeField] private bool openingDialogueShown;
+
 
     [SerializeField] private int requiredTraceCount = 1;
     [SerializeField] private int completedTraceCount;
@@ -53,6 +57,18 @@ public class GameProgress : MonoBehaviour
     public int ResumeStep => resumeStep;
     public int RequiredTraceCount => requiredTraceCount;
     public int CompletedTraceCount => completedTraceCount;
+
+    /// <summary>Claims the one-time opening line for this game session.</summary>
+    public bool TryBeginOpeningDialogue()
+    {
+        if (openingDialogueShown)
+        {
+            return false;
+        }
+
+        openingDialogueShown = true;
+        return true;
+    }
 
     /// <summary>
     /// Called from the dialogue's writing step. Records which room this NPC gates and which conversation step to resume

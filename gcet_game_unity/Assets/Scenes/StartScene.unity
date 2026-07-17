@@ -1026,7 +1026,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5fd854f58dff1246963a792dad0f8f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameSceneName: game1
+  gameSceneName: ComicScene
 --- !u!1 &3000000005
 GameObject:
   m_ObjectHideFlags: 0

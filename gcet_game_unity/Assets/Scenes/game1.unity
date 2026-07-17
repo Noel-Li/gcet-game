@@ -1368,6 +1368,7 @@ GameObject:
   - component: {fileID: 100000025}
   - component: {fileID: 100000026}
   - component: {fileID: 3000000102}
+  - component: {fileID: 3900000010}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1516,6 +1517,23 @@ MonoBehaviour:
   bounceHeight: 0.18
   bounceFrequency: 3
   idleReturnSpeed: 1.5
+--- !u!114 &3900000010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c418b13e9bb44ba295c7f2f04cc61560, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::OpeningDialogue
+  speakerName: player
+  expression: confused
+  openingLine: Where am I?
+  dialogueBackground: {fileID: 5026058822647386680, guid: 90632d7d2df81e34cb10bd441244ebb5, type: 3}
+  portrait: {fileID: -196453758366477838, guid: d99d95ba23aa5544f810e2700b8f14e1, type: 3}
 --- !u!61 &100000025
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2758,7 +2776,8 @@ MonoBehaviour:
   interactRange: 2.5
   promptText: Press E to talk
   interactSprite: {fileID: -2983803142128348173, guid: d9840369a815df6478c698adc42a790b, type: 3}
-  interactImageSize: {x: 0.3, y: 0.3}
+  interactImageSize: {x: 1.4, y: 1.45}
+  interactPromptGap: 0.12
   promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
@@ -4698,7 +4717,8 @@ MonoBehaviour:
   interactRange: 2.5
   promptText: Press E to talk
   interactSprite: {fileID: -2983803142128348173, guid: d9840369a815df6478c698adc42a790b, type: 3}
-  interactImageSize: {x: 0.3, y: 0.3}
+  interactImageSize: {x: 1.4, y: 1.45}
+  interactPromptGap: 0.12
   promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}

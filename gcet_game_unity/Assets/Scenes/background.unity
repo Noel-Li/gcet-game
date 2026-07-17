@@ -1950,7 +1950,8 @@ MonoBehaviour:
   interactRange: 2.5
   promptText: Press E to talk
   interactSprite: {fileID: -2983803142128348173, guid: d9840369a815df6478c698adc42a790b, type: 3}
-  interactImageSize: {x: 0.3, y: 0.3}
+  interactImageSize: {x: 1.4, y: 1.45}
+  interactPromptGap: 0.12
   promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
@@ -2924,7 +2925,8 @@ MonoBehaviour:
   interactRange: 2.5
   promptText: Press E to talk
   interactSprite: {fileID: -2983803142128348173, guid: d9840369a815df6478c698adc42a790b, type: 3}
-  interactImageSize: {x: 0.3, y: 0.3}
+  interactImageSize: {x: 1.4, y: 1.45}
+  interactPromptGap: 0.12
   promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
@@ -4873,7 +4875,8 @@ MonoBehaviour:
   interactRange: 2.5
   promptText: Press E to talk
   interactSprite: {fileID: -2983803142128348173, guid: d9840369a815df6478c698adc42a790b, type: 3}
-  interactImageSize: {x: 0.3, y: 0.3}
+  interactImageSize: {x: 1.4, y: 1.45}
+  interactPromptGap: 0.12
   promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
