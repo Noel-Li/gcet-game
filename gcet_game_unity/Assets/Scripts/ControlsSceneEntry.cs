@@ -17,14 +17,20 @@ public sealed class ControlsSceneEntry : MonoBehaviour
     [Tooltip("Camera used when ControlsScene is opened alone. It is disabled automatically in additive overlay mode.")]
     [SerializeField] private Camera sceneCamera;
 
+    [Tooltip("Listener used when ControlsScene is opened alone. It is disabled in additive overlay mode to avoid competing with the gameplay listener.")]
+    [SerializeField] private AudioListener sceneAudioListener;
+
     private bool loadingGame;
 
     private void Awake()
     {
+        bool isStandalone = !SceneManager.GetSceneByName(gameSceneName).isLoaded;
+
         if (sceneCamera != null)
-        {
-            sceneCamera.enabled = !SceneManager.GetSceneByName(gameSceneName).isLoaded;
-        }
+            sceneCamera.enabled = isStandalone;
+
+        if (sceneAudioListener != null)
+            sceneAudioListener.enabled = isStandalone;
     }
 
     private void Update()

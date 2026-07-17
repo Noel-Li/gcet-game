@@ -27,6 +27,11 @@ public class PauseController : MonoBehaviour
 
     private void Update()
     {
+        if (OpeningOverlay.IsShowing)
+        {
+            return;
+        }
+
         var kb = Keyboard.current;
         if (kb == null)
         {
