@@ -15,6 +15,10 @@ public class Script1 : MonoBehaviour
     [Header("Fallback for testing this scene directly")]
     [SerializeField] private CharacterData characterData;
 
+    [Header("Line appearance")]
+    [Tooltip("Color used while the player draws a stroke. Correct/incorrect feedback remains green/red.")]
+    [SerializeField] private Color userStrokeColor = Color.black;
+
     private readonly List<CharacterData> activeSequence = new List<CharacterData>();
     private readonly List<GameObject> completedStrokeObjects = new List<GameObject>();
     private int currentCharacterIndex = 0;
@@ -88,7 +92,7 @@ public class Script1 : MonoBehaviour
         }
 
         SetupLine(guideLine, 0.12f, 0, Color.gray);
-        SetupLine(userLine, 0.10f, 10, Color.red);
+        SetupLine(userLine, 0.10f, 10, userStrokeColor);
 
         if (!BuildActiveSequence())
         {
@@ -182,7 +186,7 @@ public class Script1 : MonoBehaviour
         userPoints.Clear();
         guideLine.positionCount = 0;
         userLine.positionCount = 0;
-        SetLineColor(userLine, Color.red);
+        SetLineColor(userLine, userStrokeColor);
 
         if (arrowTransform != null)
         {
@@ -215,7 +219,7 @@ public class Script1 : MonoBehaviour
         {
             userPoints.Clear();
             userLine.positionCount = 0;
-            SetLineColor(userLine, Color.red);
+            SetLineColor(userLine, userStrokeColor);
 
             wentTooFarFromStroke = false;
 

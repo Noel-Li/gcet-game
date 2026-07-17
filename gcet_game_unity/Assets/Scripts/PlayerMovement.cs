@@ -69,9 +69,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        // Freeze the player while a dialogue is open so they can't walk away mid-conversation (or drift
-        // the NPC into a locked region). Update still runs so the input device stays live.
-        if (Dialogue.Instance != null && Dialogue.Instance.IsOpen)
+        // Freeze the player during opening UI and dialogue so they cannot move while attention is on a screen-space flow.
+        if (OpeningOverlay.IsShowing || (Dialogue.Instance != null && Dialogue.Instance.IsOpen))
         {
             MoveInput = Vector2.zero;
             return;

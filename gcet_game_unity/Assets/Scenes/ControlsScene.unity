@@ -236,6 +236,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   gameSceneName: game1
   sceneCamera: {fileID: 3200001062}
+  sceneAudioListener: {fileID: 3200001063}
 --- !u!1 &3200001010
 GameObject:
   m_ObjectHideFlags: 0
@@ -248,7 +249,7 @@ GameObject:
   - component: {fileID: 3200001012}
   - component: {fileID: 3200001013}
   m_Layer: 5
-  m_Name: Input Blocker
+  m_Name: Controls Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -286,14 +287,14 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.035, g: 0.055, b: 0.045, a: 0.82}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -408638659186633950, guid: a1784427ae6030e4fba3a0c3c681d6fd, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -328,7 +329,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3200001021
 RectTransform:
   m_ObjectHideFlags: 0
@@ -610,6 +611,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3200001061}
   - component: {fileID: 3200001062}
+  - component: {fileID: 3200001063}
   m_Layer: 0
   m_Name: Controls Camera
   m_TagString: Untagged
@@ -683,6 +685,14 @@ Camera:
   m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!81 &3200001063
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3200001060}
+  m_Enabled: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -34,7 +34,7 @@ public sealed class ControlsOverlayController : MonoBehaviour
     private void Update()
     {
         Keyboard keyboard = Keyboard.current;
-        if (keyboard == null || transitionInProgress || PauseController.IsPaused)
+        if (keyboard == null || transitionInProgress || PauseController.IsPaused || OpeningOverlay.IsShowing)
         {
             return;
         }

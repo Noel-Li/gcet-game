@@ -386,6 +386,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3300001031}
   - component: {fileID: 3300001032}
+  - component: {fileID: 3300001033}
   m_Layer: 0
   m_Name: Comic Camera
   m_TagString: Untagged
@@ -459,6 +460,14 @@ Camera:
   m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!81 &3300001033
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3300001030}
+  m_Enabled: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

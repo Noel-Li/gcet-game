@@ -77,7 +77,7 @@ public class NpcController : MonoBehaviour
 
     private void Update()
     {
-        if (PauseController.IsPaused || ControlsOverlayController.IsOpen)
+        if (OpeningOverlay.IsShowing || PauseController.IsPaused || ControlsOverlayController.IsOpen)
         {
             return;
         }

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,19 +26,29 @@ public sealed class OpeningDialogue : MonoBehaviour
     [Tooltip("Portrait placed and aspect-fitted inside the dialogue frame's portrait window.")]
     [SerializeField] private Sprite portrait;
 
-    private void Start()
+    [Header("Sequence")]
+    [Tooltip("Optional title-card overlay shown and completed before the opening line appears.")]
+    [SerializeField] private OpeningOverlay openingOverlay;
+
+    private IEnumerator Start()
     {
+        if (GameProgress.Instance != null && !GameProgress.Instance.TryBeginOpeningDialogue())
+        {
+            yield break;
+        }
+
+        if (openingOverlay != null)
+        {
+            openingOverlay.ShowImmediately();
+            yield return openingOverlay.Play();
+        }
+
         EnsureDialogueExists();
 
         if (Dialogue.Instance == null)
         {
             Debug.LogError("[OpeningDialogue] Could not create the shared Dialogue renderer.", this);
-            return;
-        }
-
-        if (GameProgress.Instance != null && !GameProgress.Instance.TryBeginOpeningDialogue())
-        {
-            return;
+            yield break;
         }
 
         Dialogue dialogue = Dialogue.Instance;
