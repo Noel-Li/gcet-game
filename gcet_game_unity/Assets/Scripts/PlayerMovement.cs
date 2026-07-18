@@ -2,11 +2,11 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Moves a square player with WASD. The player walks freely across Areas but is always
-/// clamped inside the current Area (PlayerMovement.ClampToArea) so they can never go
-/// off-camera. The top edge of a room acts as a gate: the player cannot leave upward until
-/// that Area.ExitUnlocked is true (an NPC flips that). Once unlocked the player walks up
-/// into the next room and the camera follows.
+/// Moves a square player with WASD. The player walks freely but is always kept on-camera by two
+/// layered clamps: the current <see cref="GameArea"/> clamps the player to its bounds (leaving a
+/// gap only on edges where an <see cref="InvisibleWall"/> sits), and each wall then blocks or
+/// permits passage based on its lock state. A locked wall seals the way from both sides; an
+/// unlocked one lets the player walk straight through into the next region. The camera follows.
 /// </summary>
 [RequireComponent(typeof(SpriteRenderer))]
 public class PlayerMovement : MonoBehaviour

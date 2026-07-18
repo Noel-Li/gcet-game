@@ -1,262 +1,108 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// One Area = exactly one camera view. Its size is derived from the camera at runtime so it
-/// always fills the screen precisely (no void visible around it). The player is clamped to
-/// the Area's bounds (PlayerMovement.ClampToArea) so they can never go off-camera.
-///
-/// Areas tile a grid by <see cref="areaCol"/>/<see cref="areaRow"/>. Movement in each direction is
-/// gated only by whether the destination cell exists: it must hold a neighbour Area OR an
-/// <see cref="InvisibleWall">InvisibleWall</see> (whose own logic then permits or blocks passage).
-/// An empty cell is the void and is always shut. The old right/top UNLOCK flags are retired —
-/// area limits are off, and the invisible wall is now the only forward gate.
-/// The camera snaps to whichever room the player occupies, so the view always shows exactly one
-/// full Area (or wall-governed cell) and never a locked-off region.
-/// </summary>
+[RequireComponent(typeof(BoxCollider2D))]
 public class GameArea : MonoBehaviour
 {
-    [Header("Grid coordinates")]
-    [SerializeField] private int areaCol = 0;
-    [SerializeField] private int areaRow = 0;
-
-    [Header("Identity")]
-    [SerializeField] private string areaName;
-
-    [Header("Gates")]
-    [Tooltip("When true AND a room exists to the right, the player may walk right into it.")]
-    [SerializeField] private bool rightExitUnlocked = false;
-
-    [Tooltip("When true AND a room exists above, the player may walk up into it. An NPC flips this.")]
-    [SerializeField] private bool topExitUnlocked = false;
-
-    /// <summary>All live Areas.</summary>
-    private static readonly System.Collections.Generic.List<GameArea> registered = new System.Collections.Generic.List<GameArea>();
+    private static readonly List<GameArea> registered = new List<GameArea>();
+    private BoxCollider2D col;
 
     private void Awake()
     {
-        if (string.IsNullOrEmpty(areaName))
-        {
-            areaName = $"Area_{areaCol}_{areaRow}";
-        }
-        FitToCamera();
-
-        var renderer = GetComponentInChildren<SpriteRenderer>();
-        if (renderer != null)
-        {
-            renderer.sortingOrder = -10;
-        }
+        col = GetComponent<BoxCollider2D>();
+        // The collider is a trigger: it is purely an editor handle the user drags to size the region. All gating is done
+        // mathematically by ClampPlayer — a solid collider would physically block the player and fight the math.
+        col.isTrigger = true;
     }
+    private void OnEnable() { if (!registered.Contains(this)) registered.Add(this); }
+    private void OnDisable() { registered.Remove(this); }
 
-    private void OnEnable()
-    {
-        if (!registered.Contains(this))
-        {
-            registered.Add(this);
-        }
-    }
-
-    private void OnDisable()
-    {
-        registered.Remove(this);
-    }
-
-    public string AreaName => areaName;
-    public int AreaCol => areaCol;
-    public int AreaRow => areaRow;
-    public bool RightExitUnlocked => rightExitUnlocked;
-    public bool TopExitUnlocked => topExitUnlocked;
-
-    /// <summary>Call from the NPC / a switch to open this room's right-hand gate.</summary>
-    public void UnlockRightExit()
-    {
-        rightExitUnlocked = true;
-    }
-
-    /// <summary>Call from the NPC to open this room's top gate.</summary>
-    public void UnlockTopExit()
-    {
-        topExitUnlocked = true;
-    }
-
-    private void FitToCamera()
-    {
-        Camera mainCam = Camera.main;
-        float ortho = mainCam != null ? mainCam.orthographicSize : 5f;
-        float aspect = mainCam != null ? mainCam.aspect : 16f / 9f;
-        float height = ortho * 2f;
-        float width = height * aspect;
-
-        // Tile the grid: each room is one camera view, placed edge to edge with no gaps.
-        transform.position = new Vector3(areaCol * width, areaRow * height, 0f);
-
-        Transform background = transform.Find("Background");
-        if (background != null)
-        {
-            background.localScale = new Vector3(width, height, 1f);
-        }
-
-        cachedSize = new Vector2(width, height);
-    }
-
-    private Vector2 cachedSize;
-
-    public float Width => cachedSize.x;
-    public float Height => cachedSize.y;
-
+    public string AreaName => name;
     public Vector3 Center => transform.position;
+    public float Width => col != null ? col.size.x : 0f;
+    public float Height => col != null ? col.size.y : 0f;
+    public Bounds Bounds => new Bounds(Center, new Vector3(Width, Height, 0f));
 
-    public Bounds Bounds
+    /// <summary>
+    /// Grid identity of this region — a stable integer label derived from its world position, used by NpcController and
+    /// the dialogue system to identify which cell this region occupies. It is a label only; the region's actual position
+    /// is always its live transform. Nominal cell size is one camera viewport (cellW = camera.aspect*ortho*2, cellH = ortho*2).
+    /// </summary>
+    public int AreaCol
     {
         get
         {
-            Vector3 half = new Vector3(Width, Height, 0f) * 0.5f;
-            return new Bounds(Center, half * 2f);
+            float cellW = Width > 0f ? Width : 17.78f;
+            return Mathf.RoundToInt((Center.x - Width * 0.5f) / cellW);
+        }
+    }
+    public int AreaRow
+    {
+        get
+        {
+            float cellH = Height > 0f ? Height : 10f;
+            return Mathf.RoundToInt((Center.y - Height * 0.5f) / cellH);
         }
     }
 
     public bool ContainsPoint(Vector3 point)
     {
         Bounds b = Bounds;
-        return point.x >= b.min.x && point.x <= b.max.x &&
-               point.y >= b.min.y && point.y <= b.max.y;
+        return point.x >= b.min.x && point.x <= b.max.x && point.y >= b.min.y && point.y <= b.max.y;
     }
 
     public static GameArea GetAreaContaining(Vector3 point)
     {
-        foreach (var area in registered)
-        {
-            if (area != null && area.ContainsPoint(point))
-            {
-                return area;
-            }
-        }
+        foreach (var area in registered) if (area != null && area.ContainsPoint(point)) return area;
         return null;
     }
 
-    /// <summary>Finds the live Area at a specific grid coordinate, or null if none exists.</summary>
-    public static GameArea GetAreaAt(int col, int row)
+    public Vector3 ClampPlayer(Vector3 pos, float playerHalf)
     {
-        foreach (var area in registered)
-        {
-            if (area != null && area.areaCol == col && area.areaRow == row)
-            {
-                return area;
-            }
-        }
-        return null;
+        Bounds b = Bounds;
+        float minX = b.min.x + playerHalf, maxX = b.max.x - playerHalf;
+        float minY = b.min.y + playerHalf, maxY = b.max.y - playerHalf;
+
+        bool leftOpen = InvisibleWall.CoversVerticalEdge(b.min.x, pos.y);
+        bool rightOpen = InvisibleWall.CoversVerticalEdge(b.max.x, pos.y);
+        bool bottomOpen = InvisibleWall.CoversHorizontalEdge(b.min.y, pos.x);
+        bool topOpen = InvisibleWall.CoversHorizontalEdge(b.max.y, pos.x);
+
+        if (!leftOpen && pos.x < minX) { Debug.Log($"[GameArea {name}] clamp LEFT edge (void)"); pos.x = minX; }
+        if (!rightOpen && pos.x > maxX) { Debug.Log($"[GameArea {name}] clamp RIGHT edge (void) pos.x={pos.x:F2}>{maxX:F2} rightOpen={rightOpen}"); pos.x = maxX; }
+        if (!bottomOpen && pos.y < minY) { Debug.Log($"[GameArea {name}] clamp BOTTOM edge (void)"); pos.y = minY; }
+        if (!topOpen && pos.y > maxY) { Debug.Log($"[GameArea {name}] clamp TOP edge (void) pos.y={pos.y:F2}>{maxY:F2} topOpen={topOpen}"); pos.y = maxY; }
+        return pos;
     }
 
-    /// <summary>All live Areas with stale entries removed.</summary>
-    public static System.Collections.Generic.IReadOnlyList<GameArea> GetRegistered()
+    public bool ClampCamera(Vector2 viewportHalf, Vector3 center, out Vector3 clamped)
+    {
+        bool changed = false;
+        float cx = center.x, cy = center.y, cz = center.z;
+        Bounds b = Bounds;
+        float bandX = (Width * 0.5f) - viewportHalf.x;
+        float bandY = (Height * 0.5f) - viewportHalf.y;
+        float acx = b.min.x + Width * 0.5f, acy = b.min.y + Height * 0.5f;
+        if (bandX <= 0f) { if (Mathf.Abs(cx - acx) > 1e-4f) changed = true; cx = acx; }
+        else { float lo = acx - bandX, hi = acx + bandX; float n = Mathf.Clamp(cx, lo, hi); if (Mathf.Abs(n - cx) > 1e-4f) changed = true; cx = n; }
+        if (bandY <= 0f) { if (Mathf.Abs(cy - acy) > 1e-4f) changed = true; cy = acy; }
+        else { float lo = acy - bandY, hi = acy + bandY; float n = Mathf.Clamp(cy, lo, hi); if (Mathf.Abs(n - cy) > 1e-4f) changed = true; cy = n; }
+        clamped = new Vector3(cx, cy, cz);
+        return changed;
+    }
+
+    public static IReadOnlyList<GameArea> GetRegistered()
     {
         registered.RemoveAll(a => a == null);
         return registered;
     }
 
-    /// <summary>
-    /// True if the player is allowed to leave this room toward the cell (col,row): the destination
-    /// holds a neighbour Area OR is governed by an InvisibleWall (which itself blocks/permits passage).
-    /// Retires the old right/top unlock flags — area limits are off; only the wall gates progress now.
-    /// </summary>
-    public static bool IsExitOpen(int col, int row)
-    {
-        return GetAreaAt(col, row) != null || InvisibleWall.GetWallAt(col, row) != null;
-    }
-
-    /// <summary>
-    /// Clamps a player position so the player stays on-camera. Each edge is blocked unless the
-    /// player may actually leave through it: the destination cell must contain a neighbour Area OR
-    /// an InvisibleWall (an empty cell is the void and stays shut). This guarantees the player can
-    /// never walk into the void; the only forward gate is the invisible wall, opened by the conversation.
-    /// </summary>
-    public Vector3 ClampPlayer(Vector3 pos, float playerHalf)
+    private void OnDrawGizmos()
     {
         Bounds b = Bounds;
-
-        // An open edge lifts its wall entirely so the player may step through into the neighbour
-        // (or through to a wall-governed cell, whose own InvisibleWall then decides). A closed edge
-        // is the void — the player is kept inside this room.
-        bool leftOpen = IsExitOpen(areaCol - 1, areaRow);
-        bool rightOpen = IsExitOpen(areaCol + 1, areaRow);
-        bool bottomOpen = IsExitOpen(areaCol, areaRow - 1);
-        bool topOpen = IsExitOpen(areaCol, areaRow + 1);
-
-        float minX = b.min.x + playerHalf;
-        float maxX = b.max.x - playerHalf;
-        float minY = b.min.y + playerHalf;
-        float maxY = b.max.y - playerHalf;
-
-        if (!leftOpen) { pos.x = Mathf.Max(pos.x, minX); }
-        if (!rightOpen) { pos.x = Mathf.Min(pos.x, maxX); }
-        if (!bottomOpen) { pos.y = Mathf.Max(pos.y, minY); }
-        if (!topOpen) { pos.y = Mathf.Min(pos.y, maxY); }
-
-        return pos;
-    }
-
-    /// <summary>
-    /// Clamps a camera center so the whole orthographic viewport stays inside this Area's bounds, returning whether the
-    /// clamp positions changed. Each axis is pinned to the area center when the viewport is exactly the area width/height
-    /// (the current fit), and clamped to the centered slack band when it is smaller — which is what stops the view from
-    /// ever revealing the void or the adjacent/locked room while still letting a smaller camera follow the player.
-    /// </summary>
-    public bool ClampCamera(Vector2 viewportHalf, Vector3 center, out Vector3 clamped)
-    {
-        bool changed = false;
-        float cx = center.x;
-        float cy = center.y;
-        float cz = center.z;
-
-        Bounds b = Bounds;
-        float bandX = (Width * 0.5f) - viewportHalf.x;
-        float bandY = (Height * 0.5f) - viewportHalf.y;
-
-        float areaCenterX = b.min.x + Width * 0.5f;
-        float areaCenterY = b.min.y + Height * 0.5f;
-
-        // If the viewport is >= the area size along this axis there is no room to move — lock to the area center so
-        // the whole Area fills the screen and nothing outside (void/other rooms) is ever visible.
-        if (bandX <= 0f)
-        {
-            if (Mathf.Abs(cx - areaCenterX) > 0.0001f)
-            {
-                changed = true;
-            }
-            cx = areaCenterX;
-        }
-        else
-        {
-            float minCx = areaCenterX - bandX;
-            float maxCx = areaCenterX + bandX;
-            float ncx = Mathf.Clamp(cx, minCx, maxCx);
-            if (Mathf.Abs(ncx - cx) > 0.0001f)
-            {
-                changed = true;
-            }
-            cx = ncx;
-        }
-
-        if (bandY <= 0f)
-        {
-            if (Mathf.Abs(cy - areaCenterY) > 0.0001f)
-            {
-                changed = true;
-            }
-            cy = areaCenterY;
-        }
-        else
-        {
-            float minCy = areaCenterY - bandY;
-            float maxCy = areaCenterY + bandY;
-            float ncy = Mathf.Clamp(cy, minCy, maxCy);
-            if (Mathf.Abs(ncy - cy) > 0.0001f)
-            {
-                changed = true;
-            }
-            cy = ncy;
-        }
-
-        clamped = new Vector3(cx, cy, cz);
-        return changed;
+        Gizmos.color = new Color(0.2f, 0.8f, 1f, 0.35f);
+        Gizmos.DrawCube(b.center, new Vector3(b.size.x, b.size.y, 0f));
+        Gizmos.color = new Color(0.2f, 0.8f, 1f, 0.9f);
+        Gizmos.DrawWireCube(b.center, new Vector3(b.size.x, b.size.y, 0f));
     }
 }

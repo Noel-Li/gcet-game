@@ -1,14 +1,20 @@
 using UnityEngine;
 
 /// <summary>
-/// Clamped-follow camera. Each frame it smoothly follows the player (via SmoothDamp) and then clamps the result to the
-/// current Area's bounds through <see cref="GameArea.ClampCamera"/>, so the view never shows void or the
-/// adjacent/locked room — only the playable area the player stands in. The current Area is resolved from the player's
-/// position each frame; if the player is outside every Area the camera holds on the last valid room so void is never
-/// shown on the way out.
+/// Clamped-follow camera with two distinct behaviours:
 ///
-/// Smoothing only runs while inside a known room; on the frame re-entering a room the camera snaps to its clamped target
-/// first so it never lags past the visible boundary and shows emptiness.
+///  * WITHIN a region — smoothly follows the player (SmoothDamp) and clamps the result to the
+///    current region's bounds, so the view never shows void or an adjacent room. For a 1×1 region
+///    the viewport exactly fills it, so the clamp pins to center (no follow needed); for a larger
+///    region (e.g. 2×2) the camera actually tracks the player inside it.
+///
+///  * BETWEEN regions — the frame the player is in is resolved from their position each frame. The
+///    instant it changes, the camera SNAPS to the new region's clamped target (instead of easing
+///    across and briefly showing the void/gap between rooms). Smoothing resumes once settled.
+///
+/// If the player is outside every region/wall the camera holds on the last valid room (clamped) as
+/// long as the player is still within its bounds; once the player leaves even that, it free-follows
+/// so the player is never dragged off-screen.
 /// </summary>
 public class FollowCamera : MonoBehaviour
 {
@@ -18,17 +24,15 @@ public class FollowCamera : MonoBehaviour
     [Header("Motion")]
     [SerializeField] private float smoothTime = 0.15f;
 
-    [Header("Follow slack")]
-    [Tooltip("Insets the player from the room edges (world units) so the camera eases before hitting a wall.")]
-    [SerializeField] private float lookAheadInset = 0.0f;
-
     private float velocityX;
     private float velocityY;
     private float defaultZ;
     private Camera cam;
-    private GameArea lastArea;
-    private InvisibleWall lastWall;
     private Vector2 viewportHalf;
+
+    // The region/cell we are currently framing. Compared each frame to detect a transition (→ snap).
+    private GameArea framedArea;
+    private InvisibleWall framedWall;
 
     private void Reset()
     {
@@ -51,16 +55,23 @@ public class FollowCamera : MonoBehaviour
         CacheViewportHalf();
 
         // Start framed on the player's room so we never snap-arrive.
-        GameArea startArea = player != null ? GameArea.GetAreaContaining(player.position) : null;
-        if (startArea != null)
+        FrameTarget start = ResolveTarget(player != null ? player.position : transform.position);
+        if (start.area != null)
         {
-            lastArea = startArea;
+            framedArea = start.area;
             Vector3 clamped;
-            startArea.ClampCamera(viewportHalf, player.position, out clamped);
+            start.area.ClampCamera(viewportHalf, player != null ? player.position : transform.position, out clamped);
             transform.position = new Vector3(clamped.x, clamped.y, defaultZ);
-            velocityX = 0f;
-            velocityY = 0f;
         }
+        else if (start.wall != null)
+        {
+            framedWall = start.wall;
+            Vector3 clamped;
+            start.wall.ClampCamera(viewportHalf, player != null ? player.position : transform.position, out clamped);
+            transform.position = new Vector3(clamped.x, clamped.y, defaultZ);
+        }
+        velocityX = 0f;
+        velocityY = 0f;
     }
 
     private void CacheViewportHalf()
@@ -85,75 +96,119 @@ public class FollowCamera : MonoBehaviour
     {
         if (player == null)
         {
-            return;
+            LocatePlayer();
+            if (player == null)
+            {
+                return;
+            }
         }
 
-        GameArea area = GameArea.GetAreaContaining(player.position);
-        if (area != null)
-        {
-            lastArea = area;
-        }
-
-        // The wall sits on top of an empty cell (no Area), so when the player walks into that cell the camera must
-        // still frame it — otherwise the player walks off-screen to reach a wall that the popup can only show on-screen.
-        // A wall-governed cell acts as its own room; track it as the last valid target.
-        InvisibleWall wall = InvisibleWall.GetCellContaining(player.position);
-        if (wall != null)
-        {
-            lastWall = wall;
-        }
-
-        // Decide purely on WHERE the player stands, not on the clamp result. Pin to the current room/cell if one
-        // contains them; otherwise pin to the last room/cell — but ONLY while the player is still within its bounds.
-        // The wall is a GATE, not a room to live in: once the player walks through it into a region that has no room,
-        // no area and no wall-cell contains them, so any fallback clamp would pin the camera to an old center and slide
-        // the player off-screen. In that case free-follow the player instead of pinning.
         CacheViewportHalf();
-        Vector3 clampedPos = transform.position;
-        bool pin;
+        FrameTarget target = ResolveTarget(player.position);
 
-        if (area != null)
+        // Decide purely on WHERE the player stands. A wall-governed cell frames like a room so the
+        // gate is always on-screen; an empty cell is the void.
+        if (target.area != null)
         {
-            pin = true;
-            ClampThrough(area.ClampCamera, out clampedPos);
+            if (target.area != framedArea)
+            {
+                // Entered a new region → snap, do not ease (avoids showing the gap/void between rooms).
+                framedArea = target.area;
+                framedWall = null;
+                Vector3 clamped;
+                framedArea.ClampCamera(viewportHalf, player.position, out clamped);
+                transform.position = new Vector3(clamped.x, clamped.y, defaultZ);
+                velocityX = 0f;
+                velocityY = 0f;
+            }
+            else
+            {
+                SmoothClampThrough(framedArea.ClampCamera, player.position);
+            }
         }
-        else if (wall != null)
+        else if (target.wall != null)
         {
-            pin = true;
-            ClampThrough(wall.ClampCamera, out clampedPos);
-        }
-        else if (lastArea != null && lastArea.ContainsPoint(player.position))
-        {
-            pin = true;
-            ClampThrough(lastArea.ClampCamera, out clampedPos);
-        }
-        else if (lastWall != null && lastWall.CellBounds.Contains(player.position))
-        {
-            pin = true;
-            ClampThrough(lastWall.ClampCamera, out clampedPos);
+            if (target.wall != framedWall)
+            {
+                framedWall = target.wall;
+                framedArea = null;
+                Vector3 clamped;
+                framedWall.ClampCamera(viewportHalf, player.position, out clamped);
+                transform.position = new Vector3(clamped.x, clamped.y, defaultZ);
+                velocityX = 0f;
+                velocityY = 0f;
+            }
+            else
+            {
+                SmoothClampThrough(framedWall.ClampCamera, player.position);
+            }
         }
         else
         {
-            pin = false;
+            // Void: hold on the last room while the player is still inside it, else free-follow.
+            if (framedArea != null && framedArea.ContainsPoint(player.position))
+            {
+                SmoothClampThrough(framedArea.ClampCamera, player.position);
+            }
+            else if (framedWall != null && framedWall.CellBounds.Contains(player.position))
+            {
+                SmoothClampThrough(framedWall.ClampCamera, player.position);
+            }
+            else
+            {
+                // Player has left every room — free-follow so they stay on-screen.
+                framedArea = null;
+                framedWall = null;
+                Vector3 desired = DesiredUnclamped(player.position);
+                transform.position = desired;
+                velocityX = 0f;
+                velocityY = 0f;
+            }
         }
-
-        transform.position = pin ? clampedPos : DesiredUnclamped();
     }
 
-    /// <summary>Smooth-eases toward the player then runs the supplied room/wall clamp. Used when a valid target contains the player.</summary>
-    private void ClampThrough(CameraClamp clamp, out Vector3 clamped)
+    /// <summary>Smooth-eases toward the player then runs the supplied room/wall clamp.</summary>
+    private void SmoothClampThrough(CameraClamp clamp, Vector3 desired)
     {
-        float targetX = Mathf.SmoothDamp(transform.position.x, player.position.x, ref velocityX, smoothTime);
-        float targetY = Mathf.SmoothDamp(transform.position.y, player.position.y, ref velocityY, smoothTime);
+        float targetX = Mathf.SmoothDamp(transform.position.x, desired.x, ref velocityX, smoothTime);
+        float targetY = Mathf.SmoothDamp(transform.position.y, desired.y, ref velocityY, smoothTime);
+        Vector3 clamped;
         clamp(viewportHalf, new Vector3(targetX, targetY, defaultZ), out clamped);
+        transform.position = clamped;
     }
 
     /// <summary>Smooth-eases the camera toward the player with no room clamp — used once the player has left every room.</summary>
-    private Vector3 DesiredUnclamped()
+    private Vector3 DesiredUnclamped(Vector3 desired)
     {
-        float targetX = Mathf.SmoothDamp(transform.position.x, player.position.x, ref velocityX, smoothTime);
-        float targetY = Mathf.SmoothDamp(transform.position.y, player.position.y, ref velocityY, smoothTime);
+        float targetX = Mathf.SmoothDamp(transform.position.x, desired.x, ref velocityX, smoothTime);
+        float targetY = Mathf.SmoothDamp(transform.position.y, desired.y, ref velocityY, smoothTime);
         return new Vector3(targetX, targetY, defaultZ);
+    }
+
+    /// <summary>Resolves what frames the player: an Area, a wall-governed cell, or nothing (void).</summary>
+    private FrameTarget ResolveTarget(Vector3 point)
+    {
+        return new FrameTarget
+        {
+            area = GameArea.GetAreaContaining(point),
+            wall = InvisibleWall.GetCellContaining(point),
+        };
+    }
+
+    private void LocatePlayer()
+    {
+        var playerObj = GameObject.Find("Player");
+        if (playerObj != null)
+        {
+            var pm = playerObj.GetComponent<PlayerMovement>();
+            player = pm != null ? pm.transform : playerObj.transform;
+        }
+    }
+
+    private struct FrameTarget
+    {
+        public GameArea area;
+        public InvisibleWall wall;
     }
 
     /// <summary>A camera-clamp: pins a desired center so the viewport stays inside one room. Shared by rooms and wall cells.</summary>

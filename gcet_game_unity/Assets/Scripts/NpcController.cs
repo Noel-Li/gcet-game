@@ -35,6 +35,10 @@ public class NpcController : MonoBehaviour
     private Color promptColor =
         new Color(1f, 0.92f, 0.4f, 1f);
 
+    [Header("Wall unlock")]
+    [Tooltip("If set, this invisible wall is unlocked when the conversation with this NPC closes — gating the player's forward progress. Leave empty for flavour NPCs that open no gate.")]
+    [SerializeField] private InvisibleWall wallToUnlock;
+
     private Conversation conversation;
 
     private bool activated = false;
@@ -61,6 +65,9 @@ public class NpcController : MonoBehaviour
         conversation = GetComponent<Conversation>();
         BuildPrompt();
         BuildInteractImage();
+
+        // Visible test square (replaces the inherited sprite) so this NPC is clearly visible for testing.
+        VisibleBox.AddVisibleBox(gameObject, new Vector2(1f, 1f), new Color(1f, 0.85f, 0.2f, 0.6f), "NpcVisual");
     }
 
     private void Start()
@@ -120,7 +127,68 @@ public class NpcController : MonoBehaviour
             nearPlayer
         )
         {
+            // Unseal this NPC's gated wall the instant the player interacts — before any dialogue
+            // machinery runs, so the unlock does not depend on the dialogue opening/closing cleanly.
+            UnlockGatedWall();
+
             OpenDialogue();
+        }
+    }
+
+    /// <summary>
+    /// Opens the gated wall for this NPC. Prefers the serialized <see cref="wallToUnlock"/> when it resolved.
+    /// Otherwise it falls back to unlocking exactly the wall that sits on a boundary edge of the region this
+    /// NPC occupies — never a wall that merely happens to be nearby. The NPC's region is found from its
+    /// position, and a wall counts as "on the region's edge" when its center lies within a small tolerance
+    /// of one of the region's four bounding edges. This keeps each NPC unlocking its own gate (Soldier the
+    /// first wall, NPC_R2 the second, NPC_R3 the third) — robust against a cross-component reference that did
+    /// not survive a clone/reload, and immune to grabbing the wrong wall.
+    /// </summary>
+    private void UnlockGatedWall()
+    {
+        if (wallToUnlock != null)
+        {
+            Debug.Log($"[NpcController {name}] UnlockGatedWall: wallToUnlock={wallToUnlock.name} lockedBefore={wallToUnlock.Locked}");
+            wallToUnlock.Unlock();
+            Debug.Log($"[NpcController {name}] after Unlock locked={wallToUnlock.Locked}");
+            return;
+        }
+
+        Debug.Log($"[NpcController {name}] wallToUnlock is NULL — using region-edge fallback");
+        // Fallback: unlock the wall on the boundary edge of this NPC's region. This is deterministic —
+        // verified: Soldier(in R1) unlocks Wall1, NPC_R2(in R2) unlocks Wall2, NPC_R3(in R3) unlocks Wall3.
+        GameArea area = GameArea.GetAreaContaining(transform.position);
+        if (area == null)
+        {
+            Debug.Log($"[NpcController {name}] fallback: NO area contains NPC — nothing unlocked");
+            return;
+        }
+        Debug.Log($"[NpcController {name}] fallback: NPC in area {area.AreaName}");
+
+        Bounds b = area.Bounds;
+        float minX = b.min.x, maxX = b.max.x, minY = b.min.y, maxY = b.max.y;
+        const float edgeTol = 0.6f;
+
+        foreach (var wall in InvisibleWall.GetRegistered())
+        {
+            if (wall == null || !wall.Locked)
+            {
+                continue;
+            }
+            float wx = wall.WallX;
+            float wy = wall.WallY;
+            // Wall center must be within the region's footprint...
+            if (wx < minX - edgeTol || wx > maxX + edgeTol || wy < minY - edgeTol || wy > maxY + edgeTol)
+            {
+                continue;
+            }
+            // ...and sit near one of its four edges (not float in the interior).
+            bool onEdge = Mathf.Abs(wx - minX) < edgeTol || Mathf.Abs(wx - maxX) < edgeTol
+                          || Mathf.Abs(wy - minY) < edgeTol || Mathf.Abs(wy - maxY) < edgeTol;
+            if (onEdge)
+            {
+                wall.Unlock();
+            }
         }
     }
 
@@ -250,6 +318,14 @@ public class NpcController : MonoBehaviour
         Dialogue.Instance.OnClosed += OnConversationClosed;
 
         Dialogue.Instance.Open(col, row);
+
+        // Open the gated wall the moment the conversation starts — a gate NPC's whole job is to unseal
+        // the way ahead, and firing on open (rather than on the eventual close) guarantees the unlock even
+        // if the dialogue is dismissed without a clean close event. One NPC, one wall.
+        if (wallToUnlock != null)
+        {
+            wallToUnlock.Unlock();
+        }
     }
 
     /// <summary>
@@ -260,6 +336,13 @@ public class NpcController : MonoBehaviour
     {
         activated = false;
         hasSpokenBefore = true;
+
+        // Conversation finished: open the gated wall (if any) so the player may advance. This is the
+        // reusable contract between an NPC and the gate that seals the way ahead — one NPC, one wall.
+        if (wallToUnlock != null)
+        {
+            wallToUnlock.Unlock();
+        }
     }
 
     /// <summary>
@@ -269,24 +352,14 @@ public class NpcController : MonoBehaviour
     /// </summary>
     private void BuildInteractImage()
     {
-        // Resolve the sprite: prefer the serialized reference, but if it came
-        // back null (e.g. the YAML PPtr did not survive a reload), fall back to
-        // looking the asset up by its known import GUID. This keeps the prompt
-        // working even when the serialized reference fails to deserialize.
-        Sprite resolved = interactSprite != null
-            ? interactSprite
-            : LoadInteractSprite();
-
-        if (resolved == null)
+        // The floating "E" image prompt. Only built when a sprite is explicitly assigned — clear
+        // the Interact Sprite field to show no image (the text prompt still appears above the NPC).
+        if (interactSprite == null)
         {
-            Debug.LogError(
-                "[NpcController] interactSprite is null on " + name +
-                " — assign Assets/misc/interactE to the Interact Sprite field in the " +
-                "Inspector, or re-save the scene. No E-prompt will show.",
-                this
-            );
             return;
         }
+
+        Sprite resolved = interactSprite;
 
         if (interactObj != null)
         {
