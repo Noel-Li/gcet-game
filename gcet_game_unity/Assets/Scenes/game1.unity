@@ -2132,24 +2132,199 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &151484822
+--- !u!114 &368804119
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 151484821}
+  m_GameObject: {fileID: 368804118}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 35e65e4302661f84f8428024eb88eebc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Conversation
-  steps: []
-  repeatSteps: []
-  speakerBackgrounds: []
-  speakerPortraits: []
-  gameVoiceBackground: {fileID: 0}
-  multipleChoiceBackground: {fileID: 0}
+  steps:
+  - speakerName: 郭小月
+    expression: normal
+    panelStyle: 0
+    text: Hi! Are you 王喜悦 (Wáng Xǐyuè)?
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 王喜悦
+    expression: normal
+    panelStyle: 0
+    text: 对，我是。你是谁？ (Duì, wǒ shì. Nǐ shì shéi?)
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: game
+    expression: normal
+    panelStyle: 1
+    text: 'Trace 我 (Wǒ) to complete: ___ 是郭小月 (shì Guō Xiǎoyuè).'
+    action: 1
+    nextStep: 3
+    requiredTraceCount: 1
+    traceCharacters:
+    - 我
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 郭小月
+    expression: normal
+    panelStyle: 0
+    text: 我是郭小月 (Wǒ shì Guō Xiǎoyuè). I was told that you know where my... my grandma is, 郭品玉 (Guō Pǐnyù).
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 郭小月
+    expression: normal
+    panelStyle: 0
+    text: <i>Don't want them to get suspicious with me.</i>
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 王喜悦
+    expression: normal
+    panelStyle: 0
+    text: Woah! 我 (Wǒ) never 听说过郭品玉有个 (tīng shuōguò Guō Pǐnyù yǒu gè) granddaughter?
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 王喜悦
+    expression: normal
+    panelStyle: 0
+    text: I haven't seen her in 两天... 但是我听说 (Liǎng tiān... dànshì wǒ tīng shuō) she is going to be giving her stuff to the trader who passes by here.
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: game
+    expression: normal
+    panelStyle: 1
+    text: Trace 知 and 道 to complete 郭小月's question.
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices:
+    - label: Start tracing 知 and 道
+      targetStep: 8
+      action: 1
+      requiredTraceCount: 2
+      traceCharacters:
+      - 知
+      - 道
+    useMultipleChoicePanel: 0
+  - speakerName: 郭小月
+    expression: normal
+    panelStyle: 0
+    text: 你知道在哪里吗？ (Nǐ zhīdào zài nǎlǐ ma?)
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 王喜悦
+    expression: normal
+    panelStyle: 0
+    text: 我昨天看到吴叔杨 (Wǒ zuótiān kàn dào Tángjiālín), who is our trader. He said he was meeting 郭品玉 (Guō Pǐnyù) at the bridge across the river.
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 王喜悦
+    expression: panic
+    panelStyle: 0
+    text: Maybe if you hurry you will be able to catch them. 很多别人会在哪里，所以一定要小心。 (Hěnduō biérén huì zài nǎlǐ, suǒyǐ yīdìng yào xiǎoxīn.)
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 郭小月
+    expression: excited
+    panelStyle: 0
+    text: 谢谢！ (Xièxie!)
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: game
+    expression: normal
+    panelStyle: 1
+    text: <i>Quick! Hurry to the bridge before you miss your chance!</i> Trace 别 and 人 (biérén), which means other people.
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices:
+    - label: Start tracing 别 and 人
+      targetStep: 13
+      action: 1
+      requiredTraceCount: 2
+      traceCharacters:
+      - 别
+      - 人
+    useMultipleChoicePanel: 0
+  repeatSteps:
+  - speakerName: 王喜悦
+    expression: panic
+    panelStyle: 0
+    text: Hurry! 郭品玉 is meeting the trader at the bridge across the river.
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  speakerBackgrounds:
+  - speakerName: 郭小月
+    background: {fileID: 5026058822647386680, guid: 90632d7d2df81e34cb10bd441244ebb5, type: 3}
+  - speakerName: 王喜悦
+    background: {fileID: -731586538600574123, guid: 91a6ac330e5f95e46ace8caa9a4d98a5, type: 3}
+  speakerPortraits:
+  - speakerName: 郭小月
+    expression: normal
+    portrait: {fileID: 367173573683222419, guid: 6eafc250f344d7848bb41726d712aa81, type: 3}
+    slotOffset: {x: 0, y: 0}
+  - speakerName: 郭小月
+    expression: excited
+    portrait: {fileID: 7377018004420343006, guid: aeeb714301957a540aa0c83917ba04b8, type: 3}
+    slotOffset: {x: 0, y: 0}
+  - speakerName: 王喜悦
+    expression: normal
+    portrait: {fileID: -894294935112038360, guid: 4f9ee480d9cb34d4793d3f1a428f619b, type: 3}
+    slotOffset: {x: 0, y: 0}
+  - speakerName: 王喜悦
+    expression: panic
+    portrait: {fileID: -1511221300618825116, guid: 3d8e5a41933d2744389090b1d804b71b, type: 3}
+    slotOffset: {x: 0, y: 0}
+  gameVoiceBackground: {fileID: 8702785369876850875, guid: 6183e110186ac8a42bad440dacedf15a, type: 3}
+  multipleChoiceBackground: {fileID: -9018818332010216090, guid: dd1d2b4546a5cb34a817cf814d3cecf5, type: 3}
 --- !u!50 &151484823
 Rigidbody2D:
   serializedVersion: 5
@@ -2209,6 +2384,7 @@ MonoBehaviour:
   promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
+  resumeAfterTracing: 0
 --- !u!61 &151484826
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3365,6 +3541,7 @@ MonoBehaviour:
   promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
+  resumeAfterTracing: 1
 --- !u!114 &200000026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3378,7 +3555,16 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Conversation
   steps: []
-  repeatSteps: []
+  repeatSteps:
+  - speakerName: soldier
+    expression: normal
+    panelStyle: 0
+    text: "Did you find 王喜悦？"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    choices: []
+    useMultipleChoicePanel: 0
   speakerBackgrounds:
   - speakerName: player
     background: {fileID: 5026058822647386680, guid: 90632d7d2df81e34cb10bd441244ebb5, type: 3}
@@ -5423,13 +5609,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &368804119
+--- !u!114 &151484822
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 368804118}
+  m_GameObject: {fileID: 151484821}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 35e65e4302661f84f8428024eb88eebc, type: 3}
@@ -5488,6 +5674,8 @@ MonoBehaviour:
   promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
+  resumeAfterTracing: 1
+  traceOwnerKey: Silk Seller
 --- !u!61 &368804123
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -34521,6 +34709,346 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3200000020}
   m_CullTransparentMesh: 1
+--- !u!1 &1741795588
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1741795591}
+  - component: {fileID: 1741795590}
+  - component: {fileID: 1741795589}
+  - component: {fileID: 3400000100}
+  - component: {fileID: 3400000101}
+  m_Layer: 0
+  m_Name: motherMain_0
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+
+--- !u!61 &1741795589
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741795588}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 1.0145496, y: 2.8914406}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 5.71, y: 9.81}
+    newSize: {x: 5.71, y: 9.81}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 3.6809008, y: 4.02712}
+  m_EdgeRadius: 0
+
+--- !u!212 &1741795590
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741795588}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: -1371232619
+  m_SortingLayer: 4
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: -2151578725104356627, guid: 73149110fd3e77b4c8f4a514a09d9d88, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 5.71, y: 9.81}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+
+--- !u!4 &1741795591
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741795588}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 28.2, y: -1.98, z: 0}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+
+--- !u!114 &3400000100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741795588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e589a00c60fba8f40a0e965132a43832, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::NpcController
+  interactRange: 2.5
+  promptText: Press E to talk
+  interactSprite: {fileID: -2983803142128348173, guid: d9840369a815df6478c698adc42a790b, type: 3}
+  interactImageSize: {x: 1.4, y: 1.45}
+  interactPromptGap: 0.12
+  promptVerticalOffset: 3
+  promptFontSize: 22
+  promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
+  resumeAfterTracing: 0
+--- !u!114 &3400000101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741795588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e65e4302661f84f8428024eb88eebc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Conversation
+  steps:
+  - speakerName: mother
+    expression: normal
+    panelStyle: 0
+    text: "Respect your elders! 尊重老人！"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    choices: []
+    useMultipleChoicePanel: 0
+  repeatSteps: []
+  speakerBackgrounds:
+  - speakerName: mother
+    background: {fileID: -6559343550154265083, guid: 3fdc8f29ec291424d8023f0c07472df3, type: 3}
+  speakerPortraits:
+  - speakerName: mother
+    expression: normal
+    portrait: {fileID: -2151578725104356627, guid: 73149110fd3e77b4c8f4a514a09d9d88, type: 3}
+    slotOffset: {x: 0, y: 0.15}
+  gameVoiceBackground: {fileID: 0}
+  multipleChoiceBackground: {fileID: 0}
+
+--- !u!1 &2122680199
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2122680202}
+  - component: {fileID: 2122680201}
+  - component: {fileID: 2122680200}
+  m_Layer: 0
+  m_Name: lilguyMain_0
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+
+--- !u!61 &2122680200
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2122680199}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 1.8143644}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 4.26, y: 7.48}
+    newSize: {x: 4.26, y: 7.48}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 4.26, y: 3.8512707}
+  m_EdgeRadius: 0
+
+--- !u!212 &2122680201
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2122680199}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: -1371232619
+  m_SortingLayer: 4
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 3796923044871328568, guid: b99b6926c2068f249b36654bc841afae, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 4.26, y: 7.48}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+
+--- !u!4 &2122680202
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2122680199}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 26.87, y: -2.43, z: 0}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -34714,3 +35242,5 @@ SceneRoots:
   - {fileID: 1228570470}
   - {fileID: 1560790430}
   - {fileID: 161774549}
+  - {fileID: 1741795591}
+  - {fileID: 2122680202}

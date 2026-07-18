@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Survives scene loads (<see cref="DontDestroyOnLoad"/>) as the contract between the main scene and the hanzi tracing
@@ -28,6 +30,8 @@ public class GameProgress : MonoBehaviour
 
     [SerializeField] private int requiredTraceCount = 1;
     [SerializeField] private int completedTraceCount;
+    [SerializeField] private List<string> requiredTraceCharacters = new List<string>();
+    [SerializeField] private string traceOwnerKey;
 
     /// <summary>
     /// The player position captured just before leaving for the tracing scene, so the reload can put the
@@ -57,6 +61,8 @@ public class GameProgress : MonoBehaviour
     public int ResumeStep => resumeStep;
     public int RequiredTraceCount => requiredTraceCount;
     public int CompletedTraceCount => completedTraceCount;
+    public IReadOnlyList<string> RequiredTraceCharacters => requiredTraceCharacters;
+    public string TraceOwnerKey => traceOwnerKey;
 
     /// <summary>Claims the one-time opening line for this game session.</summary>
     public bool TryBeginOpeningDialogue()
@@ -74,12 +80,33 @@ public class GameProgress : MonoBehaviour
     /// Called from the dialogue's writing step. Records which room this NPC gates and which conversation step to resume
     /// at on return, then opens the tracing scene. The player may move forward only once the trace completes.
     /// </summary>
-    public void BeginTrace(int areaCol, int areaRow, int stepToResume, int charactersToComplete = 1)
+    public void BeginTrace(
+        int areaCol,
+        int areaRow,
+        int stepToResume,
+        int charactersToComplete = 1,
+        string ownerKey = null,
+        IList<string> charactersToTrace = null)
     {
         targetCol = areaCol;
         targetRow = areaRow;
         resumeStep = stepToResume;
-        requiredTraceCount = Mathf.Max(1, charactersToComplete);
+        requiredTraceCharacters.Clear();
+        if (charactersToTrace != null)
+        {
+            for (int i = 0; i < charactersToTrace.Count; i++)
+            {
+                string characterName = charactersToTrace[i]?.Trim();
+                if (!string.IsNullOrEmpty(characterName))
+                {
+                    requiredTraceCharacters.Add(characterName);
+                }
+            }
+        }
+        requiredTraceCount = requiredTraceCharacters.Count > 0
+            ? requiredTraceCharacters.Count
+            : Mathf.Max(1, charactersToComplete);
+        traceOwnerKey = ownerKey ?? string.Empty;
         completedTraceCount = 0;
         tracePassed = false;
         dialogueResumed = false;
@@ -96,6 +123,19 @@ public class GameProgress : MonoBehaviour
             return;
         }
         SceneManager.LoadScene(traceSceneName);
+    }
+
+    /// <summary>Atomically lets the NPC that launched the trace restore its dialogue exactly once.</summary>
+    public bool TryClaimTraceResume(string ownerKey)
+    {
+        if (!tracePassed || dialogueResumed ||
+            !string.Equals(traceOwnerKey, ownerKey ?? string.Empty, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        dialogueResumed = true;
+        return true;
     }
 
 

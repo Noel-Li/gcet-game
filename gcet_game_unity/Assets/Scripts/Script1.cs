@@ -109,13 +109,35 @@ public class Script1 : MonoBehaviour
         activeSequence.Clear();
 
         int requestedCount = 1;
+        IReadOnlyList<string> requestedCharacters = null;
         if (GameProgress.Instance != null)
         {
             requestedCount = Mathf.Max(1, GameProgress.Instance.RequiredTraceCount);
+            requestedCharacters = GameProgress.Instance.RequiredTraceCharacters;
         }
 
         if (availableCharacters != null && availableCharacters.Count > 0)
         {
+            if (requestedCharacters != null && requestedCharacters.Count > 0)
+            {
+                for (int requestedIndex = 0; requestedIndex < requestedCharacters.Count; requestedIndex++)
+                {
+                    string requestedName = requestedCharacters[requestedIndex];
+                    CharacterData match = availableCharacters.Find(
+                        candidate => candidate != null && candidate.characterName == requestedName);
+                    if (match == null)
+                    {
+                        Debug.LogError(
+                            "[Script1] Dialogue requested CharacterData '" + requestedName +
+                            "', but it is not assigned to Available Characters."
+                        );
+                        return false;
+                    }
+                    activeSequence.Add(match);
+                }
+                return true;
+            }
+
             if (availableCharacters.Count < requestedCount)
             {
                 Debug.LogError(

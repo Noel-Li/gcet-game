@@ -4,8 +4,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// Presents an Inspector-authored sequence of comic panels. Each left click advances
-/// one panel; clicking after the final panel loads the configured next scene.
+/// Presents an Inspector-authored sequence of comic panels. Space advances one panel;
+/// pressing Space after the final panel loads the configured next scene.
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class ComicSequence : MonoBehaviour
@@ -18,10 +18,10 @@ public sealed class ComicSequence : MonoBehaviour
     [SerializeField] private Sprite[] comicPanels;
 
     [Header("Flow")]
-    [Tooltip("Scene loaded after the player clicks once more on the final panel.")]
+    [Tooltip("Scene loaded after the player presses Space once more on the final panel.")]
     [SerializeField] private string nextSceneName = "ControlsScene";
 
-    [Tooltip("Prevents the Begin-button click from immediately skipping the first panel.")]
+    [Tooltip("Prevents transition input from immediately skipping the first panel.")]
     [Min(0f)]
     [SerializeField] private float initialInputDelay = 0.2f;
 
@@ -43,8 +43,8 @@ public sealed class ComicSequence : MonoBehaviour
             return;
         }
 
-        Mouse mouse = Mouse.current;
-        if (mouse == null || !mouse.leftButton.wasPressedThisFrame)
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard == null || !keyboard.spaceKey.wasPressedThisFrame)
         {
             return;
         }
@@ -75,7 +75,10 @@ public sealed class ComicSequence : MonoBehaviour
 
         panelIndex = Mathf.Clamp(panelIndex, 0, comicPanels.Length - 1);
         comicImage.sprite = comicPanels[panelIndex];
-        comicImage.preserveAspect = true;
+        // The comic art is authored at the 1920x1080 reference resolution. Stretching
+        // with the Canvas avoids side bars in wider Game views while keeping every
+        // edge of the panel visible.
+        comicImage.preserveAspect = false;
     }
 
     private void LoadNextScene()

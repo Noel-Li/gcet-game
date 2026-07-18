@@ -39,6 +39,13 @@ public class NpcController : MonoBehaviour
     private Color promptColor =
         new Color(1f, 0.92f, 0.4f, 1f);
 
+    [Header("Tracing")]
+    [Tooltip("Enable only when this NPC owns the conversation that launches and resumes the hanzi tracing scene.")]
+    [SerializeField] private bool resumeAfterTracing;
+
+    [Tooltip("Stable tracing owner id. Leave empty to use this GameObject's name.")]
+    [SerializeField] private string traceOwnerKey;
+
     private Conversation conversation;
 
     private bool activated = false;
@@ -59,6 +66,7 @@ public class NpcController : MonoBehaviour
     private SpriteRenderer interactSpriteRenderer;
 
     private const string PlayerName = "Player";
+    private string TraceOwnerKey => string.IsNullOrWhiteSpace(traceOwnerKey) ? gameObject.name : traceOwnerKey.Trim();
 
     private void Awake()
     {
@@ -137,6 +145,12 @@ public class NpcController : MonoBehaviour
     /// </summary>
     private void RefreshFromProgress()
     {
+        // Simple repeatable NPCs must not claim another NPC's saved tracing conversation.
+        if (!resumeAfterTracing)
+        {
+            return;
+        }
+
         // We already restored the dialogue once.
         if (resumedAfterTrace)
         {
@@ -149,8 +163,8 @@ public class NpcController : MonoBehaviour
             return;
         }
 
-        // The tracing task has not been passed yet.
-        if (!GameProgress.Instance.tracePassed)
+        // Only the NPC that launched the completed task may restore its saved step.
+        if (!GameProgress.Instance.TryClaimTraceResume(TraceOwnerKey))
         {
             return;
         }
@@ -221,6 +235,7 @@ public class NpcController : MonoBehaviour
         dialogue.SetAuxiliaryPanelBackgrounds(
             conversation.GetGameVoiceBackground(),
             conversation.GetMultipleChoiceBackground());
+        dialogue.SetTraceOwner(TraceOwnerKey);
     }
 
     /// <summary>
