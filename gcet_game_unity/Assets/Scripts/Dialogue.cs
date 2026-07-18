@@ -34,6 +34,9 @@ public class DialogueStep
     [Tooltip("How many characters must be completed when this step launches the tracer.")]
     public int requiredTraceCount = 1;
 
+    [Tooltip("Exact CharacterData names to trace, in order. Leave empty to use the tracer's first characters as a legacy fallback.")]
+    public List<string> traceCharacters = new List<string>();
+
     /// <summary>Optional choices presented in place of the default click-to-advance when this step is shown. Each choice jumps to targetStep (and runs its action first, matching the action flow). When empty/null the line advances on click as before.</summary>
     [Tooltip("Player choices for this line. When set (non-empty), the player must pick one instead of clicking to advance. Each choice jumps to its targetStep.")]
     public List<DialogueChoice> choices = new List<DialogueChoice>();
@@ -60,6 +63,9 @@ public class DialogueChoice
     [Min(1)]
     [Tooltip("How many characters must be completed when this choice launches the tracer.")]
     public int requiredTraceCount = 1;
+
+    [Tooltip("Exact CharacterData names to trace, in order. Leave empty to use the tracer's legacy count-based selection.")]
+    public List<string> traceCharacters = new List<string>();
 }
 
 /// <summary>Inspector-authored panel art for one dialogue speaker.</summary>
@@ -80,6 +86,9 @@ public class SpeakerDialoguePortrait
     public string speakerName;
     public string expression = "normal";
     public Sprite portrait;
+
+    [Tooltip("Optional portrait-position adjustment measured as a fraction of the frame's portrait-slot width and height.")]
+    public Vector2 slotOffset;
 }
 
 public enum DialoguePanelStyle
@@ -190,6 +199,8 @@ public class Dialogue : MonoBehaviour
     private int pendingRow;
     private int pendingResumeStep = -1;
     private int pendingRequiredTraceCount = 1;
+    private readonly List<string> pendingTraceCharacters = new List<string>();
+    private string traceOwnerKey;
     private bool waitingInput;
 
     private void Awake()
@@ -247,6 +258,12 @@ public class Dialogue : MonoBehaviour
         multipleChoiceBackground = multipleChoice;
     }
 
+    /// <summary>Identifies the NPC that owns a tracing handoff so only that NPC restores the saved conversation.</summary>
+    public void SetTraceOwner(string ownerKey)
+    {
+        traceOwnerKey = ownerKey;
+    }
+
     /// <summary>Sets the current speaker art. Kept separate from the dialogue lines so expressions can be swapped later.</summary>
     public void SetPortrait(Sprite newPortrait)
     {
@@ -280,7 +297,7 @@ public class Dialogue : MonoBehaviour
 
     private void Update()
     {
-        if (PauseController.IsPaused || !open || !waitingInput)
+        if (PauseController.IsPaused || ControlsOverlayController.IsOpen || !open || !waitingInput)
         {
             return;
         }
@@ -294,7 +311,7 @@ public class Dialogue : MonoBehaviour
             var kb = Keyboard.current;
             if (kb != null)
             {
-                // Pressing the digit keys 1..N selects that choice directly.
+                // Pressing the top-row or numeric-keypad keys 1..N selects that choice directly.
                 for (int i = 0; i < currentStep.choices.Count && i < 9; i++)
                 {
                     if (KeyForDigit(i + 1, kb))
@@ -346,15 +363,15 @@ public class Dialogue : MonoBehaviour
     {
         switch (digit)
         {
-            case 1: return kb.digit1Key.wasPressedThisFrame;
-            case 2: return kb.digit2Key.wasPressedThisFrame;
-            case 3: return kb.digit3Key.wasPressedThisFrame;
-            case 4: return kb.digit4Key.wasPressedThisFrame;
-            case 5: return kb.digit5Key.wasPressedThisFrame;
-            case 6: return kb.digit6Key.wasPressedThisFrame;
-            case 7: return kb.digit7Key.wasPressedThisFrame;
-            case 8: return kb.digit8Key.wasPressedThisFrame;
-            case 9: return kb.digit9Key.wasPressedThisFrame;
+            case 1: return kb.digit1Key.wasPressedThisFrame || kb.numpad1Key.wasPressedThisFrame;
+            case 2: return kb.digit2Key.wasPressedThisFrame || kb.numpad2Key.wasPressedThisFrame;
+            case 3: return kb.digit3Key.wasPressedThisFrame || kb.numpad3Key.wasPressedThisFrame;
+            case 4: return kb.digit4Key.wasPressedThisFrame || kb.numpad4Key.wasPressedThisFrame;
+            case 5: return kb.digit5Key.wasPressedThisFrame || kb.numpad5Key.wasPressedThisFrame;
+            case 6: return kb.digit6Key.wasPressedThisFrame || kb.numpad6Key.wasPressedThisFrame;
+            case 7: return kb.digit7Key.wasPressedThisFrame || kb.numpad7Key.wasPressedThisFrame;
+            case 8: return kb.digit8Key.wasPressedThisFrame || kb.numpad8Key.wasPressedThisFrame;
+            case 9: return kb.digit9Key.wasPressedThisFrame || kb.numpad9Key.wasPressedThisFrame;
             default: return false;
         }
     }
@@ -375,6 +392,7 @@ public class Dialogue : MonoBehaviour
             int resumeAt = toIndex ?? (current.nextStep >= 0 ? current.nextStep : index + 1);
             pendingResumeStep = resumeAt;
             pendingRequiredTraceCount = Mathf.Max(1, current.requiredTraceCount);
+            SetPendingTraceCharacters(current.traceCharacters);
             Close();
             LaunchWriting();
             return;
@@ -407,6 +425,7 @@ public class Dialogue : MonoBehaviour
         {
             pendingResumeStep = choice.targetStep;
             pendingRequiredTraceCount = Mathf.Max(1, choice.requiredTraceCount);
+            SetPendingTraceCharacters(choice.traceCharacters);
             Close();
             LaunchWriting();
             return;
@@ -446,7 +465,18 @@ public class Dialogue : MonoBehaviour
             pendingCol,
             pendingRow,
             pendingResumeStep,
-            pendingRequiredTraceCount);
+            pendingRequiredTraceCount,
+            traceOwnerKey,
+            pendingTraceCharacters);
+    }
+
+    private void SetPendingTraceCharacters(List<string> characterNames)
+    {
+        pendingTraceCharacters.Clear();
+        if (characterNames != null)
+        {
+            pendingTraceCharacters.AddRange(characterNames);
+        }
     }
 
     /// <summary>Re-enter the dialogue after the hanzi scene resolves, at the step set when the Writing line was read.</summary>
@@ -457,7 +487,12 @@ public class Dialogue : MonoBehaviour
             return;
         }
         int resume = GameProgress.Instance.ResumeStep;
-        if (resume < 0 || resume >= steps.Count)
+        if (resume == steps.Count)
+        {
+            Close();
+            return;
+        }
+        if (resume < 0 || resume > steps.Count)
         {
             return;
         }
@@ -492,7 +527,10 @@ public class Dialogue : MonoBehaviour
         bool hasChoices = step.choices != null && step.choices.Count > 0;
         bool usesSeparateChoicePanel = hasChoices && step.useMultipleChoicePanel;
         Sprite background = isGameVoice ? ResolveGameVoiceBackground() : FindBackground(speakerName);
-        Sprite currentPortrait = FindPortrait(speakerName, step.expression);
+        SpeakerDialoguePortrait portraitPresentation = FindPortraitPresentation(speakerName, step.expression);
+        Sprite currentPortrait = portraitPresentation != null
+            ? portraitPresentation.portrait
+            : FindPortrait(speakerName, step.expression);
         bool hasPanelArtwork = background != null;
         bool hasSpeakerBackground = !isGameVoice && hasPanelArtwork;
         bool hasPortrait = !isGameVoice && currentPortrait != null;
@@ -554,9 +592,13 @@ public class Dialogue : MonoBehaviour
             }
 
             pr.pivot = new Vector2(0.5f, 0.5f);
+            Vector2 slotOffset = portraitPresentation != null
+                ? portraitPresentation.slotOffset
+                : Vector2.zero;
             pr.anchoredPosition = panel.anchoredPosition + new Vector2(
                 panelWidth * (PortraitSlotLeft + PortraitSlotWidth * 0.5f),
-                panelHeight * (PortraitSlotBottom + PortraitSlotHeight * 0.5f));
+                panelHeight * (PortraitSlotBottom + PortraitSlotHeight * 0.5f))
+                + new Vector2(slotWidth * slotOffset.x, slotHeight * slotOffset.y);
             pr.sizeDelta = new Vector2(portraitWidth, portraitHeight);
         }
 
@@ -781,6 +823,38 @@ public class Dialogue : MonoBehaviour
 #endif
 
         return portrait;
+    }
+
+    /// <summary>
+    /// Finds the serialized portrait entry as well as its Inspector-authored placement adjustment.
+    /// Exact expressions win; a normal portrait remains the fallback for other expressions.
+    /// </summary>
+    private SpeakerDialoguePortrait FindPortraitPresentation(string speakerName, string expression)
+    {
+        string requestedExpression = string.IsNullOrWhiteSpace(expression) ? "normal" : expression;
+        SpeakerDialoguePortrait normalFallback = null;
+
+        for (int i = 0; speakerPortraits != null && i < speakerPortraits.Count; i++)
+        {
+            SpeakerDialoguePortrait entry = speakerPortraits[i];
+            if (entry == null || entry.portrait == null ||
+                !string.Equals(entry.speakerName, speakerName, System.StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (string.Equals(entry.expression, requestedExpression, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return entry;
+            }
+
+            if (string.Equals(entry.expression, "normal", System.StringComparison.OrdinalIgnoreCase))
+            {
+                normalFallback = entry;
+            }
+        }
+
+        return normalFallback;
     }
 
     /// <summary>

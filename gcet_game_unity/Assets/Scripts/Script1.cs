@@ -15,6 +15,10 @@ public class Script1 : MonoBehaviour
     [Header("Fallback for testing this scene directly")]
     [SerializeField] private CharacterData characterData;
 
+    [Header("Line appearance")]
+    [Tooltip("Color used while the player draws a stroke. Correct/incorrect feedback remains green/red.")]
+    [SerializeField] private Color userStrokeColor = Color.black;
+
     private readonly List<CharacterData> activeSequence = new List<CharacterData>();
     private readonly List<GameObject> completedStrokeObjects = new List<GameObject>();
     private int currentCharacterIndex = 0;
@@ -88,7 +92,7 @@ public class Script1 : MonoBehaviour
         }
 
         SetupLine(guideLine, 0.12f, 0, Color.gray);
-        SetupLine(userLine, 0.10f, 10, Color.red);
+        SetupLine(userLine, 0.10f, 10, userStrokeColor);
 
         if (!BuildActiveSequence())
         {
@@ -105,13 +109,35 @@ public class Script1 : MonoBehaviour
         activeSequence.Clear();
 
         int requestedCount = 1;
+        IReadOnlyList<string> requestedCharacters = null;
         if (GameProgress.Instance != null)
         {
             requestedCount = Mathf.Max(1, GameProgress.Instance.RequiredTraceCount);
+            requestedCharacters = GameProgress.Instance.RequiredTraceCharacters;
         }
 
         if (availableCharacters != null && availableCharacters.Count > 0)
         {
+            if (requestedCharacters != null && requestedCharacters.Count > 0)
+            {
+                for (int requestedIndex = 0; requestedIndex < requestedCharacters.Count; requestedIndex++)
+                {
+                    string requestedName = requestedCharacters[requestedIndex];
+                    CharacterData match = availableCharacters.Find(
+                        candidate => candidate != null && candidate.characterName == requestedName);
+                    if (match == null)
+                    {
+                        Debug.LogError(
+                            "[Script1] Dialogue requested CharacterData '" + requestedName +
+                            "', but it is not assigned to Available Characters."
+                        );
+                        return false;
+                    }
+                    activeSequence.Add(match);
+                }
+                return true;
+            }
+
             if (availableCharacters.Count < requestedCount)
             {
                 Debug.LogError(
@@ -182,7 +208,7 @@ public class Script1 : MonoBehaviour
         userPoints.Clear();
         guideLine.positionCount = 0;
         userLine.positionCount = 0;
-        SetLineColor(userLine, Color.red);
+        SetLineColor(userLine, userStrokeColor);
 
         if (arrowTransform != null)
         {
@@ -215,7 +241,7 @@ public class Script1 : MonoBehaviour
         {
             userPoints.Clear();
             userLine.positionCount = 0;
-            SetLineColor(userLine, Color.red);
+            SetLineColor(userLine, userStrokeColor);
 
             wentTooFarFromStroke = false;
 

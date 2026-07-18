@@ -2,14 +2,18 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Loads the game scene from the start screen. Attach to the Start button and wire its <c>onClick</c> event in the
-/// Inspector to <see cref="LoadGame"/>. The scene file name is provided via <see cref="gameSceneName"/> so the target can
-/// be changed in the Editor without touching code, and kept in sync with <see cref="GameProgress"/>'s main scene list.
+/// Loads the next scene in the opening flow from the start screen. Attach to the Begin
+/// button and configure the destination in the Inspector (normally ComicScene).
 /// </summary>
 public class StartGame : MonoBehaviour
 {
     [Header("Target")]
-    [SerializeField] private string gameSceneName = "game1";
+    [Tooltip("First scene loaded after Begin. The opening flow uses ComicScene.")]
+    [SerializeField] private string gameSceneName = "ComicScene";
+
+    [Header("Audio")]
+    [Tooltip("Persistent music player started when Begin is pressed.")]
+    [SerializeField] private BackgroundMusic backgroundMusic;
 
     /// <summary>Called by the Start button's onClick event.</summary>
     public void LoadGame()
@@ -19,6 +23,12 @@ public class StartGame : MonoBehaviour
             Debug.LogError("[StartGame] gameSceneName is empty — assign it in the Inspector.");
             return;
         }
+
+        if (backgroundMusic != null)
+            backgroundMusic.Play();
+        else
+            Debug.LogWarning("[StartGame] No background music player is assigned.");
+
         SceneManager.LoadScene(gameSceneName);
     }
 }
