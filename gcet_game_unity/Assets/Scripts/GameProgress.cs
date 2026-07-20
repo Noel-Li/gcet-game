@@ -251,6 +251,26 @@ public class GameProgress : MonoBehaviour
 
     /// <summary>Fired by <see cref="Script1.OnCharacterDone"/> when the character is traced correctly.</summary>
 
+    /// <summary>Testing aid: skip the trace and return to the dialogue as if every character were traced correctly.
+    /// Mirrors the end state of <see cref="OnTraceCorrect"/> (tracePassed + reload the scene the trace was launched from),
+    /// so the post-trace conversation resumes identically. Bound to Delete+Backspace in the tracer.</summary>
+    public void ForcePassTrace()
+    {
+        if (tracePassed)
+        {
+            return;
+        }
+
+        tracePassed = true;
+
+        if (string.IsNullOrEmpty(mainSceneName))
+        {
+            Debug.LogWarning("[GameProgress] ForcePassTrace: no launcher scene recorded — nothing to return to.");
+            return;
+        }
+        SceneManager.LoadScene(mainSceneName);
+    }
+
     public void OnTraceCorrect()
     {
         if (tracePassed)
