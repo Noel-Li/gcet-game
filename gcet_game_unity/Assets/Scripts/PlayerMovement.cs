@@ -85,12 +85,17 @@ public class PlayerMovement : MonoBehaviour
         pos.x += input.x * speed * Time.deltaTime;
         pos.y += input.y * speed * Time.deltaTime;
 
+        Vector3 posBefore = pos;
         ClampToArea(pos, out pos);
         float playerHalf = transform.localScale.x * 0.5f + 0.001f;
         // Pass the pre-movement position so walls can detect which side the player came from and block tunneling
         // (a fast mover can otherwise skip past a thin wall between frames). After clamping, remember this
         // frame's settled position as next frame's "previous" position.
         InvisibleWall.ClampPlayer(prevPos, pos, playerHalf, ref pos);
+        if (Vector3.Distance(pos, posBefore) > 1e-3f)
+        {
+            Debug.Log($"[PlayerMovement] pos {posBefore} -> {pos} (area={GameArea.GetAreaContaining(pos)?.AreaName ?? "NONE"} input={input})");
+        }
         transform.position = pos;
         prevPos = pos;
     }

@@ -32,6 +32,7 @@ public class InvisibleWall : MonoBehaviour
     private bool locked = true;
     private bool popupBuilt;
     private bool snapped;
+    private bool dedupPending = true;
     private Canvas canvas;
     private RectTransform panel;
     private TextMeshProUGUI text;
@@ -86,6 +87,14 @@ public class InvisibleWall : MonoBehaviour
         {
             SnapToSharedEdge();
             snapped = true;
+            // Wait until the end of this frame before deduping, so every wall (including ones created later in the same
+            // frame, e.g. the tracing bootstrap wall) has already snapped to its final position. Deduping same-frame
+            // races the snap order and misses duplicates.
+            if (dedupPending)
+            {
+                dedupPending = false;
+                StartCoroutine(DedupAfterSnap());
+            }
         }
 
         if (!locked)
@@ -122,24 +131,34 @@ public class InvisibleWall : MonoBehaviour
     // edge when (a) it is roughly collinear with that edge (within snapCollinear, generous enough to include snap
     // midpoints) and (b) its span actually overlaps the facing run of the edge. This accepts flush, overlapping and
     // gapped gates alike while still rejecting walls on unrelated edges.
-    public static bool CoversVerticalEdge(float x, float y)
-    {
-        foreach (var wall in registered)
-        {
-            if (wall == null || wall.Horizontal) continue;
-            if (Mathf.Abs(wall.WallX - x) > snapCollinear) continue;
-            if (y >= wall.WallY - wall.Span && y <= wall.WallY + wall.Span) return true;
-        }
-        return false;
-    }
-
-    public static bool CoversHorizontalEdge(float y, float x)
+    /// <summary>True if a locked horizontal wall gates the horizontal edge at y = <paramref name="edgeY"/>, which runs from
+    /// x = <paramref name="edgeMinX"/> to x = <paramref name="edgeMaxX"/>. A wall counts as the gate for this edge only when
+    /// it is (a) collinear with the edge (within <see cref="snapCollinear"/>) AND (b) its CENTER lies inside the edge's run.
+    /// Condition (b) is what stops a wall that genuinely gates a DIFFERENT edge at a nearby Y (e.g. an overlap neighbour's
+    /// gate) from being mistaken for this edge's gate — without it, overlapping regions produce a phantom "second wall".</summary>
+    public static bool CoversHorizontalEdge(float edgeY, float edgeMinX, float edgeMaxX)
     {
         foreach (var wall in registered)
         {
             if (wall == null || !wall.Horizontal) continue;
-            if (Mathf.Abs(wall.WallY - y) > snapCollinear) continue;
-            if (x >= wall.WallX - wall.Span && x <= wall.WallX + wall.Span) return true;
+            if (Mathf.Abs(wall.WallY - edgeY) > snapCollinear) continue;
+            if (wall.WallX < edgeMinX || wall.WallX > edgeMaxX) continue;
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>True if a locked vertical wall gates the vertical edge at x = <paramref name="edgeX"/>, which runs from
+    /// y = <paramref name="edgeMinY"/> to y = <paramref name="edgeMaxY"/>. See <see cref="CoversHorizontalEdge"/> for why the
+    /// wall's center must lie inside the edge's run.</summary>
+    public static bool CoversVerticalEdge(float edgeX, float edgeMinY, float edgeMaxY)
+    {
+        foreach (var wall in registered)
+        {
+            if (wall == null || wall.Horizontal) continue;
+            if (Mathf.Abs(wall.WallX - edgeX) > snapCollinear) continue;
+            if (wall.WallY < edgeMinY || wall.WallY > edgeMaxY) continue;
+            return true;
         }
         return false;
     }
@@ -285,6 +304,39 @@ public class InvisibleWall : MonoBehaviour
         transform.position = new Vector3(x, y, 0f);
         col.size = horiz ? new Vector2(b.size.x, 0.1f) : new Vector2(0.1f, b.size.y);
         Debug.Log($"[InvisibleWall {name}] snap single {r1.AreaName} ({x:F2},{y:F2}) span={b.size.x:F2}");    }
+
+    /// <summary>
+    /// If another wall already gates the SAME EDGE as this one, this wall is redundant — destroy it. "Same edge" means the
+    /// same snapped edge coordinate (Y for a horizontal wall, X for a vertical one) within epsilon, regardless of where each
+    /// wall's center falls along that edge. This catches the runtime-created bootstrap wall
+    /// (<see cref="GameProgress.EnsureWallBootstrap"/>) that snaps to the same R1/R2 edge as a hand-placed gate but at a
+    /// different X, and any accidental editor duplicates. The pre-existing wall always wins because it snaps first
+    /// (scene-load) while bootstrap/editor-duplicate walls snap later.</summary>
+    private void DeduplicateIfNeeded()
+    {
+        const float epsilon = 0.05f;
+        foreach (var other in GetRegistered())
+        {
+            if (other == null || other == this) continue;
+            if (other.Horizontal != Horizontal) continue;
+            float edgeCoord = Horizontal ? WallY : WallX;
+            float otherEdgeCoord = Horizontal ? other.WallY : other.WallX;
+            if (Mathf.Abs(otherEdgeCoord - edgeCoord) < epsilon)
+            {
+                Debug.Log($"[InvisibleWall {name}] DUPLICATE edge of {other.name} (edge={edgeCoord:F2}) — removing");
+                Destroy(gameObject);
+                return;
+            }
+        }
+    }
+
+    /// <summary>End-of-frame pass that removes this wall if it duplicates another. Run from a coroutine so it happens after
+    /// every wall has snapped this frame — deduping inside SnapToSharedEdge races the per-frame snap order.</summary>
+    private System.Collections.IEnumerator DedupAfterSnap()
+    {
+        yield return null;
+        DeduplicateIfNeeded();
+    }
 
     private void SetPopupVisible(bool visible)
     {

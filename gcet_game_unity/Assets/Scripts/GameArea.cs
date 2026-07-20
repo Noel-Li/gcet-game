@@ -68,15 +68,17 @@ public class GameArea : MonoBehaviour
         float minX = b.min.x + playerHalf, maxX = b.max.x - playerHalf;
         float minY = b.min.y + playerHalf, maxY = b.max.y - playerHalf;
 
-        bool leftOpen = InvisibleWall.CoversVerticalEdge(b.min.x, pos.y);
-        bool rightOpen = InvisibleWall.CoversVerticalEdge(b.max.x, pos.y);
-        bool bottomOpen = InvisibleWall.CoversHorizontalEdge(b.min.y, pos.x);
-        bool topOpen = InvisibleWall.CoversHorizontalEdge(b.max.y, pos.y);
+        bool bottomOpen = InvisibleWall.CoversHorizontalEdge(b.min.y, b.min.x, b.max.x);
+        bool topOpen = InvisibleWall.CoversHorizontalEdge(b.max.y, b.min.x, b.max.x);
+        bool leftOpen = InvisibleWall.CoversVerticalEdge(b.min.x, b.min.y, b.max.y);
+        bool rightOpen = InvisibleWall.CoversVerticalEdge(b.max.x, b.min.y, b.max.y);
 
-        if (!leftOpen && pos.x < minX) { Debug.Log($"[GameArea {name}] clamp LEFT edge (void)"); pos.x = minX; }
-        if (!rightOpen && pos.x > maxX) { Debug.Log($"[GameArea {name}] clamp RIGHT edge (void) pos.x={pos.x:F2}>{maxX:F2} rightOpen={rightOpen}"); pos.x = maxX; }
-        if (!bottomOpen && pos.y < minY) { Debug.Log($"[GameArea {name}] clamp BOTTOM edge (void)"); pos.y = minY; }
-        if (!topOpen && pos.y > maxY) { Debug.Log($"[GameArea {name}] clamp TOP edge (void) pos.y={pos.y:F2}>{maxY:F2} topOpen={topOpen}"); pos.y = maxY; }
+        Vector3 before = pos;
+        if (!leftOpen && pos.x < minX) { pos.x = minX; }
+        if (!rightOpen && pos.x > maxX) { pos.x = maxX; }
+        if (!bottomOpen && pos.y < minY) { pos.y = minY; }
+        if (!topOpen && pos.y > maxY) { pos.y = maxY; }
+        if (Vector3.Distance(before, pos) > 1e-4f) Debug.Log($"[GameArea {name}] CLAMPED player {before} -> {pos} (bounds y[{minY:F2},{maxY:F2}] x[{minX:F2},{maxX:F2}])");
         return pos;
     }
 

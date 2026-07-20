@@ -196,6 +196,22 @@ public class GameProgress : MonoBehaviour
     /// The tracing scene remains open until every character requested by the dialogue has been completed.
     /// </summary>
 
+    /// <summary>One-shot diagnostic: logs the player position for the first several frames after a trace restore so the
+    /// post-trace "teleported down" can be pinned to a specific frame/clamp.</summary>
+    private System.Collections.IEnumerator LogPlayerPositionAfterTrace()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            var pm = FindObjectOfType<PlayerMovement>();
+            if (pm != null)
+            {
+                var area = GameArea.GetAreaContaining(pm.transform.position);
+                Debug.Log($"[GameProgress] post-trace frame {i}: player at {pm.transform.position} (area={area != null ? area.AreaName : "NONE"})");
+            }
+            yield return null;
+        }
+    }
+
     /// <summary>Repositions the freshly-spawned Player back to where they were when the trace began.</summary>
     private void ApplySavedPlayerPosition()
     {
@@ -207,6 +223,7 @@ public class GameProgress : MonoBehaviour
         PlayerMovement pm = FindObjectOfType<PlayerMovement>();
         if (pm != null)
         {
+            Debug.Log($"[GameProgress] ApplySavedPlayerPosition: restoring player to {savedPlayerPosition.Value} (was at {pm.transform.position})");
             // Rigidbody-driven movement: move through the body so collision stays consistent and physics
             // doesn't fight the teleport.
             Rigidbody2D body = pm.GetComponent<Rigidbody2D>();
@@ -220,6 +237,7 @@ public class GameProgress : MonoBehaviour
             {
                 pm.transform.position = savedPlayerPosition.Value;
             }
+            Debug.Log($"[GameProgress] after restore player at {pm.transform.position}");
         }
 
         savedPlayerPosition = null;
@@ -318,6 +336,7 @@ public class GameProgress : MonoBehaviour
             EnsureWallBootstrap();
             ApplyForwardUnlock();
             ApplySavedPlayerPosition();
+            StartCoroutine(LogPlayerPositionAfterTrace());
         }
 
         bool traceLoaded = SceneManager.GetSceneByName(traceSceneName).isLoaded;

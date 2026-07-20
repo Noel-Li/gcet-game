@@ -118,24 +118,29 @@ public class FollowCamera : MonoBehaviour
         Bounds a = from.Bounds;
         Bounds b = to.Bounds;
 
-        // Shared horizontal edge (rooms stacked vertically): the gate is a horizontal wall at the shared Y. The player
-        // has crossed into 'to' only if there is no LOCKED horizontal wall on that edge within the player's X.
-        bool stacked = (Mathf.Abs(a.max.y - b.min.y) < 1f || Mathf.Abs(b.max.y - a.min.y) < 1f) &&
-                       (Mathf.Min(a.max.x, b.max.x) - Mathf.Max(a.min.x, b.min.x) > 0f);
+        // Shared horizontal edge (rooms stacked vertically): the gate is a horizontal wall at the shared Y, running along
+        // the two regions' X-overlap. The player has crossed into 'to' only if no LOCKED wall gates that run.
+        float xol = Mathf.Min(a.max.x, b.max.x) - Mathf.Max(a.min.x, b.min.x);
+        bool stacked = (Mathf.Abs(a.max.y - b.min.y) < 1f || Mathf.Abs(b.max.y - a.min.y) < 1f) && xol > 0f;
         if (stacked)
         {
             float sharedY = (a.max.y + b.min.y) / 2f;       // approximate shared edge Y
-            if (WallsBlockHorizontal(sharedY, playerPos.x)) return false; // still gated
+            float edgeMinX = Mathf.Max(a.min.x, b.min.x);
+            float edgeMaxX = Mathf.Min(a.max.x, b.max.x);
+            if (WallsBlockHorizontal(sharedY, edgeMinX, edgeMaxX)) return false; // still gated
             return true;
         }
 
-        // Shared vertical edge (rooms side by side): the gate is a vertical wall at the shared X.
-        bool sidebyside = (Mathf.Abs(a.max.x - b.min.x) < 1f || Mathf.Abs(b.max.x - a.min.x) < 1f) &&
-                          (Mathf.Min(a.max.y, b.max.y) - Mathf.Max(a.min.y, b.min.y) > 0f);
+        // Shared vertical edge (rooms side by side): the gate is a vertical wall at the shared X, running along the two
+        // regions' Y-overlap.
+        float yol = Mathf.Min(a.max.y, b.max.y) - Mathf.Max(a.min.y, b.min.y);
+        bool sidebyside = (Mathf.Abs(a.max.x - b.min.x) < 1f || Mathf.Abs(b.max.x - a.min.x) < 1f) && yol > 0f;
         if (sidebyside)
         {
             float sharedX = (a.max.x + b.min.x) / 2f;
-            if (WallsBlockVertical(sharedX, playerPos.y)) return false;
+            float edgeMinY = Mathf.Max(a.min.y, b.min.y);
+            float edgeMaxY = Mathf.Min(a.max.y, b.max.y);
+            if (WallsBlockVertical(sharedX, edgeMinY, edgeMaxY)) return false;
             return true;
         }
 
@@ -143,26 +148,32 @@ public class FollowCamera : MonoBehaviour
         return true;
     }
 
-    private static bool WallsBlockHorizontal(float y, float x)
+    /// <summary>True if a locked horizontal wall gates any part of the horizontal edge at y = <paramref name="y"/>, which runs
+    /// from x = <paramref name="edgeMinX"/> to x = <paramref name="edgeMaxX"/>. A wall is that edge's gate only when its
+    /// CENTER lies inside the edge's run — the loose collinear tolerance can otherwise mistake a wall gating a neighbour's
+    /// nearby edge (overlapping regions) for this one.</summary>
+    private static bool WallsBlockHorizontal(float y, float edgeMinX, float edgeMaxX)
     {
         foreach (var wall in InvisibleWall.GetRegistered())
         {
             if (wall == null || !wall.Locked) continue;
             if (!wall.Horizontal) continue;
             if (Mathf.Abs(wall.WallY - y) > wall.Span + 0.5f) continue;
-            if (x >= wall.WallX - wall.Span && x <= wall.WallX + wall.Span) return true;
+            if (wall.WallX < edgeMinX || wall.WallX > edgeMaxX) continue;
+            return true;
         }
         return false;
     }
 
-    private static bool WallsBlockVertical(float x, float y)
+    private static bool WallsBlockVertical(float x, float edgeMinY, float edgeMaxY)
     {
         foreach (var wall in InvisibleWall.GetRegistered())
         {
             if (wall == null || !wall.Locked) continue;
             if (wall.Horizontal) continue;
             if (Mathf.Abs(wall.WallX - x) > wall.Span + 0.5f) continue;
-            if (y >= wall.WallY - wall.Span && y <= wall.WallY + wall.Span) return true;
+            if (wall.WallY < edgeMinY || wall.WallY > edgeMaxY) continue;
+            return true;
         }
         return false;
     }
