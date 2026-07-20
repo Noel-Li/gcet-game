@@ -293,6 +293,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d2149fd41032421db1f0288d59540b98, type: 2}
   - {fileID: 11400000, guid: 0e53fc478dd2e3b478d7214a612c3b54, type: 2}
   - {fileID: 11400000, guid: 7c073254be89e354e98eea6a02f2f762, type: 2}
+  - {fileID: 11400000, guid: c6ed7c98e5a44d1c82c85d30ea24c5b8, type: 2}
+  - {fileID: 11400000, guid: a492f0536fb142fc95c300020a22466a, type: 2}
   characterData: {fileID: 0}
   userStrokeColor: {r: 0, g: 0, b: 0, a: 1}
   guideLine: {fileID: 744876928}

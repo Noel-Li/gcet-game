@@ -43,7 +43,7 @@ public class NpcController : MonoBehaviour
     [Tooltip("Enable only when this NPC owns the conversation that launches and resumes the hanzi tracing scene.")]
     [SerializeField] private bool resumeAfterTracing;
 
-    [Tooltip("Stable tracing owner id. Leave empty to use this GameObject's name.")]
+    [Tooltip("Stable NPC id used for tracing resumes and repeat-conversation persistence. Leave empty to use this GameObject's name.")]
     [SerializeField] private string traceOwnerKey;
 
     private Conversation conversation;
@@ -78,6 +78,7 @@ public class NpcController : MonoBehaviour
     private void Start()
     {
         LocatePlayer();
+        RefreshConversationState();
 
         // Check whether we just returned from the tracing scene.
         RefreshFromProgress();
@@ -92,6 +93,7 @@ public class NpcController : MonoBehaviour
 
         // Check every frame because GameProgress or Dialogue may not
         // have finished initializing when Start() first runs.
+        RefreshConversationState();
         RefreshFromProgress();
 
         // Find the player again if the scene was reloaded.
@@ -282,6 +284,22 @@ public class NpcController : MonoBehaviour
     {
         activated = false;
         hasSpokenBefore = true;
+
+        if (GameProgress.Instance != null)
+        {
+            GameProgress.Instance.MarkConversationCompleted(TraceOwnerKey);
+        }
+    }
+
+    /// <summary>Restores the local repeat-dialogue cache from the persistent play-session state.</summary>
+    private void RefreshConversationState()
+    {
+        if (!hasSpokenBefore &&
+            GameProgress.Instance != null &&
+            GameProgress.Instance.HasCompletedConversation(TraceOwnerKey))
+        {
+            hasSpokenBefore = true;
+        }
     }
 
     /// <summary>

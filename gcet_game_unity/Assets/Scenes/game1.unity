@@ -295,7 +295,7 @@ Transform:
   m_GameObject: {fileID: 5709116}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.52, y: -2.89, z: 0}
+  m_LocalPosition: {x: -8.52, y: -2.5, z: 0}
   m_LocalScale: {x: 1.8338, y: 1.8755, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -491,7 +491,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.3863781, y: -0.2740213}
+  m_Offset: {x: -0.23988426, y: -0.27402127}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -501,7 +501,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.35000956, y: 1.885298}
+  m_Size: {x: 0.64299726, y: 1.885298}
   m_EdgeRadius: 0
 --- !u!212 &31952261
 SpriteRenderer:
@@ -2168,13 +2168,18 @@ MonoBehaviour:
   - speakerName: game
     expression: normal
     panelStyle: 1
-    text: 'Trace 我 (Wǒ) to complete: ___ 是郭小月 (shì Guō Xiǎoyuè).'
-    action: 1
-    nextStep: 3
+    text: 'Press number pad 1 to trace 我 (Wǒ) and complete: ___ 是郭小月 (shì Guō Xiǎoyuè).'
+    action: 0
+    nextStep: -1
     requiredTraceCount: 1
-    traceCharacters:
-    - 我
-    choices: []
+    traceCharacters: []
+    choices:
+    - label: Start tracing 我
+      targetStep: 3
+      action: 1
+      requiredTraceCount: 1
+      traceCharacters:
+      - 我
     useMultipleChoicePanel: 0
   - speakerName: 郭小月
     expression: normal
@@ -2294,7 +2299,7 @@ MonoBehaviour:
   - speakerName: 王喜悦
     expression: panic
     panelStyle: 0
-    text: Hurry! 郭品玉 is meeting the trader at the bridge across the river.
+    text: Hurry! 吴叔杨 is waiting at the bridge across the river.
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -2384,7 +2389,8 @@ MonoBehaviour:
   promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
-  resumeAfterTracing: 0
+  resumeAfterTracing: 1
+  traceOwnerKey: Trader
 --- !u!61 &151484826
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2419,7 +2425,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 2.6654196}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -2429,7 +2435,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 3, y: 9}
+  m_Size: {x: 3, y: 3.6691608}
   m_EdgeRadius: 0
 --- !u!212 &151484827
 SpriteRenderer:
@@ -2772,7 +2778,7 @@ Transform:
   m_GameObject: {fileID: 170049570}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 21.32, y: -3.08, z: 0}
+  m_LocalPosition: {x: 21.32, y: -2.87, z: 0}
   m_LocalScale: {x: 3.3663, y: 3.2929, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3509,7 +3515,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.10925937, y: 3.0055926}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -3519,7 +3525,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 3, y: 9}
+  m_Size: {x: 4.2383256, y: 4.2999806}
   m_EdgeRadius: 0
 --- !u!114 &200000025
 MonoBehaviour:
@@ -5502,7 +5508,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.3324772}
+  m_Offset: {x: 0, y: 0.36394626}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -5512,7 +5518,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2, y: 0.3}
+  m_Size: {x: 2, y: 0.23706186}
   m_EdgeRadius: 0.1
 --- !u!212 &347959976
 SpriteRenderer:
@@ -5621,12 +5627,159 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35e65e4302661f84f8428024eb88eebc, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::Conversation
-  steps: []
-  repeatSteps: []
-  speakerBackgrounds: []
-  speakerPortraits: []
-  gameVoiceBackground: {fileID: 0}
-  multipleChoiceBackground: {fileID: 0}
+  steps:
+  - speakerName: 郭小月
+    expression: tired
+    panelStyle: 0
+    text: 你是郭品玉吗？ (Nǐ shì Guō Pǐnyù ma?)
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 吴叔杨
+    expression: stern
+    panelStyle: 0
+    text: 不是。你是谁？ (Bù shì. Nǐ shì shéi?)
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 郭小月
+    expression: tired
+    panelStyle: 0
+    text: 我是郭小月。 (Wǒ shì Guō Xiǎoyuè.) 那你是吴叔杨吗？ (Nà nǐ shì Wú Shūyáng ma?)
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 吴叔杨
+    expression: stern
+    panelStyle: 0
+    text: 我是呀！你怎么知道呀？ (Wǒ shì ya! Nǐ zěnme zhīdào ya?)
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 郭小月
+    expression: normal
+    panelStyle: 0
+    text: 王喜悦 (Wáng Xǐyuè) said you would be meeting 郭品玉 (Guō Pǐnyù).
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 吴叔杨
+    expression: shock
+    panelStyle: 0
+    text: Oh yes, I did! But that was an hour ago. I'm not sure where she is.
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 郭小月
+    expression: normal
+    panelStyle: 0
+    text: Do you know where I can find her?
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 吴叔杨
+    expression: stern
+    panelStyle: 0
+    text: I would go towards the garden. Also, if you find her, can you return this book to her?
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: 吴叔杨
+    expression: stern
+    panelStyle: 0
+    text: She gave it to me and it is empty; it's useless to me. One of the most useless things that she's given me.
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: game
+    expression: normal
+    panelStyle: 1
+    text: Trace 可 and 以 (kěyǐ), which means "can" or "may."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices:
+    - label: Start tracing 可 and 以
+      targetStep: 10
+      action: 1
+      requiredTraceCount: 2
+      traceCharacters:
+      - 可
+      - 以
+    useMultipleChoicePanel: 0
+  - speakerName: 郭小月
+    expression: normal
+    panelStyle: 0
+    text: 可以 (Kěyǐ)，谢谢 (xièxie).
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  repeatSteps:
+  - speakerName: 吴叔杨
+    expression: stern
+    panelStyle: 0
+    text: Can you please give this book to her?
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  speakerBackgrounds:
+  - speakerName: 郭小月
+    background: {fileID: 5026058822647386680, guid: 90632d7d2df81e34cb10bd441244ebb5, type: 3}
+  - speakerName: 吴叔杨
+    background: {fileID: 2275792330239745679, guid: 8a61a6c8b3f2bc24f9aac0a2c737ed7f, type: 3}
+  speakerPortraits:
+  - speakerName: 郭小月
+    expression: normal
+    portrait: {fileID: 367173573683222419, guid: 6eafc250f344d7848bb41726d712aa81, type: 3}
+    slotOffset: {x: 0, y: 0}
+  - speakerName: 郭小月
+    expression: tired
+    portrait: {fileID: 5487685175929054760, guid: ee8b35da6107dba4396efb88c261acfc, type: 3}
+    slotOffset: {x: 0, y: 0}
+  - speakerName: 吴叔杨
+    expression: stern
+    portrait: {fileID: -3353088238712625599, guid: 28b1ef8eed575eb438cc81cadfa36e2a, type: 3}
+    slotOffset: {x: 0, y: 0}
+  - speakerName: 吴叔杨
+    expression: shock
+    portrait: {fileID: 1988131225986853932, guid: d94c3841922951e41a1cb4fb654e475a, type: 3}
+    slotOffset: {x: 0, y: 0}
+  gameVoiceBackground: {fileID: 8702785369876850875, guid: 6183e110186ac8a42bad440dacedf15a, type: 3}
+  multipleChoiceBackground: {fileID: -9018818332010216090, guid: dd1d2b4546a5cb34a817cf814d3cecf5, type: 3}
 --- !u!50 &368804120
 Rigidbody2D:
   serializedVersion: 5
@@ -5710,7 +5863,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 2.5628693}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -5720,7 +5873,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 3, y: 9}
+  m_Size: {x: 3, y: 3.8742614}
   m_EdgeRadius: 0
 --- !u!212 &368804124
 SpriteRenderer:
@@ -5790,7 +5943,7 @@ Transform:
   m_GameObject: {fileID: 368804118}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 27.83, y: 19.45, z: 0}
+  m_LocalPosition: {x: 15.61, y: 19.01, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6110,7 +6263,7 @@ Transform:
   m_GameObject: {fileID: 397061128}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 16.62, y: -3.14, z: 0}
+  m_LocalPosition: {x: 16.62, y: -2.91, z: 0}
   m_LocalScale: {x: 3.4629, y: 3.2929, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7542,7 +7695,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.35622546}
+  m_Offset: {x: 0.2356863, y: 0.35622546}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -7552,7 +7705,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2, y: 0.3}
+  m_Size: {x: 1.5286274, y: 0.3}
   m_EdgeRadius: 0.1
 --- !u!212 &508239414
 SpriteRenderer:
@@ -9736,7 +9889,7 @@ Transform:
   m_GameObject: {fileID: 674731314}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 13.85, y: -2.89, z: 0}
+  m_LocalPosition: {x: 13.85, y: -2.66, z: 0}
   m_LocalScale: {x: 1.8338, y: 1.8755, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -18074,7 +18227,7 @@ Transform:
   m_GameObject: {fileID: 1107106640}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.690001, y: -3.14, z: 0}
+  m_LocalPosition: {x: 8.690001, y: -2.78, z: 0}
   m_LocalScale: {x: 3.4629, y: 3.2929, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -19097,6 +19250,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1166140799}
   - component: {fileID: 1166140798}
+  - component: {fileID: 1166140800}
   m_Layer: 0
   m_Name: guopinyuMain_0
   m_TagString: Untagged
@@ -23467,7 +23621,7 @@ Transform:
   m_GameObject: {fileID: 1464782480}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 23.96, y: -2.95, z: 0}
+  m_LocalPosition: {x: 23.96, y: -2.68, z: 0}
   m_LocalScale: {x: 3.2697, y: 3.5848, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -24155,7 +24309,7 @@ Transform:
   m_GameObject: {fileID: 1488019107}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.75, y: -3.14, z: 0}
+  m_LocalPosition: {x: -5.75, y: -2.72, z: 0}
   m_LocalScale: {x: 3.4629, y: 3.2929, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -24613,7 +24767,7 @@ Transform:
   m_GameObject: {fileID: 1505883759}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.92, y: -2.89, z: 0}
+  m_LocalPosition: {x: 5.92, y: -2.6, z: 0}
   m_LocalScale: {x: 1.8338, y: 1.8755, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -25543,7 +25697,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.3483094}
+  m_Offset: {x: 0, y: 0.3876459}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -25553,7 +25707,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2, y: 0.3}
+  m_Size: {x: 2, y: 0.22132695}
   m_EdgeRadius: 0.1
 --- !u!212 &1564146248
 SpriteRenderer:
@@ -27593,7 +27747,7 @@ Transform:
   m_GameObject: {fileID: 1742988989}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 30.78, y: -2.95, z: 0}
+  m_LocalPosition: {x: 30.78, y: -2.76, z: 0}
   m_LocalScale: {x: 3.2697, y: 3.5848, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -29357,7 +29511,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: dcc4a1ac295b22745b75fd4081b668b1, type: 2}
+  - {fileID: 2100000, guid: 2a911dd54431aac4a880e72250030e5f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -33378,7 +33532,7 @@ Transform:
   m_GameObject: {fileID: 2063874602}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 26.01, y: 18.44, z: 0}
+  m_LocalPosition: {x: 13.43, y: 18.09, z: 0}
   m_LocalScale: {x: 2.2, y: 2.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -33974,8 +34128,8 @@ Transform:
   m_GameObject: {fileID: 2126252644}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 41.4182, y: 20.881498, z: 0}
-  m_LocalScale: {x: 1.3894063, y: 5.403672, z: 1}
+  m_LocalPosition: {x: 41.4057, y: 20.9313, z: 0}
+  m_LocalScale: {x: 1.3645359, y: 5.5030994, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -34776,7 +34930,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 3.6809008, y: 4.02712}
   m_EdgeRadius: 0
-
 --- !u!212 &1741795590
 SpriteRenderer:
   serializedVersion: 2
@@ -34836,7 +34989,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
-
 --- !u!4 &1741795591
 Transform:
   m_ObjectHideFlags: 0
@@ -34852,7 +35004,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-
 --- !u!114 &3400000100
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34926,7 +35077,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
-
 --- !u!61 &2122680200
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -34973,7 +35123,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 4.26, y: 3.8512707}
   m_EdgeRadius: 0
-
 --- !u!212 &2122680201
 SpriteRenderer:
   serializedVersion: 2
@@ -35033,7 +35182,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
-
 --- !u!4 &2122680202
 Transform:
   m_ObjectHideFlags: 0
@@ -35049,6 +35197,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &1166140800
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1166140797}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 2.989552}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 3.33, y: 10.06}
+    newSize: {x: 3.33, y: 10.06}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 3.33, y: 4.0808973}
+  m_EdgeRadius: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
