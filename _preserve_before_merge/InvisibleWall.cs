@@ -115,19 +115,12 @@ public class InvisibleWall : MonoBehaviour
         }
     }
 
-    // Walls gate the boundary where two adjacent regions meet. When two regions are flush the wall lands exactly on
-    // their shared edge, but when they overlap or are gapped the wall snaps to the midpoint (SnapToSharedEdge), which
-    // is then some distance away from either region's own edge. The old EdgeEpsilon (0.05) only accepted a wall that
-    // sat virtually ON the edge and so missed every overlap/gapped gate. Detect instead: a wall covers a region
-    // edge when (a) it is roughly collinear with that edge (within snapCollinear, generous enough to include snap
-    // midpoints) and (b) its span actually overlaps the facing run of the edge. This accepts flush, overlapping and
-    // gapped gates alike while still rejecting walls on unrelated edges.
     public static bool CoversVerticalEdge(float x, float y)
     {
         foreach (var wall in registered)
         {
             if (wall == null || wall.Horizontal) continue;
-            if (Mathf.Abs(wall.WallX - x) > snapCollinear) continue;
+            if (Mathf.Abs(wall.WallX - x) > EdgeEpsilon) continue;
             if (y >= wall.WallY - wall.Span && y <= wall.WallY + wall.Span) return true;
         }
         return false;
@@ -138,25 +131,13 @@ public class InvisibleWall : MonoBehaviour
         foreach (var wall in registered)
         {
             if (wall == null || !wall.Horizontal) continue;
-            if (Mathf.Abs(wall.WallY - y) > snapCollinear) continue;
+            if (Mathf.Abs(wall.WallY - y) > EdgeEpsilon) continue;
             if (x >= wall.WallX - wall.Span && x <= wall.WallX + wall.Span) return true;
         }
         return false;
     }
 
-    // Generous collinearity tolerance for gate detection (see CoversVerticalEdge). Flush gates land on the edge
-    // (distance 0); overlap/gapped gates land at the midpoint, up to ~half the overlap/gap away from the edge.
-    private const float snapCollinear = 4.0f;
-
-    /// <summary>
-    /// Keeps the player on their current side of every locked wall. The side is decided from
-    /// <paramref name="prevPos"/> (where the player was last frame), NOT from the post-movement position: a fast
-    /// mover can cross a thin wall in a single frame, and if the side were judged by their new position they would
-    /// be classified as already on the far side and clamped straight through it (tunneling). Pinning the side to
-    /// the pre-movement position means a player who was below the wall stays below it (clamped to WallY - half),
-    /// one who was above stays above, until the wall is unlocked.
-    /// </summary>
-    public static void ClampPlayer(Vector3 prevPos, Vector3 pos, float playerHalf, ref Vector3 clamped)
+    public static void ClampPlayer(Vector3 pos, float playerHalf, ref Vector3 clamped)
     {
         clamped = pos;
         foreach (var wall in registered)
@@ -168,9 +149,7 @@ public class InvisibleWall : MonoBehaviour
                 bool overlapX = clamped.x + playerHalf > wall.WallX - span && clamped.x - playerHalf < wall.WallX + span;
                 if (!overlapX) continue;
                 float before = clamped.y;
-                // Side decision from prevPos (see docstring). Once the side is known, clamp the current
-                // position back to that side of the wall.
-                clamped.y = (prevPos.y < wall.WallY) ? Mathf.Min(clamped.y, wall.WallY - playerHalf) : Mathf.Max(clamped.y, wall.WallY + playerHalf);
+                clamped.y = (clamped.y < wall.WallY) ? Mathf.Min(clamped.y, wall.WallY - playerHalf) : Mathf.Max(clamped.y, wall.WallY + playerHalf);
                 if (Mathf.Abs(before - clamped.y) > 1e-4f) Debug.Log($"[InvisibleWall {wall.name}] BLOCKING horizontal: player y {before:F2} -> {clamped.y:F2} (wallY={wall.WallY})");
             }
             else
@@ -178,7 +157,7 @@ public class InvisibleWall : MonoBehaviour
                 bool overlapY = clamped.y + playerHalf > wall.WallY - span && clamped.y - playerHalf < wall.WallY + span;
                 if (!overlapY) continue;
                 float before = clamped.x;
-                clamped.x = (prevPos.x < wall.WallX) ? Mathf.Min(clamped.x, wall.WallX - playerHalf) : Mathf.Max(clamped.x, wall.WallX + playerHalf);
+                clamped.x = (clamped.x < wall.WallX) ? Mathf.Min(clamped.x, wall.WallX - playerHalf) : Mathf.Max(clamped.x, wall.WallX + playerHalf);
                 if (Mathf.Abs(before - clamped.x) > 1e-4f) Debug.Log($"[InvisibleWall {wall.name}] BLOCKING vertical: player x {before:F2} -> {clamped.x:F2} (wallX={wall.WallX})");
             }
         }
@@ -251,10 +230,7 @@ public class InvisibleWall : MonoBehaviour
 
             if (stacked)
             {
-                // Symmetric in r1/r2: the shared edge sits at the lower region's top = the upper region's bottom,
-                // i.e. min(two maxes) = max(two mins). The old (b1.max.y + b2.min.y)/2 was wrong whenever the
-                // nearest seed region (r1) happened to be the upper one.
-                float sharedY = (Mathf.Min(b1.max.y, b2.max.y) + Mathf.Max(b1.min.y, b2.min.y)) / 2f;
+                float sharedY = (b1.max.y + b2.min.y) / 2f;
                 float cx = Mathf.Clamp(b1.center.x, Mathf.Max(b1.min.x, b2.min.x), Mathf.Min(b1.max.x, b2.max.x));
                 transform.position = new Vector3(cx, sharedY, 0f);
                 col.size = new Vector2(Mathf.Abs(xol), 0.1f); // wide => horizontal
@@ -263,8 +239,7 @@ public class InvisibleWall : MonoBehaviour
             }
             if (sidebyside)
             {
-                // Symmetric in r1/r2: shared edge = left region's right = right region's left.
-                float sharedX = (Mathf.Min(b1.max.x, b2.max.x) + Mathf.Max(b1.min.x, b2.min.x)) / 2f;
+                float sharedX = (b1.max.x + b2.min.x) / 2f;
                 float cy = Mathf.Clamp(b1.center.y, Mathf.Max(b1.min.y, b2.min.y), Mathf.Min(b1.max.y, b2.max.y));
                 transform.position = new Vector3(sharedX, cy, 0f);
                 col.size = new Vector2(0.1f, Mathf.Abs(yol)); // tall => vertical

@@ -23,12 +23,8 @@ public class NpcController : MonoBehaviour
     [Tooltip("Optional image (e.g. the 'E' key prompt) shown above the NPC while the player is nearby. If left empty the text prompt is used on its own.")]
     [SerializeField] private Sprite interactSprite;
 
-    [Tooltip("Maximum world-space size of the displayed interact image. Its original aspect ratio is preserved.")]
-    [SerializeField] private Vector2 interactImageSize = new Vector2(1.4f, 1.45f);
-
-    [Tooltip("Empty world-space gap between the NPC's head and the bottom of the interact image.")]
-    [Range(0.05f, 1f)]
-    [SerializeField] private float interactPromptGap = 0.12f;
+    [Tooltip("World-space size of the displayed interact image (X/Y in local units).")]
+    [SerializeField] private Vector2 interactImageSize = new Vector2(0.4f, 0.4f);
 
     [Range(0f, 3f)]
     [SerializeField] private float promptVerticalOffset = 1.2f;
@@ -42,13 +38,6 @@ public class NpcController : MonoBehaviour
     [Header("Wall unlock")]
     [Tooltip("If set, this invisible wall is unlocked when the conversation with this NPC closes — gating the player's forward progress. Leave empty for flavour NPCs that open no gate.")]
     [SerializeField] private InvisibleWall wallToUnlock;
-
-    [Header("Tracing")]
-    [Tooltip("Enable only when this NPC owns the conversation that launches and resumes the hanzi tracing scene.")]
-    [SerializeField] private bool resumeAfterTracing;
-
-    [Tooltip("Stable NPC id used for tracing resumes and repeat-conversation persistence. Leave empty to use this GameObject's name.")]
-    [SerializeField] private string traceOwnerKey;
 
     private Conversation conversation;
 
@@ -70,7 +59,6 @@ public class NpcController : MonoBehaviour
     private SpriteRenderer interactSpriteRenderer;
 
     private const string PlayerName = "Player";
-    private string TraceOwnerKey => string.IsNullOrWhiteSpace(traceOwnerKey) ? gameObject.name : traceOwnerKey.Trim();
 
     private void Awake()
     {
@@ -85,22 +73,20 @@ public class NpcController : MonoBehaviour
     private void Start()
     {
         LocatePlayer();
-        RefreshConversationState();
 
         // Check whether we just returned from the tracing scene.
-       RefreshFromProgress();
+        RefreshFromProgress();
     }
 
     private void Update()
     {
-        if (OpeningOverlay.IsShowing || PauseController.IsPaused || ControlsOverlayController.IsOpen)
+        if (PauseController.IsPaused)
         {
             return;
         }
 
         // Check every frame because GameProgress or Dialogue may not
         // have finished initializing when Start() first runs.
-        RefreshConversationState();
         RefreshFromProgress();
 
         // Find the player again if the scene was reloaded.
@@ -117,12 +103,9 @@ public class NpcController : MonoBehaviour
         // Show or hide the prompts above the NPC while the player is nearby and no dialogue is open.
         bool shouldShow = nearPlayer && !activated;
 
-        // The text is a fallback for NPCs without an image. Showing both would stack
-        // two prompts over the character and make the interaction cue harder to read.
-        bool shouldShowText = shouldShow && interactObj == null;
-        if (promptObj != null && promptObj.activeSelf != shouldShowText)
+        if (promptObj != null && promptObj.activeSelf != shouldShow)
         {
-            promptObj.SetActive(shouldShowText);
+            promptObj.SetActive(shouldShow);
         }
 
         if (interactObj != null && interactObj.activeSelf != shouldShow)
@@ -153,29 +136,25 @@ public class NpcController : MonoBehaviour
     }
 
     /// <summary>
-    /// Opens the gated wall for this NPC. The unlock target now lives on the paired
-    /// <see cref="Conversation"/> component (so it is unique and selectable per NPC): if that conversation
-    /// opts into unlocking and names a wall, that wall opens. Otherwise it falls back to unlocking exactly the
-    /// wall that sits on a boundary edge of the region this NPC occupies — never a wall that merely happens to
-    /// be nearby. The NPC's region is found from its position, and a wall counts as "on the region's edge" when
-    /// its center lies within a small tolerance of one of the region's four bounding edges. Robust against a
-    /// cross-component reference that did not survive a clone/reload, and immune to grabbing the wrong wall.
+    /// Opens the gated wall for this NPC. Prefers the serialized <see cref="wallToUnlock"/> when it resolved.
+    /// Otherwise it falls back to unlocking exactly the wall that sits on a boundary edge of the region this
+    /// NPC occupies — never a wall that merely happens to be nearby. The NPC's region is found from its
+    /// position, and a wall counts as "on the region's edge" when its center lies within a small tolerance
+    /// of one of the region's four bounding edges. This keeps each NPC unlocking its own gate (Soldier the
+    /// first wall, NPC_R2 the second, NPC_R3 the third) — robust against a cross-component reference that did
+    /// not survive a clone/reload, and immune to grabbing the wrong wall.
     /// </summary>
     private void UnlockGatedWall()
     {
-        // Prefer the wall explicitly assigned on this NPC's conversation: if one is set, unlock it directly and
-        // unconditionally. (The older UnlockOnComplete gate defaulted to false, which silently bypassed every
-        // assigned wall and left progress stuck — gating removed so an assigned wall always opens.)
-        if (conversation != null && conversation.WallToUnlock != null)
+        if (wallToUnlock != null)
         {
-            var wall = conversation.WallToUnlock;
-            Debug.Log($"[NpcController {name}] UnlockGatedWall: conversation.wallToUnlock={wall.name} lockedBefore={wall.Locked}");
-            wall.Unlock();
-            Debug.Log($"[NpcController {name}] after Unlock locked={wall.Locked}");
+            Debug.Log($"[NpcController {name}] UnlockGatedWall: wallToUnlock={wallToUnlock.name} lockedBefore={wallToUnlock.Locked}");
+            wallToUnlock.Unlock();
+            Debug.Log($"[NpcController {name}] after Unlock locked={wallToUnlock.Locked}");
             return;
         }
 
-        Debug.Log($"[NpcController {name}] no conversation wall set — using region-edge fallback");
+        Debug.Log($"[NpcController {name}] wallToUnlock is NULL — using region-edge fallback");
         // Fallback: unlock the wall on the boundary edge of this NPC's region. This is deterministic —
         // verified: Soldier(in R1) unlocks Wall1, NPC_R2(in R2) unlocks Wall2, NPC_R3(in R3) unlocks Wall3.
         GameArea area = GameArea.GetAreaContaining(transform.position);
@@ -219,12 +198,6 @@ public class NpcController : MonoBehaviour
     /// </summary>
     private void RefreshFromProgress()
     {
-        // Simple repeatable NPCs must not claim another NPC's saved tracing conversation.
-        if (!resumeAfterTracing)
-        {
-            return;
-        }
-
         // We already restored the dialogue once.
         if (resumedAfterTrace)
         {
@@ -237,8 +210,8 @@ public class NpcController : MonoBehaviour
             return;
         }
 
-        // Only the NPC that launched the completed task may restore its saved step.
-        if (!GameProgress.Instance.TryClaimTraceResume(TraceOwnerKey))
+        // The tracing task has not been passed yet.
+        if (!GameProgress.Instance.tracePassed)
         {
             return;
         }
@@ -309,7 +282,6 @@ public class NpcController : MonoBehaviour
         dialogue.SetAuxiliaryPanelBackgrounds(
             conversation.GetGameVoiceBackground(),
             conversation.GetMultipleChoiceBackground());
-        dialogue.SetTraceOwner(TraceOwnerKey);
     }
 
     /// <summary>
@@ -349,11 +321,10 @@ public class NpcController : MonoBehaviour
 
         // Open the gated wall the moment the conversation starts — a gate NPC's whole job is to unseal
         // the way ahead, and firing on open (rather than on the eventual close) guarantees the unlock even
-        // if the dialogue is dismissed without a clean close event. One NPC, one wall. The unlock target
-        // is read from the paired Conversation component, so it is unique to this NPC.
-        if (conversation != null && conversation.WallToUnlock != null)
+        // if the dialogue is dismissed without a clean close event. One NPC, one wall.
+        if (wallToUnlock != null)
         {
-            conversation.WallToUnlock.Unlock();
+            wallToUnlock.Unlock();
         }
     }
 
@@ -366,28 +337,11 @@ public class NpcController : MonoBehaviour
         activated = false;
         hasSpokenBefore = true;
 
-        if (GameProgress.Instance != null)
-        {
-            GameProgress.Instance.MarkConversationCompleted(TraceOwnerKey);
-        }
-
         // Conversation finished: open the gated wall (if any) so the player may advance. This is the
-        // reusable contract between an NPC and the gate that seals the way ahead — one NPC, one wall. The
-        // unlock target is read from the paired Conversation component, so it is unique to this NPC.
-        if (conversation != null && conversation.WallToUnlock != null)
+        // reusable contract between an NPC and the gate that seals the way ahead — one NPC, one wall.
+        if (wallToUnlock != null)
         {
-            conversation.WallToUnlock.Unlock();
-        }
-    }
-
-    /// <summary>Restores the local repeat-dialogue cache from the persistent play-session state.</summary>
-    private void RefreshConversationState()
-    {
-        if (!hasSpokenBefore &&
-            GameProgress.Instance != null &&
-            GameProgress.Instance.HasCompletedConversation(TraceOwnerKey))
-        {
-            hasSpokenBefore = true;
+            wallToUnlock.Unlock();
         }
     }
 
@@ -398,51 +352,35 @@ public class NpcController : MonoBehaviour
     /// </summary>
     private void BuildInteractImage()
     {
-        // Resolve the sprite: prefer the serialized reference, but if it came
-        // back null (e.g. the YAML PPtr did not survive a reload), fall back to
-        // looking the asset up by its known import GUID. This keeps the prompt
-        // working even when the serialized reference fails to deserialize.
-        Sprite resolved = interactSprite != null
-            ? interactSprite
-            : LoadInteractSprite();
-
-        if (resolved == null)
+        // The floating "E" image prompt. Only built when a sprite is explicitly assigned — clear
+        // the Interact Sprite field to show no image (the text prompt still appears above the NPC).
+        if (interactSprite == null)
         {
-            Debug.LogError(
-                "[NpcController] interactSprite is null on " + name +
-                " — assign Assets/misc/interactE to the Interact Sprite field in the " +
-                "Inspector, or re-save the scene. No E-prompt will show.",
-                this
-            );
-
             return;
         }
+
+        Sprite resolved = interactSprite;
 
         if (interactObj != null)
         {
             return;
         }
 
-        // Scale from the sprite's imported bounds. SpriteRenderer.size is ignored in
-        // Simple draw mode, which previously left this 281x291 image at full size.
+        // Hang the image just above the NPC's real visual top edge, computed
+        // from its SpriteRenderer bounds. Bounding the offset to the actual head
+        // puts the prompt above the body (never in the middle) across any sprite,
+        // scale, or pivot, regardless of the NPC's 0.3 world scale.
         SpriteRenderer npcRenderer = GetComponent<SpriteRenderer>();
         Bounds headBounds = npcRenderer.bounds;
-        Vector2 sourceSize = resolved.bounds.size;
-        float scaleX = sourceSize.x > 0f ? interactImageSize.x / sourceSize.x : 1f;
-        float scaleY = sourceSize.y > 0f ? interactImageSize.y / sourceSize.y : 1f;
-        float imageScale = Mathf.Max(0.001f, Mathf.Min(scaleX, scaleY));
-        Vector2 displayedSize = sourceSize * imageScale;
-        float offsetX = -resolved.bounds.center.x * imageScale;
-        float offsetY = headBounds.max.y - transform.position.y
-            + interactPromptGap
-            - resolved.bounds.min.y * imageScale;
-        Vector3 promptOffset = new Vector3(offsetX, offsetY, 0f);
+        float gapAboveHead = 0.15f;
+        float imageHalfHeight = interactImageSize.y * 0.5f;
+        float worldTopY = headBounds.max.y + gapAboveHead + imageHalfHeight;
+        float offsetY = worldTopY - transform.position.y;
 
         // Parent to the root so the NPC's scale cannot shrink the offset or image.
         interactObj = new GameObject("InteractPrompt");
         interactObj.transform.SetParent(null, false);
-        interactObj.transform.localScale = Vector3.one * imageScale;
-        interactObj.transform.position = transform.position + promptOffset;
+        interactObj.transform.position = transform.position + Vector3.up * offsetY;
         interactObj.SetActive(false);
 
         interactSpriteRenderer = interactObj.AddComponent<SpriteRenderer>();
@@ -450,6 +388,7 @@ public class NpcController : MonoBehaviour
         // Sort above the NPC so the prompt is never occluded by the body.
         interactSpriteRenderer.sortingLayerID = npcRenderer.sortingLayerID;
         interactSpriteRenderer.sortingOrder = npcRenderer.sortingOrder + 1;
+        interactSpriteRenderer.size = interactImageSize;
         interactSpriteRenderer.drawMode = SpriteDrawMode.Simple;
         // A runtime-created SpriteRenderer has no material of its own; the URP
         // 2D renderer draws sprites through the scene-view path, so it renders
@@ -463,13 +402,11 @@ public class NpcController : MonoBehaviour
             billboard.Cache(Camera.main.transform);
         }
 
-        billboard.Follow(transform, promptOffset);
+        billboard.Follow(transform, Vector3.up * offsetY);
 
         Debug.Log(
             "[NpcController] E-prompt image ready on " + name +
-            " (sprite=" + resolved.name +
-            ", size=" + displayedSize.ToString("F2") +
-            ", offset=" + promptOffset.ToString("F2") + ")",
+            " (sprite=" + resolved.name + ", offsetY=" + offsetY.ToString("F2") + ")",
             this
         );
     }

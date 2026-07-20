@@ -17,16 +17,11 @@ public class GameArea : MonoBehaviour
     private void OnEnable() { if (!registered.Contains(this)) registered.Add(this); }
     private void OnDisable() { registered.Remove(this); }
 
-    /// <summary>The region's world-space size, accounting for this GameObject's transform scale. Unity computes
-    /// col.bounds in world space, so a region authored at collider size (35.56, 20) under a (1.2929, 1) transform
-    /// actually spans (45.98, 20) in the world — and that is the size that must gate the player and camera.</summary>
-    private Bounds WorldBounds => col != null ? col.bounds : new Bounds(transform.position, Vector3.zero);
-
     public string AreaName => name;
-    public Vector3 Center => WorldBounds.center;
-    public float Width => col != null ? col.bounds.size.x : 0f;
-    public float Height => col != null ? col.bounds.size.y : 0f;
-    public Bounds Bounds => WorldBounds;
+    public Vector3 Center => transform.position;
+    public float Width => col != null ? col.size.x : 0f;
+    public float Height => col != null ? col.size.y : 0f;
+    public Bounds Bounds => new Bounds(Center, new Vector3(Width, Height, 0f));
 
     /// <summary>
     /// Grid identity of this region — a stable integer label derived from its world position, used by NpcController and
@@ -71,7 +66,7 @@ public class GameArea : MonoBehaviour
         bool leftOpen = InvisibleWall.CoversVerticalEdge(b.min.x, pos.y);
         bool rightOpen = InvisibleWall.CoversVerticalEdge(b.max.x, pos.y);
         bool bottomOpen = InvisibleWall.CoversHorizontalEdge(b.min.y, pos.x);
-        bool topOpen = InvisibleWall.CoversHorizontalEdge(b.max.y, pos.y);
+        bool topOpen = InvisibleWall.CoversHorizontalEdge(b.max.y, pos.x);
 
         if (!leftOpen && pos.x < minX) { Debug.Log($"[GameArea {name}] clamp LEFT edge (void)"); pos.x = minX; }
         if (!rightOpen && pos.x > maxX) { Debug.Log($"[GameArea {name}] clamp RIGHT edge (void) pos.x={pos.x:F2}>{maxX:F2} rightOpen={rightOpen}"); pos.x = maxX; }

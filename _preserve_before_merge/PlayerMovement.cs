@@ -20,9 +20,6 @@ public class PlayerMovement : MonoBehaviour
 
     private InputAction moveAction;
 
-    /// <summary>The latest movement input after the input device is read. Drives the walk animation without re-polling the device.</summary>
-    public Vector2 MoveInput { get; private set; }
-
     private void Awake()
     {
         if (inputActions != null)
@@ -45,10 +42,6 @@ public class PlayerMovement : MonoBehaviour
         }
 
         moveAction.Enable();
-
-        // Seed prevPos with the true spawn position so the wall side-decision is correct on the very first frame
-        // (an uninitialized Vector3.zero would mis-classify the player's side if they spawn right next to a wall).
-        prevPos = transform.position;
     }
 
     private void OnEnable()
@@ -67,8 +60,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private Vector3 prevPos;
-
     private void Update()
     {
         // Freeze the player while a dialogue is open so they can't walk away mid-conversation (or drift
@@ -79,7 +70,6 @@ public class PlayerMovement : MonoBehaviour
         }
 
         Vector2 input = moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
-        MoveInput = input;
         Vector3 pos = transform.position;
 
         pos.x += input.x * speed * Time.deltaTime;
@@ -87,12 +77,8 @@ public class PlayerMovement : MonoBehaviour
 
         ClampToArea(pos, out pos);
         float playerHalf = transform.localScale.x * 0.5f + 0.001f;
-        // Pass the pre-movement position so walls can detect which side the player came from and block tunneling
-        // (a fast mover can otherwise skip past a thin wall between frames). After clamping, remember this
-        // frame's settled position as next frame's "previous" position.
-        InvisibleWall.ClampPlayer(prevPos, pos, playerHalf, ref pos);
+        InvisibleWall.ClampPlayer(pos, playerHalf, ref pos);
         transform.position = pos;
-        prevPos = pos;
     }
 
     private void OnDestroy()
