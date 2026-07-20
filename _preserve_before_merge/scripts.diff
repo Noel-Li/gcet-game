@@ -1,0 +1,1680 @@
+warning: in the working copy of 'gcet_game_unity/Assets/Scripts/FollowCamera.cs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'gcet_game_unity/Assets/Scripts/InvisibleWall.cs', LF will be replaced by CRLF the next time Git touches it
+diff --git a/gcet_game_unity/Assets/Scripts/Conversation.cs b/gcet_game_unity/Assets/Scripts/Conversation.cs
+index 5db0fb51..640d9657 100644
+--- a/gcet_game_unity/Assets/Scripts/Conversation.cs
++++ b/gcet_game_unity/Assets/Scripts/Conversation.cs
+@@ -58,263 +58,17 @@ public class Conversation : MonoBehaviour
+ 
+     private static List<DialogueStep> DefaultSteps()
+     {
++        // A short, reusable default exchange for gate NPCs: one line that tells the player the way
++        // is open. Author explicit steps on the Conversation component to replace it with richer content.
+         return new List<DialogueStep>
+         {
+-            // 0 — Character dialogue, normal soldier portrait.
+             new DialogueStep
+             {
+                 speakerName = "soldier",
+                 expression = "normal",
+-                text = "Hello, are you 张三?"
+-            },
+-
+-            // 1 — Game Voice instruction. The opening task traces only 不.
+-            new DialogueStep
+-            {
+-                speakerName = "game voice",
+-                panelStyle = DialoguePanelStyle.GameVoice,
+-                text = "Use the tracer to write the player's answer: 不",
+-                choices = new List<DialogueChoice>
+-                {
+-                    new DialogueChoice
+-                    {
+-                        label = "Trace 不",
+-                        targetStep = 2,
+-                        action = DialogueAction.Writing,
+-                        requiredTraceCount = 1
+-                    }
+-                }
+-            },
+-
+-            // 2
+-            new DialogueStep
+-            {
+-                speakerName = "player",
+-                expression = "normal",
+-                text = "不。 (Bù.)"
+-            },
+-
+-            // 3 — Soldier asks the question in the character panel.
+-            new DialogueStep
+-            {
+-                speakerName = "soldier",
+-                expression = "normal",
+-                text = "你叫什么名字？ (Nǐ jiào shénme míngzi?)"
+-            },
+-
+-            // 4 — Game Voice prompt on the left; answers appear in the Multiple Choice panel on the right.
+-            new DialogueStep
+-            {
+-                speakerName = "game voice",
+-                panelStyle = DialoguePanelStyle.GameVoice,
+-                text = "Select the translation for this:",
+-                useMultipleChoicePanel = true,
+-                choices = new List<DialogueChoice>
+-                {
+-                    new DialogueChoice { label = "What is your name?", targetStep = 9 },
+-                    new DialogueChoice { label = "How are you?", targetStep = 5 },
+-                    new DialogueChoice { label = "Where are you from?", targetStep = 7 }
+-                }
+-            },
+-
+-            // 5-6 — Wrong: How are you? Clicking the correction returns directly to the choices.
+-            new DialogueStep
+-            {
+-                speakerName = "player",
+-                expression = "normal",
+-                text = "我很好。 (Wǒ hěn hǎo.)"
+-            },
+-            new DialogueStep
+-            {
+-                speakerName = "soldier",
+-                expression = "normal",
+-                text =
+-                    "I didn't ask how you are. I asked “你叫什么名字？” My name is 李沅诺 " +
+-                    "(Lǐ Yuánnuò). 你叫什么名字？ (Nǐ jiào shénme míngzi?)",
+-                nextStep = 4
+-            },
+-
+-            // 7-8 — Wrong: Where are you from? Clicking the correction returns directly to the choices.
+-            new DialogueStep
+-            {
+-                speakerName = "player",
+-                expression = "normal",
+-                text = "美国。 (Měiguó.)"
+-            },
+-            new DialogueStep
+-            {
+-                speakerName = "soldier",
+-                expression = "normal",
+-                text =
+-                    "I didn't ask where you are from. I asked “你叫什么名字？” My name is 李沅诺 " +
+-                    "(Lǐ Yuánnuò). 你叫什么名字？ (Nǐ jiào shénme míngzi?)",
+-                nextStep = 4
+-            },
+-
+-            // 9 — Correct response.
+-            new DialogueStep
+-            {
+-                speakerName = "player",
+-                expression = "normal",
+-                text = "郭小月。 (Guō Xiǎoyuè.)"
+-            },
+-
+-            // 10-11 — Split so the soldier changes from normal to confused.
+-            new DialogueStep
+-            {
+-                speakerName = "soldier",
+-                expression = "normal",
+-                text = "Hello, 小月 (Xiǎoyuè). My name is 李沅诺 (Lǐ Yuánnuò)."
+-            },
+-            new DialogueStep
+-            {
+-                speakerName = "soldier",
+-                expression = "confused",
+-                text = "Wait... did you say 郭 (Guō)?"
+-            },
+-
+-            // 12-15 — Family connection.
+-            new DialogueStep
+-            {
+-                speakerName = "player",
+-                expression = "confused",
+-                text = "Yes...?"
+-            },
+-            new DialogueStep
+-            {
+-                speakerName = "soldier",
+-                expression = "confused",
+-                text = "Are you related to 郭品玉 (Guō Pǐnyù)?"
+-            },
+-            new DialogueStep
+-            {
+-                speakerName = "player",
+-                expression = "worried",
+-                text = "*Hmm... that name sounds familiar. Wait—that's the first person in my family line to have powers!*"
+-            },
+-            new DialogueStep
+-            {
+-                speakerName = "player",
+-                expression = "excited",
+-                text = "Yes! I am. How did you know?"
+-            },
+-
+-            // 16
+-            new DialogueStep
+-            {
+-                speakerName = "soldier",
+-                expression = "surprised",
+-                text =
+-                    "She is our local Artisan. 她做的 (Tā zuò de) equipment 是最好的 (shì zuì hǎo de). " +
+-                    "We all don't know how, but we don't ask questions."
+-            },
+-
+-            // 17 — Game Voice prompt + bottom-right Multiple Choice panel.
+-            new DialogueStep
+-            {
+-                speakerName = "game voice",
+-                panelStyle = DialoguePanelStyle.GameVoice,
+-                text = "What does “她做最好的...” mean?",
+-                useMultipleChoicePanel = true,
+-                choices = new List<DialogueChoice>
+-                {
+-                    new DialogueChoice { label = "He makes the best...", targetStep = 18 },
+-                    new DialogueChoice { label = "She makes the best...", targetStep = 19 },
+-                    new DialogueChoice { label = "She drinks the best...", targetStep = 18 }
+-                }
+-            },
+-
+-            // 18 — Game Voice only; the next click retries the question without an extra choice panel.
+-            new DialogueStep
+-            {
+-                speakerName = "game voice",
+-                panelStyle = DialoguePanelStyle.GameVoice,
+-                text = "Wrong answer. Try again.",
+-                nextStep = 17
+-            },
+-
+-            // 19-20
+-            new DialogueStep
+-            {
+-                speakerName = "player",
+-                expression = "confused",
+-                text = "Do you know where I can find her?"
+-            },
+-            new DialogueStep
+-            {
+-                speakerName = "soldier",
+-                expression = "stern",
+-                text =
+-                    "她从不 (Tā cóng bù) stay 同一地方 (tóng yī dìfāng), but I'm sure 王喜悦 " +
+-                    "(Wáng Xǐyuè) knows where she is. She sells her silk in town. You can 问她 (Wèn tā). " +
+-                    "She is just up ahead. 不要 (Bú yào) cause any trouble."
+-            },
+-
+-            // 21 — Game Voice prompt + bottom-right Multiple Choice panel.
+-            new DialogueStep
+-            {
+-                speakerName = "game voice",
+-                panelStyle = DialoguePanelStyle.GameVoice,
+-                text = "What does “问...” translate to?",
+-                useMultipleChoicePanel = true,
+-                choices = new List<DialogueChoice>
+-                {
+-                    new DialogueChoice { label = "Ask", targetStep = 23 },
+-                    new DialogueChoice { label = "Chase", targetStep = 22 },
+-                    new DialogueChoice { label = "Hide", targetStep = 22 }
+-                }
+-            },
+-
+-            // 22 — Game Voice only; click to retry.
+-            new DialogueStep
+-            {
+-                speakerName = "game voice",
+-                panelStyle = DialoguePanelStyle.GameVoice,
+-                text = "Wrong answer. Try again.",
+-                nextStep = 21
+-            },
+-
+-            // 23
+-            new DialogueStep
+-            {
+-                speakerName = "player",
+-                expression = "excited",
+-                text = "谢谢！ (Xièxie!)"
+-            },
+-
+-            // 24 — Game Voice instruction. The later task traces 不 again, followed by 要.
+-            new DialogueStep
+-            {
+-                speakerName = "game voice",
+-                panelStyle = DialoguePanelStyle.GameVoice,
+-                text =
+-                    "Trace characters to remember important information from the conversation. " +
+-                    "Trace 不 and 要. Make sure to remember how to write them.",
+-                choices = new List<DialogueChoice>
+-                {
+-                    new DialogueChoice
+-                    {
+-                        label = "Start tracing 不 and 要",
+-                        targetStep = 25,
+-                        action = DialogueAction.Writing,
+-                        requiredTraceCount = 2
+-                    }
+-                }
+-            },
+-
+-            // 25-26 — Resume after both characters are complete.
+-            new DialogueStep
+-            {
+-                speakerName = "soldier",
+-                expression = "normal",
+-                text = "很好！ (Hěn hǎo!) You remembered 不 and 要. 王喜悦 is just up ahead.",
+-                action = DialogueAction.GoTop
+-            },
+-            new DialogueStep
+-            {
+-                speakerName = "player",
+-                expression = "normal",
+-                text = "I will find her. 谢谢！ (Xièxie!)"
++                text = "The way ahead is open now. Go on.",
++                action = DialogueAction.None,
++                nextStep = -1
+             }
+         };
+     }
+diff --git a/gcet_game_unity/Assets/Scripts/FollowCamera.cs b/gcet_game_unity/Assets/Scripts/FollowCamera.cs
+index 29671141..aec5c103 100644
+--- a/gcet_game_unity/Assets/Scripts/FollowCamera.cs
++++ b/gcet_game_unity/Assets/Scripts/FollowCamera.cs
+@@ -1,14 +1,20 @@
+ using UnityEngine;
+ 
+ /// <summary>
+-/// Clamped-follow camera. Each frame it smoothly follows the player (via SmoothDamp) and then clamps the result to the
+-/// current Area's bounds through <see cref="GameArea.ClampCamera"/>, so the view never shows void or the
+-/// adjacent/locked room — only the playable area the player stands in. The current Area is resolved from the player's
+-/// position each frame; if the player is outside every Area the camera holds on the last valid room so void is never
+-/// shown on the way out.
++/// Clamped-follow camera with two distinct behaviours:
+ ///
+-/// Smoothing only runs while inside a known room; on the frame re-entering a room the camera snaps to its clamped target
+-/// first so it never lags past the visible boundary and shows emptiness.
++///  * WITHIN a region — smoothly follows the player (SmoothDamp) and clamps the result to the
++///    current region's bounds, so the view never shows void or an adjacent room. For a 1×1 region
++///    the viewport exactly fills it, so the clamp pins to center (no follow needed); for a larger
++///    region (e.g. 2×2) the camera actually tracks the player inside it.
++///
++///  * BETWEEN regions — the frame the player is in is resolved from their position each frame. The
++///    instant it changes, the camera SNAPS to the new region's clamped target (instead of easing
++///    across and briefly showing the void/gap between rooms). Smoothing resumes once settled.
++///
++/// If the player is outside every region/wall the camera holds on the last valid room (clamped) as
++/// long as the player is still within its bounds; once the player leaves even that, it free-follows
++/// so the player is never dragged off-screen.
+ /// </summary>
+ public class FollowCamera : MonoBehaviour
+ {
+@@ -18,18 +24,16 @@ public class FollowCamera : MonoBehaviour
+     [Header("Motion")]
+     [SerializeField] private float smoothTime = 0.15f;
+ 
+-    [Header("Follow slack")]
+-    [Tooltip("Insets the player from the room edges (world units) so the camera eases before hitting a wall.")]
+-    [SerializeField] private float lookAheadInset = 0.0f;
+-
+     private float velocityX;
+     private float velocityY;
+     private float defaultZ;
+     private Camera cam;
+-    private GameArea lastArea;
+-    private InvisibleWall lastWall;
+     private Vector2 viewportHalf;
+ 
++    // The region/cell we are currently framing. Compared each frame to detect a transition (→ snap).
++    private GameArea framedArea;
++    private InvisibleWall framedWall;
++
+     private void Reset()
+     {
+         var found = FindObjectOfType<PlayerMovement>();
+@@ -51,16 +55,23 @@ public class FollowCamera : MonoBehaviour
+         CacheViewportHalf();
+ 
+         // Start framed on the player's room so we never snap-arrive.
+-        GameArea startArea = player != null ? GameArea.GetAreaContaining(player.position) : null;
+-        if (startArea != null)
++        FrameTarget start = ResolveTarget(player != null ? player.position : transform.position);
++        if (start.area != null)
++        {
++            framedArea = start.area;
++            Vector3 clamped;
++            start.area.ClampCamera(viewportHalf, player != null ? player.position : transform.position, out clamped);
++            transform.position = new Vector3(clamped.x, clamped.y, defaultZ);
++        }
++        else if (start.wall != null)
+         {
+-            lastArea = startArea;
++            framedWall = start.wall;
+             Vector3 clamped;
+-            startArea.ClampCamera(viewportHalf, player.position, out clamped);
++            start.wall.ClampCamera(viewportHalf, player != null ? player.position : transform.position, out clamped);
+             transform.position = new Vector3(clamped.x, clamped.y, defaultZ);
+-            velocityX = 0f;
+-            velocityY = 0f;
+         }
++        velocityX = 0f;
++        velocityY = 0f;
+     }
+ 
+     private void CacheViewportHalf()
+@@ -85,77 +96,121 @@ public class FollowCamera : MonoBehaviour
+     {
+         if (player == null)
+         {
+-            return;
++            LocatePlayer();
++            if (player == null)
++            {
++                return;
++            }
+         }
+ 
+-        GameArea area = GameArea.GetAreaContaining(player.position);
+-        if (area != null)
+-        {
+-            lastArea = area;
+-        }
+-
+-        // The wall sits on top of an empty cell (no Area), so when the player walks into that cell the camera must
+-        // still frame it — otherwise the player walks off-screen to reach a wall that the popup can only show on-screen.
+-        // A wall-governed cell acts as its own room; track it as the last valid target.
+-        InvisibleWall wall = InvisibleWall.GetCellContaining(player.position);
+-        if (wall != null)
+-        {
+-            lastWall = wall;
+-        }
+-
+-        // Decide purely on WHERE the player stands, not on the clamp result. Pin to the current room/cell if one
+-        // contains them; otherwise pin to the last room/cell — but ONLY while the player is still within its bounds.
+-        // The wall is a GATE, not a room to live in: once the player walks through it into a region that has no room,
+-        // no area and no wall-cell contains them, so any fallback clamp would pin the camera to an old center and slide
+-        // the player off-screen. In that case free-follow the player instead of pinning.
+         CacheViewportHalf();
+-        Vector3 clampedPos = transform.position;
+-        bool pin;
++        FrameTarget target = ResolveTarget(player.position);
+ 
+-        if (area != null)
+-        {
+-            pin = true;
+-            ClampThrough(area.ClampCamera, out clampedPos);
+-        }
+-        else if (wall != null)
++        // Decide purely on WHERE the player stands. A wall-governed cell frames like a room so the
++        // gate is always on-screen; an empty cell is the void.
++        if (target.area != null)
+         {
+-            pin = true;
+-            ClampThrough(wall.ClampCamera, out clampedPos);
++            if (target.area != framedArea)
++            {
++                // Entered a new region → snap, do not ease (avoids showing the gap/void between rooms).
++                framedArea = target.area;
++                framedWall = null;
++                Vector3 clamped;
++                framedArea.ClampCamera(viewportHalf, player.position, out clamped);
++                transform.position = new Vector3(clamped.x, clamped.y, defaultZ);
++                velocityX = 0f;
++                velocityY = 0f;
++            }
++            else
++            {
++                SmoothClampThrough(framedArea.ClampCamera, player.position);
++            }
+         }
+-        else if (lastArea != null && lastArea.ContainsPoint(player.position))
++        else if (target.wall != null)
+         {
+-            pin = true;
+-            ClampThrough(lastArea.ClampCamera, out clampedPos);
+-        }
+-        else if (lastWall != null && lastWall.CellBounds.Contains(player.position))
+-        {
+-            pin = true;
+-            ClampThrough(lastWall.ClampCamera, out clampedPos);
++            if (target.wall != framedWall)
++            {
++                framedWall = target.wall;
++                framedArea = null;
++                Vector3 clamped;
++                framedWall.ClampCamera(viewportHalf, player.position, out clamped);
++                transform.position = new Vector3(clamped.x, clamped.y, defaultZ);
++                velocityX = 0f;
++                velocityY = 0f;
++            }
++            else
++            {
++                SmoothClampThrough(framedWall.ClampCamera, player.position);
++            }
+         }
+         else
+         {
+-            pin = false;
++            // Void: hold on the last room while the player is still inside it, else free-follow.
++            if (framedArea != null && framedArea.ContainsPoint(player.position))
++            {
++                SmoothClampThrough(framedArea.ClampCamera, player.position);
++            }
++            else if (framedWall != null && framedWall.CellBounds.Contains(player.position))
++            {
++                SmoothClampThrough(framedWall.ClampCamera, player.position);
++            }
++            else
++            {
++                // Player has left every room — free-follow so they stay on-screen.
++                framedArea = null;
++                framedWall = null;
++                Vector3 desired = DesiredUnclamped(player.position);
++                transform.position = desired;
++                velocityX = 0f;
++                velocityY = 0f;
++            }
+         }
+-
+-        transform.position = pin ? clampedPos : DesiredUnclamped();
+     }
+ 
+-    /// <summary>Smooth-eases toward the player then runs the supplied room/wall clamp. Used when a valid target contains the player.</summary>
+-    private void ClampThrough(CameraClamp clamp, out Vector3 clamped)
++    /// <summary>Smooth-eases toward the player then runs the supplied room/wall clamp.</summary>
++    private void SmoothClampThrough(CameraClamp clamp, Vector3 desired)
+     {
+-        float targetX = Mathf.SmoothDamp(transform.position.x, player.position.x, ref velocityX, smoothTime);
+-        float targetY = Mathf.SmoothDamp(transform.position.y, player.position.y, ref velocityY, smoothTime);
++        float targetX = Mathf.SmoothDamp(transform.position.x, desired.x, ref velocityX, smoothTime);
++        float targetY = Mathf.SmoothDamp(transform.position.y, desired.y, ref velocityY, smoothTime);
++        Vector3 clamped;
+         clamp(viewportHalf, new Vector3(targetX, targetY, defaultZ), out clamped);
++        transform.position = clamped;
+     }
+ 
+     /// <summary>Smooth-eases the camera toward the player with no room clamp — used once the player has left every room.</summary>
+-    private Vector3 DesiredUnclamped()
++    private Vector3 DesiredUnclamped(Vector3 desired)
+     {
+-        float targetX = Mathf.SmoothDamp(transform.position.x, player.position.x, ref velocityX, smoothTime);
+-        float targetY = Mathf.SmoothDamp(transform.position.y, player.position.y, ref velocityY, smoothTime);
++        float targetX = Mathf.SmoothDamp(transform.position.x, desired.x, ref velocityX, smoothTime);
++        float targetY = Mathf.SmoothDamp(transform.position.y, desired.y, ref velocityY, smoothTime);
+         return new Vector3(targetX, targetY, defaultZ);
+     }
+ 
++    /// <summary>Resolves what frames the player: an Area, a wall-governed cell, or nothing (void).</summary>
++    private FrameTarget ResolveTarget(Vector3 point)
++    {
++        return new FrameTarget
++        {
++            area = GameArea.GetAreaContaining(point),
++            wall = InvisibleWall.GetCellContaining(point),
++        };
++    }
++
++    private void LocatePlayer()
++    {
++        var playerObj = GameObject.Find("Player");
++        if (playerObj != null)
++        {
++            var pm = playerObj.GetComponent<PlayerMovement>();
++            player = pm != null ? pm.transform : playerObj.transform;
++        }
++    }
++
++    private struct FrameTarget
++    {
++        public GameArea area;
++        public InvisibleWall wall;
++    }
++
+     /// <summary>A camera-clamp: pins a desired center so the viewport stays inside one room. Shared by rooms and wall cells.</summary>
+     private delegate bool CameraClamp(Vector2 viewportHalf, Vector3 center, out Vector3 clamped);
+ }
+diff --git a/gcet_game_unity/Assets/Scripts/GameArea.cs b/gcet_game_unity/Assets/Scripts/GameArea.cs
+index 7e0e4c55..35fd965a 100644
+--- a/gcet_game_unity/Assets/Scripts/GameArea.cs
++++ b/gcet_game_unity/Assets/Scripts/GameArea.cs
+@@ -1,262 +1,108 @@
++using System.Collections.Generic;
+ using UnityEngine;
+ 
+-/// <summary>
+-/// One Area = exactly one camera view. Its size is derived from the camera at runtime so it
+-/// always fills the screen precisely (no void visible around it). The player is clamped to
+-/// the Area's bounds (PlayerMovement.ClampToArea) so they can never go off-camera.
+-///
+-/// Areas tile a grid by <see cref="areaCol"/>/<see cref="areaRow"/>. Movement in each direction is
+-/// gated only by whether the destination cell exists: it must hold a neighbour Area OR an
+-/// <see cref="InvisibleWall">InvisibleWall</see> (whose own logic then permits or blocks passage).
+-/// An empty cell is the void and is always shut. The old right/top UNLOCK flags are retired —
+-/// area limits are off, and the invisible wall is now the only forward gate.
+-/// The camera snaps to whichever room the player occupies, so the view always shows exactly one
+-/// full Area (or wall-governed cell) and never a locked-off region.
+-/// </summary>
++[RequireComponent(typeof(BoxCollider2D))]
+ public class GameArea : MonoBehaviour
+ {
+-    [Header("Grid coordinates")]
+-    [SerializeField] private int areaCol = 0;
+-    [SerializeField] private int areaRow = 0;
+-
+-    [Header("Identity")]
+-    [SerializeField] private string areaName;
+-
+-    [Header("Gates")]
+-    [Tooltip("When true AND a room exists to the right, the player may walk right into it.")]
+-    [SerializeField] private bool rightExitUnlocked = false;
+-
+-    [Tooltip("When true AND a room exists above, the player may walk up into it. An NPC flips this.")]
+-    [SerializeField] private bool topExitUnlocked = false;
+-
+-    /// <summary>All live Areas.</summary>
+-    private static readonly System.Collections.Generic.List<GameArea> registered = new System.Collections.Generic.List<GameArea>();
++    private static readonly List<GameArea> registered = new List<GameArea>();
++    private BoxCollider2D col;
+ 
+     private void Awake()
+     {
+-        if (string.IsNullOrEmpty(areaName))
+-        {
+-            areaName = $"Area_{areaCol}_{areaRow}";
+-        }
+-        FitToCamera();
+-
+-        var renderer = GetComponentInChildren<SpriteRenderer>();
+-        if (renderer != null)
+-        {
+-            renderer.sortingOrder = -10;
+-        }
+-    }
+-
+-    private void OnEnable()
+-    {
+-        if (!registered.Contains(this))
+-        {
+-            registered.Add(this);
+-        }
+-    }
+-
+-    private void OnDisable()
+-    {
+-        registered.Remove(this);
+-    }
+-
+-    public string AreaName => areaName;
+-    public int AreaCol => areaCol;
+-    public int AreaRow => areaRow;
+-    public bool RightExitUnlocked => rightExitUnlocked;
+-    public bool TopExitUnlocked => topExitUnlocked;
+-
+-    /// <summary>Call from the NPC / a switch to open this room's right-hand gate.</summary>
+-    public void UnlockRightExit()
+-    {
+-        rightExitUnlocked = true;
++        col = GetComponent<BoxCollider2D>();
++        // The collider is a trigger: it is purely an editor handle the user drags to size the region. All gating is done
++        // mathematically by ClampPlayer — a solid collider would physically block the player and fight the math.
++        col.isTrigger = true;
+     }
++    private void OnEnable() { if (!registered.Contains(this)) registered.Add(this); }
++    private void OnDisable() { registered.Remove(this); }
+ 
+-    /// <summary>Call from the NPC to open this room's top gate.</summary>
+-    public void UnlockTopExit()
+-    {
+-        topExitUnlocked = true;
+-    }
++    public string AreaName => name;
++    public Vector3 Center => transform.position;
++    public float Width => col != null ? col.size.x : 0f;
++    public float Height => col != null ? col.size.y : 0f;
++    public Bounds Bounds => new Bounds(Center, new Vector3(Width, Height, 0f));
+ 
+-    private void FitToCamera()
++    /// <summary>
++    /// Grid identity of this region — a stable integer label derived from its world position, used by NpcController and
++    /// the dialogue system to identify which cell this region occupies. It is a label only; the region's actual position
++    /// is always its live transform. Nominal cell size is one camera viewport (cellW = camera.aspect*ortho*2, cellH = ortho*2).
++    /// </summary>
++    public int AreaCol
+     {
+-        Camera mainCam = Camera.main;
+-        float ortho = mainCam != null ? mainCam.orthographicSize : 5f;
+-        float aspect = mainCam != null ? mainCam.aspect : 16f / 9f;
+-        float height = ortho * 2f;
+-        float width = height * aspect;
+-
+-        // Tile the grid: each room is one camera view, placed edge to edge with no gaps.
+-        transform.position = new Vector3(areaCol * width, areaRow * height, 0f);
+-
+-        Transform background = transform.Find("Background");
+-        if (background != null)
++        get
+         {
+-            background.localScale = new Vector3(width, height, 1f);
++            float cellW = Width > 0f ? Width : 17.78f;
++            return Mathf.RoundToInt((Center.x - Width * 0.5f) / cellW);
+         }
+-
+-        cachedSize = new Vector2(width, height);
+     }
+-
+-    private Vector2 cachedSize;
+-
+-    public float Width => cachedSize.x;
+-    public float Height => cachedSize.y;
+-
+-    public Vector3 Center => transform.position;
+-
+-    public Bounds Bounds
++    public int AreaRow
+     {
+         get
+         {
+-            Vector3 half = new Vector3(Width, Height, 0f) * 0.5f;
+-            return new Bounds(Center, half * 2f);
++            float cellH = Height > 0f ? Height : 10f;
++            return Mathf.RoundToInt((Center.y - Height * 0.5f) / cellH);
+         }
+     }
+ 
+     public bool ContainsPoint(Vector3 point)
+     {
+         Bounds b = Bounds;
+-        return point.x >= b.min.x && point.x <= b.max.x &&
+-               point.y >= b.min.y && point.y <= b.max.y;
++        return point.x >= b.min.x && point.x <= b.max.x && point.y >= b.min.y && point.y <= b.max.y;
+     }
+ 
+     public static GameArea GetAreaContaining(Vector3 point)
+     {
+-        foreach (var area in registered)
+-        {
+-            if (area != null && area.ContainsPoint(point))
+-            {
+-                return area;
+-            }
+-        }
++        foreach (var area in registered) if (area != null && area.ContainsPoint(point)) return area;
+         return null;
+     }
+ 
+-    /// <summary>Finds the live Area at a specific grid coordinate, or null if none exists.</summary>
+-    public static GameArea GetAreaAt(int col, int row)
+-    {
+-        foreach (var area in registered)
+-        {
+-            if (area != null && area.areaCol == col && area.areaRow == row)
+-            {
+-                return area;
+-            }
+-        }
+-        return null;
+-    }
+-
+-    /// <summary>All live Areas with stale entries removed.</summary>
+-    public static System.Collections.Generic.IReadOnlyList<GameArea> GetRegistered()
+-    {
+-        registered.RemoveAll(a => a == null);
+-        return registered;
+-    }
+-
+-    /// <summary>
+-    /// True if the player is allowed to leave this room toward the cell (col,row): the destination
+-    /// holds a neighbour Area OR is governed by an InvisibleWall (which itself blocks/permits passage).
+-    /// Retires the old right/top unlock flags — area limits are off; only the wall gates progress now.
+-    /// </summary>
+-    public static bool IsExitOpen(int col, int row)
+-    {
+-        return GetAreaAt(col, row) != null || InvisibleWall.GetWallAt(col, row) != null;
+-    }
+-
+-    /// <summary>
+-    /// Clamps a player position so the player stays on-camera. Each edge is blocked unless the
+-    /// player may actually leave through it: the destination cell must contain a neighbour Area OR
+-    /// an InvisibleWall (an empty cell is the void and stays shut). This guarantees the player can
+-    /// never walk into the void; the only forward gate is the invisible wall, opened by the conversation.
+-    /// </summary>
+     public Vector3 ClampPlayer(Vector3 pos, float playerHalf)
+     {
+         Bounds b = Bounds;
+-
+-        // An open edge lifts its wall entirely so the player may step through into the neighbour
+-        // (or through to a wall-governed cell, whose own InvisibleWall then decides). A closed edge
+-        // is the void — the player is kept inside this room.
+-        bool leftOpen = IsExitOpen(areaCol - 1, areaRow);
+-        bool rightOpen = IsExitOpen(areaCol + 1, areaRow);
+-        bool bottomOpen = IsExitOpen(areaCol, areaRow - 1);
+-        bool topOpen = IsExitOpen(areaCol, areaRow + 1);
+-
+-        float minX = b.min.x + playerHalf;
+-        float maxX = b.max.x - playerHalf;
+-        float minY = b.min.y + playerHalf;
+-        float maxY = b.max.y - playerHalf;
+-
+-        if (!leftOpen) { pos.x = Mathf.Max(pos.x, minX); }
+-        if (!rightOpen) { pos.x = Mathf.Min(pos.x, maxX); }
+-        if (!bottomOpen) { pos.y = Mathf.Max(pos.y, minY); }
+-        if (!topOpen) { pos.y = Mathf.Min(pos.y, maxY); }
+-
++        float minX = b.min.x + playerHalf, maxX = b.max.x - playerHalf;
++        float minY = b.min.y + playerHalf, maxY = b.max.y - playerHalf;
++
++        bool leftOpen = InvisibleWall.CoversVerticalEdge(b.min.x, pos.y);
++        bool rightOpen = InvisibleWall.CoversVerticalEdge(b.max.x, pos.y);
++        bool bottomOpen = InvisibleWall.CoversHorizontalEdge(b.min.y, pos.x);
++        bool topOpen = InvisibleWall.CoversHorizontalEdge(b.max.y, pos.x);
++
++        if (!leftOpen && pos.x < minX) { Debug.Log($"[GameArea {name}] clamp LEFT edge (void)"); pos.x = minX; }
++        if (!rightOpen && pos.x > maxX) { Debug.Log($"[GameArea {name}] clamp RIGHT edge (void) pos.x={pos.x:F2}>{maxX:F2} rightOpen={rightOpen}"); pos.x = maxX; }
++        if (!bottomOpen && pos.y < minY) { Debug.Log($"[GameArea {name}] clamp BOTTOM edge (void)"); pos.y = minY; }
++        if (!topOpen && pos.y > maxY) { Debug.Log($"[GameArea {name}] clamp TOP edge (void) pos.y={pos.y:F2}>{maxY:F2} topOpen={topOpen}"); pos.y = maxY; }
+         return pos;
+     }
+ 
+-    /// <summary>
+-    /// Clamps a camera center so the whole orthographic viewport stays inside this Area's bounds, returning whether the
+-    /// clamp positions changed. Each axis is pinned to the area center when the viewport is exactly the area width/height
+-    /// (the current fit), and clamped to the centered slack band when it is smaller — which is what stops the view from
+-    /// ever revealing the void or the adjacent/locked room while still letting a smaller camera follow the player.
+-    /// </summary>
+     public bool ClampCamera(Vector2 viewportHalf, Vector3 center, out Vector3 clamped)
+     {
+         bool changed = false;
+-        float cx = center.x;
+-        float cy = center.y;
+-        float cz = center.z;
+-
++        float cx = center.x, cy = center.y, cz = center.z;
+         Bounds b = Bounds;
+         float bandX = (Width * 0.5f) - viewportHalf.x;
+         float bandY = (Height * 0.5f) - viewportHalf.y;
+-
+-        float areaCenterX = b.min.x + Width * 0.5f;
+-        float areaCenterY = b.min.y + Height * 0.5f;
+-
+-        // If the viewport is >= the area size along this axis there is no room to move — lock to the area center so
+-        // the whole Area fills the screen and nothing outside (void/other rooms) is ever visible.
+-        if (bandX <= 0f)
+-        {
+-            if (Mathf.Abs(cx - areaCenterX) > 0.0001f)
+-            {
+-                changed = true;
+-            }
+-            cx = areaCenterX;
+-        }
+-        else
+-        {
+-            float minCx = areaCenterX - bandX;
+-            float maxCx = areaCenterX + bandX;
+-            float ncx = Mathf.Clamp(cx, minCx, maxCx);
+-            if (Mathf.Abs(ncx - cx) > 0.0001f)
+-            {
+-                changed = true;
+-            }
+-            cx = ncx;
+-        }
+-
+-        if (bandY <= 0f)
+-        {
+-            if (Mathf.Abs(cy - areaCenterY) > 0.0001f)
+-            {
+-                changed = true;
+-            }
+-            cy = areaCenterY;
+-        }
+-        else
+-        {
+-            float minCy = areaCenterY - bandY;
+-            float maxCy = areaCenterY + bandY;
+-            float ncy = Mathf.Clamp(cy, minCy, maxCy);
+-            if (Mathf.Abs(ncy - cy) > 0.0001f)
+-            {
+-                changed = true;
+-            }
+-            cy = ncy;
+-        }
+-
++        float acx = b.min.x + Width * 0.5f, acy = b.min.y + Height * 0.5f;
++        if (bandX <= 0f) { if (Mathf.Abs(cx - acx) > 1e-4f) changed = true; cx = acx; }
++        else { float lo = acx - bandX, hi = acx + bandX; float n = Mathf.Clamp(cx, lo, hi); if (Mathf.Abs(n - cx) > 1e-4f) changed = true; cx = n; }
++        if (bandY <= 0f) { if (Mathf.Abs(cy - acy) > 1e-4f) changed = true; cy = acy; }
++        else { float lo = acy - bandY, hi = acy + bandY; float n = Mathf.Clamp(cy, lo, hi); if (Mathf.Abs(n - cy) > 1e-4f) changed = true; cy = n; }
+         clamped = new Vector3(cx, cy, cz);
+         return changed;
+     }
++
++    public static IReadOnlyList<GameArea> GetRegistered()
++    {
++        registered.RemoveAll(a => a == null);
++        return registered;
++    }
++
++    private void OnDrawGizmos()
++    {
++        Bounds b = Bounds;
++        Gizmos.color = new Color(0.2f, 0.8f, 1f, 0.35f);
++        Gizmos.DrawCube(b.center, new Vector3(b.size.x, b.size.y, 0f));
++        Gizmos.color = new Color(0.2f, 0.8f, 1f, 0.9f);
++        Gizmos.DrawWireCube(b.center, new Vector3(b.size.x, b.size.y, 0f));
++    }
+ }
+diff --git a/gcet_game_unity/Assets/Scripts/InvisibleWall.cs b/gcet_game_unity/Assets/Scripts/InvisibleWall.cs
+index 24658e08..35632954 100644
+--- a/gcet_game_unity/Assets/Scripts/InvisibleWall.cs
++++ b/gcet_game_unity/Assets/Scripts/InvisibleWall.cs
+@@ -4,381 +4,315 @@ using UnityEngine.UI;
+ using TMPro;
+ 
+ /// <summary>
+-/// An invisible, conversation-gated barrier on a single cell edge of the world grid. It has
+-/// NO sprite, renderer, or collider — it is pure logic. While locked, a player whose horizontal
+-/// extent overlaps the wall is blocked from crossing it in its blocking direction, and a small
+-/// popup is shown to let the player know the way is shut. Once <see cref="Unlock"/> is called
+-/// (by the NPC/trace success path, mirroring how the top region opens) the wall stops blocking
+-/// and the popup is suppressed so the player walks straight through.
++/// An invisible, conversation-gated barrier on a shared edge between two regions. Pure logic — no sprite, renderer, or
++/// physical collider of its own. Its position and span are read directly from this GameObject: WallX/WallY = its
++/// Transform.position, span = its BoxCollider2D long dimension. There is no child object and no cached geometry to go stale —
++/// drag the wall or resize its collider in the Scene view and it follows exactly, for any span or placement.
++/// While locked, a player whose extent overlaps the wall is blocked from crossing in either direction and a fixed on-screen
++/// popup shows the way is shut; Unlock() (called by the NPC) flips Locked to false so the player passes. The neighbour
++/// GameArea leaves a gap on any edge this wall covers.
+ ///
+-/// The wall derives its world position from the main camera at runtime, so it always sits exactly
+-/// on the target cell edge regardless of aspect ratio — same source of truth as
+-/// <see cref="GameArea.FitToCamera"/>. Attach it to any GameObject (its own Transform position is
+-/// irrelevant; only <see cref="col"/>/<see cref="row"/>/<see cref="wallOnTop"/> matter).
++/// If the two adjacent regions are flush (no void gap), <see cref="SnapToSharedEdge"/> snaps this wall onto their shared
++/// boundary at runtime — the only geometrically correct gate position — and spans it to seal that whole edge.
+ /// </summary>
++[RequireComponent(typeof(BoxCollider2D))]
+ public class InvisibleWall : MonoBehaviour
+ {
+-    [Header("Grid cell this wall belongs to")]
+-    [Tooltip("Column of the cell this wall sits on (matches GameArea.areaCol).")]
+-    [SerializeField] private int col = 1;
+-    [Tooltip("Row of the cell this cell sits on (matches GameArea.areaRow).")]
+-    [SerializeField] private int row = 1;
+-
+-    [Header("Edge")]
+-    [Tooltip("Which edge of the cell the wall blocks. True = top (blocks moving up); False = right (blocks moving right).")]
+-    [SerializeField] private bool wallOnTop = true;
++    private static readonly List<InvisibleWall> registered = new List<InvisibleWall>();
++    private BoxCollider2D col;
+ 
+-    [Header("Locked message")]
+-    [Tooltip("Shown when the player tries to pass before the conversation unlocks the wall.")]
+     [SerializeField] private string blockedMessage = "you cannot go through there";
+-
+-    [Header("Popup look")]
+     [SerializeField] private Color popupColor = new Color(0f, 0f, 0f, 0.75f);
+     [SerializeField] private Color textColor = Color.white;
+     [SerializeField] private float fontSize = 22f;
+-    [Range(0.2f, 2f)]
+-    [SerializeField] private float popupScreenOffset = 0.6f;
+-    [Range(0.1f, 0.9f)]
+-    [SerializeField] private float maxWidthFraction = 0.5f;
+-
+-    /// <summary>All live walls.</summary>
+-    private static readonly List<InvisibleWall> registered = new List<InvisibleWall>();
+-
+-    // World-space geometry (matching GameArea.FitToCamera).
+-    private float cellW;
+-    private float cellH;
+-    private float wallX;
+-    private float wallY;
+-    private float wallHalfW;   // for a top wall: half the width it spans; for a right wall: ~0
+-    private float wallHalfH;   // for a right wall: half the height it spans; for a top wall: ~0
++    [SerializeField] private Vector2 fixedScreenAnchor = new Vector2(0.5f, 0.8f);
++    [Range(0.2f, 2f)] [SerializeField] private float popupScreenOffset = 0.6f;
++    [Range(0.1f, 0.9f)] [SerializeField] private float maxWidthFraction = 0.5f;
+ 
+     private bool locked = true;
+-    private bool forceReposition;
+     private bool popupBuilt;
++    private bool snapped;
+     private Canvas canvas;
+     private RectTransform panel;
+     private TextMeshProUGUI text;
+     private Transform player;
+ 
+     private const string PlayerName = "Player";
+-
+-    public int Col { get => col; set { col = value; CacheCellMetrics(); forceReposition = true; } }
+-    public int Row { get => row; set { row = value; CacheCellMetrics(); forceReposition = true; } }
+-    public bool Locked => locked;
+-    public float CellW => cellW;
+-    public float CellH => cellH;
+-
+-    /// <summary>Center of the wall's cell in world space — the room the camera frames when the player stands here.</summary>
+-    public Vector3 CellCenter => new Vector3(col * cellW, row * cellH, 0f);
+-
+-    /// <summary>Full cell bounds (the room the camera frames when the player occupies this wall-governed cell).</summary>
+-    public Bounds CellBounds
+-    {
+-        get
+-        {
+-            Vector3 size = new Vector3(cellW, cellH, 0f);
+-            return new Bounds(CellCenter, size);
+-        }
+-    }
+-
+-    /// <summary>
+-    /// Clamps a camera center so the viewport stays inside this wall's cell, exactly as
+-    /// GameArea.ClampCamera does for a room. Because the cell is derived from the camera viewport,
+-    /// there is never any slack: the camera pins to the cell center and frames exactly this cell.
+-    /// Lets FollowCamera treat a wall-governed cell as a real room so the gate is always on-screen.
+-    /// </summary>
+-    public bool ClampCamera(Vector2 viewportHalf, Vector3 center, out Vector3 clamped)
+-    {
+-        clamped = new Vector3(CellCenter.x, CellCenter.y, center.z);
+-        return true;
+-    }
++    private const float EdgeEpsilon = 0.05f;
++    private const float SnapThreshold = 8f;
+ 
+     private void Awake()
+     {
+-        CacheCellMetrics();
+-        SnapToWall();
++        col = GetComponent<BoxCollider2D>();
++        // Trigger, not a solid collider: the wall is pure logic. A solid collider would physically block the player
++        // and fight the mathematical gating done by ClampPlayer. The collider is an editor handle the user drags to
++        // size the wall; crossing is detected geometrically, not by physics.
++        col.isTrigger = true;
+         BuildPopup();
+     }
+ 
+-    private void SnapToWall()
+-    {
+-        transform.position = new Vector3(wallX, wallY, 0f);
+-    }
+-
+     private void OnEnable()
+     {
+         if (!registered.Contains(this))
+         {
+             registered.Add(this);
+         }
++        snapped = false;
+     }
+ 
+-    private void OnDisable()
++    private void OnDisable() { registered.Remove(this); }
++
++    public bool Locked => locked;
++    public float WallX => transform.position.x;
++    public float WallY => transform.position.y;
++    public bool Horizontal => col == null || col.size.x >= col.size.y;
++    public float Span => col != null ? (Horizontal ? col.size.x : col.size.y) : 0f;
++    public Vector3 CellCenter => new Vector3(WallX, WallY, 0f);
++    public Bounds CellBounds => new Bounds(CellCenter, new Vector3(17.78f, 10f, 0f));
++
++    /// <summary>Grid coordinate this wall gates (identity). Used by GameProgress to find and bootstrap the forward gate.</summary>
++    public int Col { get; set; }
++    public int Row { get; set; }
++
++    public bool ClampCamera(Vector2 viewportHalf, Vector3 center, out Vector3 clamped)
+     {
+-        registered.Remove(this);
++        clamped = new Vector3(CellCenter.x, CellCenter.y, center.z);
++        return true;
+     }
+ 
+     private void Update()
+     {
+-        // Col/Row may be assigned after Awake (GameProgress bootstraps the wall with a forced position), so keep the Transform on the edge.
+-        if (forceReposition)
++        if (!snapped)
+         {
+-            SnapToWall();
+-            forceReposition = false;
++            SnapToSharedEdge();
++            snapped = true;
+         }
+ 
+-        // While the conversation has not completed, the wall is a gate: keep the player out
+-        // and surface a message the moment they press against it.
+         if (!locked)
+         {
+             SetPopupVisible(false);
+             return;
+         }
++        if (player == null) LocatePlayer();
++        SetPopupVisible(player != null && IsPlayerTouching());
++    }
+ 
+-        if (player == null)
++    private bool IsPlayerTouching()
++    {
++        Vector3 p = player.position;
++        float half = player.localScale.x * 0.5f;
++        float margin = 0.6f;
++        float span = Span;
++        if (Horizontal)
+         {
+-            LocatePlayer();
++            bool overlapX = p.x + half > WallX - span && p.x - half < WallX + span;
++            return overlapX && Mathf.Abs(p.y - WallY) <= margin + half;
++        }
++        else
++        {
++            bool overlapY = p.y + half > WallY - span && p.y - half < WallY + span;
++            return overlapY && Mathf.Abs(p.x - WallX) <= margin + half;
+         }
+-        bool touching = player != null && IsPlayerTouching();
+-        SetPopupVisible(touching);
+     }
+ 
+-    // -------------------------------------------------------------------------
+-    // Geometry — kept in sync with GameArea.FitToCamera so cells line up exactly.
+-    // -------------------------------------------------------------------------
+-    private void CacheCellMetrics()
++    public static bool CoversVerticalEdge(float x, float y)
+     {
+-        Camera mainCam = Camera.main;
+-        float ortho = mainCam != null ? mainCam.orthographicSize : 5f;
+-        float aspect = mainCam != null ? mainCam.aspect : 16f / 9f;
+-        cellH = ortho * 2f;
+-        cellW = cellH * aspect;
+-
+-        float cellCenterX = col * cellW;
+-        float cellCenterY = row * cellH;
+-
+-        // The cell spans [center - size/2, center + size/2] on each axis. The top edge is at
+-        // center + H/2 and runs the full cell width; the right edge is at center + W/2 and runs the full height.
+-        if (wallOnTop)
++        foreach (var wall in registered)
+         {
+-            wallX = cellCenterX;
+-            wallY = cellCenterY + cellH * 0.5f;
+-            wallHalfW = cellW * 0.5f;
+-            wallHalfH = 0.05f;
++            if (wall == null || wall.Horizontal) continue;
++            if (Mathf.Abs(wall.WallX - x) > EdgeEpsilon) continue;
++            if (y >= wall.WallY - wall.Span && y <= wall.WallY + wall.Span) return true;
+         }
+-        else
++        return false;
++    }
++
++    public static bool CoversHorizontalEdge(float y, float x)
++    {
++        foreach (var wall in registered)
+         {
+-            wallX = cellCenterX + cellW * 0.5f;
+-            wallY = cellCenterY;
+-            wallHalfW = 0.05f;
+-            wallHalfH = cellH * 0.5f;
++            if (wall == null || !wall.Horizontal) continue;
++            if (Mathf.Abs(wall.WallY - y) > EdgeEpsilon) continue;
++            if (x >= wall.WallX - wall.Span && x <= wall.WallX + wall.Span) return true;
+         }
++        return false;
+     }
+ 
+-    /// <summary>
+-    /// Clamps the player out of every locked wall. A horizontal (top) wall blocks +Y movement of
+-    /// any player horizontally overlapping it; a vertical (right) wall blocks +X movement of any
+-    /// player vertically overlapping it. Mirrors <see cref="GameArea.ClampPlayer"/>'s push-back semantics.
+-    /// </summary>
+     public static void ClampPlayer(Vector3 pos, float playerHalf, ref Vector3 clamped)
+     {
+         clamped = pos;
+         foreach (var wall in registered)
+         {
+-            if (wall == null || !wall.locked)
+-            {
+-                continue;
+-            }
+-
+-            if (wall.wallOnTop)
++            if (wall == null || !wall.Locked) continue;
++            float span = wall.Span;
++            if (wall.Horizontal)
+             {
+-                // Horizontal wall: only matters if the player spans its x-extent.
+-                bool overlapsX = clamped.x + playerHalf > wall.wallX - wall.wallHalfW
+-                                 && clamped.x - playerHalf < wall.wallX + wall.wallHalfW;
+-                if (overlapsX)
+-                {
+-                    float limitY = wall.wallY - playerHalf;
+-                    if (clamped.y > limitY)
+-                    {
+-                        clamped.y = limitY;
+-                    }
+-                }
++                bool overlapX = clamped.x + playerHalf > wall.WallX - span && clamped.x - playerHalf < wall.WallX + span;
++                if (!overlapX) continue;
++                float before = clamped.y;
++                clamped.y = (clamped.y < wall.WallY) ? Mathf.Min(clamped.y, wall.WallY - playerHalf) : Mathf.Max(clamped.y, wall.WallY + playerHalf);
++                if (Mathf.Abs(before - clamped.y) > 1e-4f) Debug.Log($"[InvisibleWall {wall.name}] BLOCKING horizontal: player y {before:F2} -> {clamped.y:F2} (wallY={wall.WallY})");
+             }
+             else
+             {
+-                // Vertical wall: only matters if the player spans its y-extent.
+-                bool overlapsY = clamped.y + playerHalf > wall.wallY - wall.wallHalfH
+-                                 && clamped.y - playerHalf < wall.wallY + wall.wallHalfH;
+-                if (overlapsY)
+-                {
+-                    float limitX = wall.wallX - playerHalf;
+-                    if (clamped.x > limitX)
+-                    {
+-                        clamped.x = limitX;
+-                    }
+-                }
++                bool overlapY = clamped.y + playerHalf > wall.WallY - span && clamped.y - playerHalf < wall.WallY + span;
++                if (!overlapY) continue;
++                float before = clamped.x;
++                clamped.x = (clamped.x < wall.WallX) ? Mathf.Min(clamped.x, wall.WallX - playerHalf) : Mathf.Max(clamped.x, wall.WallX + playerHalf);
++                if (Mathf.Abs(before - clamped.x) > 1e-4f) Debug.Log($"[InvisibleWall {wall.name}] BLOCKING vertical: player x {before:F2} -> {clamped.x:F2} (wallX={wall.WallX})");
+             }
+         }
+     }
+ 
+-    /// <summary>The conversation finished — stop blocking and hide the message so the player passes freely.</summary>
+     public void Unlock()
+     {
++        Debug.Log($"[InvisibleWall {name}] UNLOCKED");
+         locked = false;
+         SetPopupVisible(false);
+     }
+ 
+-    // -------------------------------------------------------------------------
+-    // Queries
+-    // -------------------------------------------------------------------------
++    public bool ContainsPoint(Vector3 point)
++    {
++        Bounds b = new Bounds(CellCenter, new Vector3(17.78f, 10f, 0f));
++        return point.x >= b.min.x && point.x <= b.max.x && point.y >= b.min.y && point.y <= b.max.y;
++    }
++
++    public static InvisibleWall GetCellContaining(Vector3 point)
++    {
++        foreach (var wall in registered) if (wall != null && wall.ContainsPoint(point)) return wall;
++        return null;
++    }
++
+     public static InvisibleWall GetWallAt(int col, int row)
+     {
+-        foreach (var wall in registered)
+-        {
+-            if (wall != null && wall.col == col && wall.row == row)
+-            {
+-                return wall;
+-            }
+-        }
++        foreach (var wall in registered) if (wall != null && wall.Col == col && wall.Row == row) return wall;
+         return null;
+     }
+ 
+     public static void UnlockWallAt(int col, int row)
+     {
+         var wall = GetWallAt(col, row);
+-        if (wall != null)
+-        {
+-            wall.Unlock();
+-        }
++        if (wall != null) wall.Unlock();
+     }
+ 
+-    /// <summary>The wall whose cell contains the world point, or null. Lets the camera frame a wall-governed cell.</summary>
+-    public static InvisibleWall GetCellContaining(Vector3 point)
++    public static IReadOnlyList<InvisibleWall> GetRegistered()
+     {
+-        foreach (var wall in registered)
+-        {
+-            if (wall == null)
+-            {
+-                continue;
+-            }
+-            Bounds b = wall.CellBounds;
+-            if (point.x >= b.min.x && point.x <= b.max.x &&
+-                point.y >= b.min.y && point.y <= b.max.y)
+-            {
+-                return wall;
+-            }
+-        }
+-        return null;
++        registered.RemoveAll(a => a == null);
++        return registered;
+     }
+ 
+-    // -------------------------------------------------------------------------
+-    // Popup
+-    // -------------------------------------------------------------------------
+-    private bool IsPlayerTouching()
++    /// <summary>
++    /// Snaps this wall onto the shared boundary between its two nearest regions. A wall gates the edge where two regions
++    /// touch: a horizontally-stacked pair (R1 below, R2 above) gets a horizontal wall at their shared Y spanning their
++    /// X-overlap; a side-by-side pair gets a vertical wall at their shared X spanning their Y-overlap. Insensitive to rough
++    // manual placement: it just needs the wall to start somewhere near the two regions that share an edge.
++    /// </summary>
++    private void SnapToSharedEdge()
+     {
+-        Vector3 p = player.position;
+-        float half = player.localScale.x * 0.5f;
+-        float margin = 0.6f; // distance within which we call it "pressing into" the wall
+-
+-        if (wallOnTop)
++        GameArea r1 = null, r2 = null;
++        float d1 = float.MaxValue, d2 = float.MaxValue;
++        Vector2 wp = new Vector2(transform.position.x, transform.position.y);
++        foreach (var area in GameArea.GetRegistered())
+         {
+-            bool overlapX = p.x + half > wallX - wallHalfW
+-                            && p.x - half < wallX + wallHalfW;
+-            bool nearFromBelow = p.y < wallY && (wallY - p.y) <= margin + half;
+-            return overlapX && nearFromBelow;
++            if (area == null) continue;
++            float d = Vector2.Distance(wp, area.Bounds.center);
++            if (d < d1) { d2 = d1; r2 = r1; d1 = d; r1 = area; }
++            else if (d < d2) { d2 = d; r2 = area; }
+         }
+-        else
++        if (r1 == null) return;
++        if (r2 != null)
+         {
+-            bool overlapY = p.y + half > wallY - wallHalfH
+-                            && p.y - half < wallY + wallHalfH;
+-            bool nearFromLeft = p.x < wallX && (wallX - p.x) <= margin + half;
+-            return overlapY && nearFromLeft;
++            Bounds b1 = r1.Bounds, b2 = r2.Bounds;
++            // X-overlap (stacked vertically) vs Y-overlap (side by side).
++            float xol = Mathf.Min(b1.max.x, b2.max.x) - Mathf.Max(b1.min.x, b2.min.x);
++            float yol = Mathf.Min(b1.max.y, b2.max.y) - Mathf.Max(b1.min.y, b2.min.y);
++            bool stacked = xol > 0f && (Mathf.Abs(b1.max.y - b2.min.y) < SnapThreshold || Mathf.Abs(b2.max.y - b1.min.y) < SnapThreshold);
++            bool sidebyside = yol > 0f && (Mathf.Abs(b1.max.x - b2.min.x) < SnapThreshold || Mathf.Abs(b2.max.x - b1.min.x) < SnapThreshold);
++
++            if (stacked)
++            {
++                float sharedY = (b1.max.y + b2.min.y) / 2f;
++                float cx = Mathf.Clamp(b1.center.x, Mathf.Max(b1.min.x, b2.min.x), Mathf.Min(b1.max.x, b2.max.x));
++                transform.position = new Vector3(cx, sharedY, 0f);
++                col.size = new Vector2(Mathf.Abs(xol), 0.1f); // wide => horizontal
++                Debug.Log($"[InvisibleWall {name}] snap stacked {r1.AreaName}/{r2.AreaName} y={sharedY:F2} spanX={Mathf.Abs(xol):F2}");
++                return;
++            }
++            if (sidebyside)
++            {
++                float sharedX = (b1.max.x + b2.min.x) / 2f;
++                float cy = Mathf.Clamp(b1.center.y, Mathf.Max(b1.min.y, b2.min.y), Mathf.Min(b1.max.y, b2.max.y));
++                transform.position = new Vector3(sharedX, cy, 0f);
++                col.size = new Vector2(0.1f, Mathf.Abs(yol)); // tall => vertical
++                Debug.Log($"[InvisibleWall {name}] snap side {r1.AreaName}/{r2.AreaName} x={sharedX:F2} spanY={Mathf.Abs(yol):F2}");
++                return;
++            }
+         }
+-    }
++        // Fallback: single region, snap to its nearest edge.
++        Bounds b = r1.Bounds;
++        float dt = Mathf.Abs(wp.y - b.max.y), db = Mathf.Abs(wp.y - b.min.y), dl = Mathf.Abs(wp.x - b.min.x), dr = Mathf.Abs(wp.x - b.max.x);
++        float min = Mathf.Min(dt, db, dl, dr);
++        if (min > SnapThreshold) return;
++        float x = wp.x, y = wp.y; bool horiz;
++        if (min == dt) { horiz = true; y = b.max.y; x = Mathf.Clamp(x, b.min.x, b.max.x); }
++        else if (min == db) { horiz = true; y = b.min.y; x = Mathf.Clamp(x, b.min.x, b.max.x); }
++        else if (min == dl) { horiz = false; x = b.min.x; y = Mathf.Clamp(y, b.min.y, b.max.y); }
++        else { horiz = false; x = b.max.x; y = Mathf.Clamp(y, b.min.y, b.max.y); }
++        transform.position = new Vector3(x, y, 0f);
++        col.size = horiz ? new Vector2(b.size.x, 0.1f) : new Vector2(0.1f, b.size.y);
++        Debug.Log($"[InvisibleWall {name}] snap single {r1.AreaName} ({x:F2},{y:F2}) span={b.size.x:F2}");    }
+ 
+     private void SetPopupVisible(bool visible)
+     {
+-        if (canvas != null && canvas.gameObject.activeSelf != visible)
+-        {
+-            canvas.gameObject.SetActive(visible);
+-        }
+-        if (visible && canvas != null && canvas.gameObject.activeSelf)
+-        {
+-            PositionPopup();
+-        }
++        if (canvas != null && canvas.gameObject.activeSelf != visible) canvas.gameObject.SetActive(visible);
++        if (visible && canvas != null && canvas.gameObject.activeSelf) PositionPopup();
+     }
+ 
+     private void PositionPopup()
+     {
+-        if (panel == null || Camera.main == null)
+-        {
+-            return;
+-        }
+-        // Anchor the popup over the wall's world position and let it self-size to the text.
+-        Vector3 screen = Camera.main.WorldToViewportPoint(new Vector3(wallX, wallY, 0f));
+-        float px = screen.x * Screen.width;
+-        float py = screen.y * Screen.height;
++        if (panel == null || Camera.main == null) return;
++        float px = fixedScreenAnchor.x * Screen.width;
++        float py = fixedScreenAnchor.y * Screen.height;
+         panel.position = new Vector3(px, py - popupScreenOffset * Screen.height, 0f);
+     }
+ 
+     private void BuildPopup()
+     {
+-        if (popupBuilt)
+-        {
+-            return;
+-        }
+-
+-        var canvasObj = new GameObject("InvisibleWallPopupCanvas");
+-        canvasObj.transform.SetParent(null, false);
+-        canvas = canvasObj.AddComponent<Canvas>();
++        if (popupBuilt) return;
++        var co = new GameObject("InvisibleWallPopupCanvas");
++        co.transform.SetParent(null, false);
++        canvas = co.AddComponent<Canvas>();
+         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+-        // Sit above the dialogue canvas (sortingOrder 100) so the wall message is readable over the world.
+         canvas.sortingOrder = 150;
+-        canvasObj.AddComponent<CanvasScaler>();
+-
+-        var canvasRect = canvas.GetComponent<RectTransform>();
+-        canvasRect.anchorMin = Vector2.zero;
+-        canvasRect.anchorMax = Vector2.one;
+-        canvasRect.offsetMin = Vector2.zero;
+-        canvasRect.offsetMax = Vector2.zero;
+-
+-        var panelObj = new GameObject("Popup");
+-        panelObj.transform.SetParent(canvasObj.transform, false);
+-        panel = panelObj.AddComponent<RectTransform>();
+-        panel.anchorMin = new Vector2(0.5f, 1f);
+-        panel.anchorMax = new Vector2(0.5f, 1f);
++        co.AddComponent<CanvasScaler>();
++        var cr = canvas.GetComponent<RectTransform>();
++        cr.anchorMin = Vector2.zero; cr.anchorMax = Vector2.one;
++        cr.offsetMin = Vector2.zero; cr.offsetMax = Vector2.zero;
++        var po = new GameObject("Popup");
++        po.transform.SetParent(co.transform, false);
++        panel = po.AddComponent<RectTransform>();
++        panel.anchorMin = new Vector2(0.5f, 1f); panel.anchorMax = new Vector2(0.5f, 1f);
+         panel.pivot = new Vector2(0.5f, 1f);
+-
+-        var image = panelObj.AddComponent<Image>();
+-        image.sprite = SolidSprite();
+-        image.color = popupColor;
+-        image.raycastTarget = false;
+-
+-        panelObj.AddComponent<RectMask2D>();
+-
+-        var textObj = new GameObject("Text");
+-        textObj.transform.SetParent(panelObj.transform, false);
+-        text = MakeText(textObj, textColor, fontSize);
++        var im = po.AddComponent<Image>();
++        im.sprite = SolidSprite(); im.color = popupColor; im.raycastTarget = false;
++        po.AddComponent<RectMask2D>();
++        var tob = new GameObject("Text");
++        tob.transform.SetParent(po.transform, false);
++        text = MakeText(tob, textColor, fontSize);
+         text.text = blockedMessage;
+-
+-        // Size to content.
+         text.enableWordWrapping = true;
+-        float maxWidth = Screen.width * maxWidthFraction;
++        float maxW = Screen.width * maxWidthFraction;
+         var tr = text.GetComponent<RectTransform>();
+-        tr.sizeDelta = new Vector2(maxWidth, 0f);
++        tr.sizeDelta = new Vector2(maxW, 0f);
+         text.ForceMeshUpdate(true);
+         Canvas.ForceUpdateCanvases();
+-        float textW = Mathf.Min(text.preferredWidth, maxWidth);
+-        float textH = Mathf.Max(text.preferredHeight, 1f);
+-        tr.sizeDelta = new Vector2(textW, textH);
+-
++        float tW = Mathf.Min(text.preferredWidth, maxW);
++        float tH = Mathf.Max(text.preferredHeight, 1f);
++        tr.sizeDelta = new Vector2(tW, tH);
+         float pad = 18f;
+-        panel.sizeDelta = new Vector2(textW + pad * 2f, textH + pad * 2f);
++        panel.sizeDelta = new Vector2(tW + pad * 2f, tH + pad * 2f);
+         tr.anchoredPosition = Vector2.zero;
+-
+         var pr = panel.GetComponent<RectTransform>();
+         pr.anchoredPosition = Vector2.zero;
+-
+         canvas.gameObject.SetActive(false);
+         popupBuilt = true;
+     }
+@@ -389,43 +323,21 @@ public class InvisibleWall : MonoBehaviour
+         if (TMP_Settings.defaultFontAsset != null)
+         {
+             tmp.font = TMP_Settings.defaultFontAsset;
+-            if (tmp.font.material != null)
+-            {
+-                tmp.material = tmp.font.material;
+-            }
+-            else
+-            {
+-                var mat = new Material(Shader.Find("TextMeshPro/Mobile/Distance Field"));
+-                if (mat != null)
+-                {
+-                    tmp.material = mat;
+-                }
+-            }
++            if (tmp.font.material != null) tmp.material = tmp.font.material;
++            else { var m = new Material(Shader.Find("TextMeshPro/Mobile/Distance Field")); if (m != null) tmp.material = m; }
+         }
+-        tmp.fontSize = size;
+-        tmp.color = color;
+-        tmp.alignment = TextAlignmentOptions.Center;
+-        tmp.enableWordWrapping = true;
+-        tmp.overflowMode = TextOverflowModes.Overflow;
+-        tmp.enableAutoSizing = false;
+-        tmp.outlineWidth = 0.14f;
+-        tmp.outlineColor = Color.black;
+-        tmp.richText = true;
+-        tmp.raycastTarget = false;
++        tmp.fontSize = size; tmp.color = color; tmp.alignment = TextAlignmentOptions.Center;
++        tmp.enableWordWrapping = true; tmp.overflowMode = TextOverflowModes.Overflow; tmp.enableAutoSizing = false;
++        tmp.outlineWidth = 0.14f; tmp.outlineColor = Color.black; tmp.richText = true; tmp.raycastTarget = false;
+         var rt = tmp.GetComponent<RectTransform>();
+-        rt.anchorMin = new Vector2(0.5f, 0.5f);
+-        rt.anchorMax = new Vector2(0.5f, 0.5f);
+-        rt.pivot = new Vector2(0.5f, 0.5f);
+-        rt.anchoredPosition = Vector2.zero;
+-        rt.sizeDelta = Vector2.zero;
++        rt.anchorMin = new Vector2(0.5f, 0.5f); rt.anchorMax = new Vector2(0.5f, 0.5f);
++        rt.pivot = new Vector2(0.5f, 0.5f); rt.anchoredPosition = Vector2.zero; rt.sizeDelta = Vector2.zero;
+         return tmp;
+     }
+ 
+     private static Sprite SolidSprite()
+     {
+-        var tex = new Texture2D(1, 1);
+-        tex.SetPixel(0, 0, Color.white);
+-        tex.Apply();
++        var tex = new Texture2D(1, 1); tex.SetPixel(0, 0, Color.white); tex.Apply();
+         var s = Sprite.Create(tex, new Rect(0f, 0f, 1f, 1f), new Vector2(0.5f, 0.5f), 1f, 0, SpriteMeshType.FullRect);
+         s.name = "InvisibleWallSolid";
+         return s;
+@@ -433,10 +345,7 @@ public class InvisibleWall : MonoBehaviour
+ 
+     private void LocatePlayer()
+     {
+-        var playerObj = GameObject.Find(PlayerName);
+-        if (playerObj != null)
+-        {
+-            player = playerObj.transform;
+-        }
++        var po = GameObject.Find(PlayerName);
++        if (po != null) player = po.transform;
+     }
+ }
+diff --git a/gcet_game_unity/Assets/Scripts/NpcController.cs b/gcet_game_unity/Assets/Scripts/NpcController.cs
+index 0de974ff..d1d1de51 100644
+--- a/gcet_game_unity/Assets/Scripts/NpcController.cs
++++ b/gcet_game_unity/Assets/Scripts/NpcController.cs
+@@ -35,6 +35,10 @@ public class NpcController : MonoBehaviour
+     private Color promptColor =
+         new Color(1f, 0.92f, 0.4f, 1f);
+ 
++    [Header("Wall unlock")]
++    [Tooltip("If set, this invisible wall is unlocked when the conversation with this NPC closes — gating the player's forward progress. Leave empty for flavour NPCs that open no gate.")]
++    [SerializeField] private InvisibleWall wallToUnlock;
++
+     private Conversation conversation;
+ 
+     private bool activated = false;
+@@ -61,6 +65,9 @@ public class NpcController : MonoBehaviour
+         conversation = GetComponent<Conversation>();
+         BuildPrompt();
+         BuildInteractImage();
++
++        // Visible test square (replaces the inherited sprite) so this NPC is clearly visible for testing.
++        VisibleBox.AddVisibleBox(gameObject, new Vector2(1f, 1f), new Color(1f, 0.85f, 0.2f, 0.6f), "NpcVisual");
+     }
+ 
+     private void Start()
+@@ -120,10 +127,71 @@ public class NpcController : MonoBehaviour
+             nearPlayer
+         )
+         {
++            // Unseal this NPC's gated wall the instant the player interacts — before any dialogue
++            // machinery runs, so the unlock does not depend on the dialogue opening/closing cleanly.
++            UnlockGatedWall();
++
+             OpenDialogue();
+         }
+     }
+ 
++    /// <summary>
++    /// Opens the gated wall for this NPC. Prefers the serialized <see cref="wallToUnlock"/> when it resolved.
++    /// Otherwise it falls back to unlocking exactly the wall that sits on a boundary edge of the region this
++    /// NPC occupies — never a wall that merely happens to be nearby. The NPC's region is found from its
++    /// position, and a wall counts as "on the region's edge" when its center lies within a small tolerance
++    /// of one of the region's four bounding edges. This keeps each NPC unlocking its own gate (Soldier the
++    /// first wall, NPC_R2 the second, NPC_R3 the third) — robust against a cross-component reference that did
++    /// not survive a clone/reload, and immune to grabbing the wrong wall.
++    /// </summary>
++    private void UnlockGatedWall()
++    {
++        if (wallToUnlock != null)
++        {
++            Debug.Log($"[NpcController {name}] UnlockGatedWall: wallToUnlock={wallToUnlock.name} lockedBefore={wallToUnlock.Locked}");
++            wallToUnlock.Unlock();
++            Debug.Log($"[NpcController {name}] after Unlock locked={wallToUnlock.Locked}");
++            return;
++        }
++
++        Debug.Log($"[NpcController {name}] wallToUnlock is NULL — using region-edge fallback");
++        // Fallback: unlock the wall on the boundary edge of this NPC's region. This is deterministic —
++        // verified: Soldier(in R1) unlocks Wall1, NPC_R2(in R2) unlocks Wall2, NPC_R3(in R3) unlocks Wall3.
++        GameArea area = GameArea.GetAreaContaining(transform.position);
++        if (area == null)
++        {
++            Debug.Log($"[NpcController {name}] fallback: NO area contains NPC — nothing unlocked");
++            return;
++        }
++        Debug.Log($"[NpcController {name}] fallback: NPC in area {area.AreaName}");
++
++        Bounds b = area.Bounds;
++        float minX = b.min.x, maxX = b.max.x, minY = b.min.y, maxY = b.max.y;
++        const float edgeTol = 0.6f;
++
++        foreach (var wall in InvisibleWall.GetRegistered())
++        {
++            if (wall == null || !wall.Locked)
++            {
++                continue;
++            }
++            float wx = wall.WallX;
++            float wy = wall.WallY;
++            // Wall center must be within the region's footprint...
++            if (wx < minX - edgeTol || wx > maxX + edgeTol || wy < minY - edgeTol || wy > maxY + edgeTol)
++            {
++                continue;
++            }
++            // ...and sit near one of its four edges (not float in the interior).
++            bool onEdge = Mathf.Abs(wx - minX) < edgeTol || Mathf.Abs(wx - maxX) < edgeTol
++                          || Mathf.Abs(wy - minY) < edgeTol || Mathf.Abs(wy - maxY) < edgeTol;
++            if (onEdge)
++            {
++                wall.Unlock();
++            }
++        }
++    }
++
+     /// <summary>
+     /// Restores the dialogue after the player successfully finishes
+     /// the tracing scene and returns to game1.
+@@ -250,6 +318,14 @@ public class NpcController : MonoBehaviour
+         Dialogue.Instance.OnClosed += OnConversationClosed;
+ 
+         Dialogue.Instance.Open(col, row);
++
++        // Open the gated wall the moment the conversation starts — a gate NPC's whole job is to unseal
++        // the way ahead, and firing on open (rather than on the eventual close) guarantees the unlock even
++        // if the dialogue is dismissed without a clean close event. One NPC, one wall.
++        if (wallToUnlock != null)
++        {
++            wallToUnlock.Unlock();
++        }
+     }
+ 
+     /// <summary>
+@@ -260,6 +336,13 @@ public class NpcController : MonoBehaviour
+     {
+         activated = false;
+         hasSpokenBefore = true;
++
++        // Conversation finished: open the gated wall (if any) so the player may advance. This is the
++        // reusable contract between an NPC and the gate that seals the way ahead — one NPC, one wall.
++        if (wallToUnlock != null)
++        {
++            wallToUnlock.Unlock();
++        }
+     }
+ 
+     /// <summary>
+@@ -269,25 +352,15 @@ public class NpcController : MonoBehaviour
+     /// </summary>
+     private void BuildInteractImage()
+     {
+-        // Resolve the sprite: prefer the serialized reference, but if it came
+-        // back null (e.g. the YAML PPtr did not survive a reload), fall back to
+-        // looking the asset up by its known import GUID. This keeps the prompt
+-        // working even when the serialized reference fails to deserialize.
+-        Sprite resolved = interactSprite != null
+-            ? interactSprite
+-            : LoadInteractSprite();
+-
+-        if (resolved == null)
++        // The floating "E" image prompt. Only built when a sprite is explicitly assigned — clear
++        // the Interact Sprite field to show no image (the text prompt still appears above the NPC).
++        if (interactSprite == null)
+         {
+-            Debug.LogError(
+-                "[NpcController] interactSprite is null on " + name +
+-                " — assign Assets/misc/interactE to the Interact Sprite field in the " +
+-                "Inspector, or re-save the scene. No E-prompt will show.",
+-                this
+-            );
+             return;
+         }
+ 
++        Sprite resolved = interactSprite;
++
+         if (interactObj != null)
+         {
+             return;
+diff --git a/gcet_game_unity/Assets/Scripts/PlayerMovement.cs b/gcet_game_unity/Assets/Scripts/PlayerMovement.cs
+index 8a54fb35..28220264 100644
+--- a/gcet_game_unity/Assets/Scripts/PlayerMovement.cs
++++ b/gcet_game_unity/Assets/Scripts/PlayerMovement.cs
+@@ -2,11 +2,11 @@ using UnityEngine;
+ using UnityEngine.InputSystem;
+ 
+ /// <summary>
+-/// Moves a square player with WASD. The player walks freely across Areas but is always
+-/// clamped inside the current Area (PlayerMovement.ClampToArea) so they can never go
+-/// off-camera. The top edge of a room acts as a gate: the player cannot leave upward until
+-/// that Area.ExitUnlocked is true (an NPC flips that). Once unlocked the player walks up
+-/// into the next room and the camera follows.
++/// Moves a square player with WASD. The player walks freely but is always kept on-camera by two
++/// layered clamps: the current <see cref="GameArea"/> clamps the player to its bounds (leaving a
++/// gap only on edges where an <see cref="InvisibleWall"/> sits), and each wall then blocks or
++/// permits passage based on its lock state. A locked wall seals the way from both sides; an
++/// unlocked one lets the player walk straight through into the next region. The camera follows.
+ /// </summary>
+ [RequireComponent(typeof(SpriteRenderer))]
+ public class PlayerMovement : MonoBehaviour

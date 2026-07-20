@@ -27,6 +27,16 @@ public class Conversation : MonoBehaviour
     [Tooltip("Blue frame shown at the bottom-right when a step has choices.")]
     [SerializeField] private Sprite multipleChoiceBackground;
 
+    [Header("Gate unlock")]
+    [Tooltip("If enabled, talking to this NPC unlocks the chosen wall — gating the player's forward progress. Leave disabled for flavour NPCs that open no gate.")]
+    [SerializeField] private bool unlockOnComplete;
+
+    [Tooltip("Invisible wall unlocked when this conversation completes. Leave empty for flavour NPCs that open no gate.")]
+    [SerializeField] private InvisibleWall wallToUnlock;
+
+    [Tooltip("Optional destination region the wall leads into. Stored for identification only — the wall remains the actual gate.")]
+    [SerializeField] private GameArea regionToUnlock;
+
     public List<DialogueStep> GetSteps(bool firstTime = true)
     {
         if (!firstTime && repeatSteps != null && repeatSteps.Count > 0)
@@ -55,6 +65,10 @@ public class Conversation : MonoBehaviour
 
     public Sprite GetGameVoiceBackground() => gameVoiceBackground;
     public Sprite GetMultipleChoiceBackground() => multipleChoiceBackground;
+
+    public bool UnlockOnComplete => unlockOnComplete;
+    public InvisibleWall WallToUnlock => wallToUnlock;
+    public GameArea RegionToUnlock => regionToUnlock;
 
     private static List<DialogueStep> DefaultSteps()
     {

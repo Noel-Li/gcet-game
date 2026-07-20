@@ -39,11 +39,15 @@ public class NpcController : MonoBehaviour
     private Color promptColor =
         new Color(1f, 0.92f, 0.4f, 1f);
 
+    [Header("Wall unlock")]
+    [Tooltip("If set, this invisible wall is unlocked when the conversation with this NPC closes — gating the player's forward progress. Leave empty for flavour NPCs that open no gate.")]
+    [SerializeField] private InvisibleWall wallToUnlock;
+
     [Header("Tracing")]
     [Tooltip("Enable only when this NPC owns the conversation that launches and resumes the hanzi tracing scene.")]
     [SerializeField] private bool resumeAfterTracing;
 
-    [Tooltip("Stable tracing owner id. Leave empty to use this GameObject's name.")]
+    [Tooltip("Stable NPC id used for tracing resumes and repeat-conversation persistence. Leave empty to use this GameObject's name.")]
     [SerializeField] private string traceOwnerKey;
 
     private Conversation conversation;
@@ -73,14 +77,18 @@ public class NpcController : MonoBehaviour
         conversation = GetComponent<Conversation>();
         BuildPrompt();
         BuildInteractImage();
+
+        // Visible test square (replaces the inherited sprite) so this NPC is clearly visible for testing.
+        VisibleBox.AddVisibleBox(gameObject, new Vector2(1f, 1f), new Color(1f, 0.85f, 0.2f, 0.6f), "NpcVisual");
     }
 
     private void Start()
     {
         LocatePlayer();
+        RefreshConversationState();
 
         // Check whether we just returned from the tracing scene.
-        RefreshFromProgress();
+       RefreshFromProgress();
     }
 
     private void Update()
@@ -92,6 +100,7 @@ public class NpcController : MonoBehaviour
 
         // Check every frame because GameProgress or Dialogue may not
         // have finished initializing when Start() first runs.
+        RefreshConversationState();
         RefreshFromProgress();
 
         // Find the player again if the scene was reloaded.
@@ -135,7 +144,72 @@ public class NpcController : MonoBehaviour
             nearPlayer
         )
         {
+            // Unseal this NPC's gated wall the instant the player interacts — before any dialogue
+            // machinery runs, so the unlock does not depend on the dialogue opening/closing cleanly.
+            UnlockGatedWall();
+
             OpenDialogue();
+        }
+    }
+
+    /// <summary>
+    /// Opens the gated wall for this NPC. The unlock target now lives on the paired
+    /// <see cref="Conversation"/> component (so it is unique and selectable per NPC): if that conversation
+    /// opts into unlocking and names a wall, that wall opens. Otherwise it falls back to unlocking exactly the
+    /// wall that sits on a boundary edge of the region this NPC occupies — never a wall that merely happens to
+    /// be nearby. The NPC's region is found from its position, and a wall counts as "on the region's edge" when
+    /// its center lies within a small tolerance of one of the region's four bounding edges. Robust against a
+    /// cross-component reference that did not survive a clone/reload, and immune to grabbing the wrong wall.
+    /// </summary>
+    private void UnlockGatedWall()
+    {
+        // Prefer the wall explicitly assigned on this NPC's conversation: if one is set, unlock it directly and
+        // unconditionally. (The older UnlockOnComplete gate defaulted to false, which silently bypassed every
+        // assigned wall and left progress stuck — gating removed so an assigned wall always opens.)
+        if (conversation != null && conversation.WallToUnlock != null)
+        {
+            var wall = conversation.WallToUnlock;
+            Debug.Log($"[NpcController {name}] UnlockGatedWall: conversation.wallToUnlock={wall.name} lockedBefore={wall.Locked}");
+            wall.Unlock();
+            Debug.Log($"[NpcController {name}] after Unlock locked={wall.Locked}");
+            return;
+        }
+
+        Debug.Log($"[NpcController {name}] no conversation wall set — using region-edge fallback");
+        // Fallback: unlock the wall on the boundary edge of this NPC's region. This is deterministic —
+        // verified: Soldier(in R1) unlocks Wall1, NPC_R2(in R2) unlocks Wall2, NPC_R3(in R3) unlocks Wall3.
+        GameArea area = GameArea.GetAreaContaining(transform.position);
+        if (area == null)
+        {
+            Debug.Log($"[NpcController {name}] fallback: NO area contains NPC — nothing unlocked");
+            return;
+        }
+        Debug.Log($"[NpcController {name}] fallback: NPC in area {area.AreaName}");
+
+        Bounds b = area.Bounds;
+        float minX = b.min.x, maxX = b.max.x, minY = b.min.y, maxY = b.max.y;
+        const float edgeTol = 0.6f;
+
+        foreach (var wall in InvisibleWall.GetRegistered())
+        {
+            if (wall == null || !wall.Locked)
+            {
+                continue;
+            }
+            float wx = wall.WallX;
+            float wy = wall.WallY;
+            // Wall center must be within the region's footprint...
+            if (wx < minX - edgeTol || wx > maxX + edgeTol || wy < minY - edgeTol || wy > maxY + edgeTol)
+            {
+                continue;
+            }
+            // ...and sit near one of its four edges (not float in the interior).
+            bool onEdge = Mathf.Abs(wx - minX) < edgeTol || Mathf.Abs(wx - maxX) < edgeTol
+                          || Mathf.Abs(wy - minY) < edgeTol || Mathf.Abs(wy - maxY) < edgeTol;
+            if (onEdge)
+            {
+                wall.Unlock();
+            }
         }
     }
 
@@ -197,8 +271,20 @@ public class NpcController : MonoBehaviour
         // Resume at the step saved before entering the tracing scene.
         Dialogue.Instance.ResumeAfterWriting();
 
+        // The main scene reload that hands back from the tracing scene re-creates every InvisibleWall with
+        // Locked=true, so the gate that let the player in is instantly sealed shut again — and nothing else
+        // re-opens it here. Unlock it now (by the explicit fileID on this NPC's conversation) so the player can
+        // advance instead of being teleported back into the room and stuck.
+        if (conversation != null && conversation.WallToUnlock != null)
+        {
+            conversation.WallToUnlock.Unlock();
+        }
+
         Debug.Log(
-            "[NpcController] Dialogue resumed after tracing."
+            "[NpcController] Dialogue resumed after tracing; wallToUnlock=" +
+            (conversation != null && conversation.WallToUnlock != null
+                ? conversation.WallToUnlock.name + " now=" + conversation.WallToUnlock.Locked
+                : "(none)")
         );
     }
 
@@ -246,12 +332,6 @@ public class NpcController : MonoBehaviour
         activated = true;
         HidePrompt();
 
-        GameArea area =
-            GameArea.GetAreaContaining(transform.position);
-
-        int col = area != null ? area.AreaCol : 0;
-        int row = area != null ? area.AreaRow : 0;
-
         EnsureDialogueExists();
 
         if (Dialogue.Instance == null)
@@ -271,7 +351,16 @@ public class NpcController : MonoBehaviour
         Dialogue.Instance.OnClosed -= OnConversationClosed;
         Dialogue.Instance.OnClosed += OnConversationClosed;
 
-        Dialogue.Instance.Open(col, row);
+        Dialogue.Instance.Open();
+
+        // Open the gated wall the moment the conversation starts — a gate NPC's whole job is to unseal
+        // the way ahead, and firing on open (rather than on the eventual close) guarantees the unlock even
+        // if the dialogue is dismissed without a clean close event. One NPC, one wall. The unlock target
+        // is read from the paired Conversation component, so it is unique to this NPC.
+        if (conversation != null && conversation.WallToUnlock != null)
+        {
+            conversation.WallToUnlock.Unlock();
+        }
     }
 
     /// <summary>
@@ -282,6 +371,30 @@ public class NpcController : MonoBehaviour
     {
         activated = false;
         hasSpokenBefore = true;
+
+        if (GameProgress.Instance != null)
+        {
+            GameProgress.Instance.MarkConversationCompleted(TraceOwnerKey);
+        }
+
+        // Conversation finished: open the gated wall (if any) so the player may advance. This is the
+        // reusable contract between an NPC and the gate that seals the way ahead — one NPC, one wall. The
+        // unlock target is read from the paired Conversation component, so it is unique to this NPC.
+        if (conversation != null && conversation.WallToUnlock != null)
+        {
+            conversation.WallToUnlock.Unlock();
+        }
+    }
+
+    /// <summary>Restores the local repeat-dialogue cache from the persistent play-session state.</summary>
+    private void RefreshConversationState()
+    {
+        if (!hasSpokenBefore &&
+            GameProgress.Instance != null &&
+            GameProgress.Instance.HasCompletedConversation(TraceOwnerKey))
+        {
+            hasSpokenBefore = true;
+        }
     }
 
     /// <summary>
@@ -307,6 +420,7 @@ public class NpcController : MonoBehaviour
                 "Inspector, or re-save the scene. No E-prompt will show.",
                 this
             );
+
             return;
         }
 

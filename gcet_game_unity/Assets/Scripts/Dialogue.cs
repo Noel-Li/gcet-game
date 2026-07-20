@@ -195,8 +195,6 @@ public class Dialogue : MonoBehaviour
 
     private int index = 0;
     private bool open;
-    private int pendingCol;
-    private int pendingRow;
     private int pendingResumeStep = -1;
     private int pendingRequiredTraceCount = 1;
     private readonly List<string> pendingTraceCharacters = new List<string>();
@@ -270,11 +268,9 @@ public class Dialogue : MonoBehaviour
         portrait = newPortrait;
     }
 
-    /// <summary>Open the dialogue over the room (col,row) that gates progress, starting from the first line.</summary>
-    public void Open(int areaCol, int areaRow)
+    /// <summary>Open the dialogue over the room that gates progress, starting from the first line.</summary>
+    public void Open()
     {
-        pendingCol = areaCol;
-        pendingRow = areaRow;
         index = 0;
         open = true;
         canvas.gameObject.SetActive(true);
@@ -462,8 +458,6 @@ public class Dialogue : MonoBehaviour
             carrier.AddComponent<GameProgress>();
         }
         GameProgress.Instance.BeginTrace(
-            pendingCol,
-            pendingRow,
             pendingResumeStep,
             pendingRequiredTraceCount,
             traceOwnerKey,
@@ -1084,10 +1078,13 @@ public class Dialogue : MonoBehaviour
 
         // TMP needs a font asset to emit any glyphs at all; resolve the project-wide default explicitly so runtime-created
         // text renders even when TMP hasn't auto-assigned one (otherwise the canvas exists but draws nothing). The
-        // material must come from the font asset (its SDF atlas) or TMP draws with no glyph material.
-        if (TMP_Settings.defaultFontAsset != null)
+        // material must come from the font asset (its SDF atlas) or TMP draws with no glyph material. Chinese dialogue
+        // can exceed one atlas page over a full playthrough, so keep dynamic multi-atlas expansion enabled at runtime.
+        TMP_FontAsset defaultFont = TMP_Settings.defaultFontAsset;
+        if (defaultFont != null)
         {
-            tmp.font = TMP_Settings.defaultFontAsset;
+            defaultFont.isMultiAtlasTexturesEnabled = true;
+            tmp.font = defaultFont;
             Material mat = tmp.font.material;
             if (mat != null)
             {

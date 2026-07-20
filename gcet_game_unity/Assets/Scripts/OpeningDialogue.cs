@@ -80,10 +80,7 @@ public sealed class OpeningDialogue : MonoBehaviour
         });
         dialogue.SetAuxiliaryPanelBackgrounds(null, null);
 
-        GameArea area = GameArea.GetAreaContaining(transform.position);
-        int col = area != null ? area.AreaCol : 0;
-        int row = area != null ? area.AreaRow : 0;
-        dialogue.Open(col, row);
+        dialogue.Open();
     }
 
     private static void EnsureDialogueExists()
