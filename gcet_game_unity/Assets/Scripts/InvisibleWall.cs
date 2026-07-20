@@ -31,8 +31,6 @@ public class InvisibleWall : MonoBehaviour
 
     private bool locked = true;
     private bool popupBuilt;
-    private bool snapped;
-    private bool dedupPending = true;
     private Canvas canvas;
     private RectTransform panel;
     private TextMeshProUGUI text;
@@ -58,7 +56,6 @@ public class InvisibleWall : MonoBehaviour
         {
             registered.Add(this);
         }
-        snapped = false;
     }
 
     private void OnDisable() { registered.Remove(this); }
@@ -66,8 +63,17 @@ public class InvisibleWall : MonoBehaviour
     public bool Locked => locked;
     public float WallX => transform.position.x;
     public float WallY => transform.position.y;
+    /// <summary>Stable identity for this wall, derived from its authored world position. Walls are never moved at runtime
+    /// (snapping is an opt-in Editor action now), so this key is identical before and after a scene reload — which is what
+    /// lets <see cref="GameProgress"/> remember that this wall was unlocked and re-unlock it after the trace reloads the
+    /// scene and re-creates every wall locked again.</summary>
+    public string StableKey => $"wall_{WallX:F2}_{WallY:F2}";
     public bool Horizontal => col == null || col.size.x >= col.size.y;
-    public float Span => col != null ? (Horizontal ? col.size.x : col.size.y) : 0f;
+    /// <summary>Half the wall's long dimension in WORLD space (accounts for transform scale). The detection zone is
+    /// <see cref="WallX"/>±<see cref="Span"/> (horizontal wall) or <see cref="WallY"/>±<see cref="Span"/> (vertical), so this
+    /// must be the world half-extent — not the local <see cref="UnityEngine.BoxCollider2D.size"/>, which ignores scale and
+    /// made a wall at x≈45 wrongly reach back to x≈28.</summary>
+    public float Span => col != null ? (Horizontal ? col.bounds.extents.x : col.bounds.extents.y) : 0f;
     public Vector3 CellCenter => new Vector3(WallX, WallY, 0f);
     public Bounds CellBounds => new Bounds(CellCenter, new Vector3(17.78f, 10f, 0f));
 
@@ -83,20 +89,10 @@ public class InvisibleWall : MonoBehaviour
 
     private void Update()
     {
-        if (!snapped)
-        {
-            SnapToSharedEdge();
-            snapped = true;
-            // Wait until the end of this frame before deduping, so every wall (including ones created later in the same
-            // frame, e.g. the tracing bootstrap wall) has already snapped to its final position. Deduping same-frame
-            // races the snap order and misses duplicates.
-            if (dedupPending)
-            {
-                dedupPending = false;
-                StartCoroutine(DedupAfterSnap());
-            }
-        }
-
+        // Walls are placed and sized BY HAND in the Scene and are never moved or resized at runtime. Snapping to a
+        // shared edge is an opt-in Editor-only action (see <see cref="SnapToSharedEdge"/>), NOT something that happens
+        // every frame or on every scene reload — auto-snap was silently overwriting each authored wall's position and
+        // collider size whenever the scene (re)loaded.
         if (!locked)
         {
             SetPopupVisible(false);
@@ -190,7 +186,8 @@ public class InvisibleWall : MonoBehaviour
                 // Side decision from prevPos (see docstring). Once the side is known, clamp the current
                 // position back to that side of the wall.
                 clamped.y = (prevPos.y < wall.WallY) ? Mathf.Min(clamped.y, wall.WallY - playerHalf) : Mathf.Max(clamped.y, wall.WallY + playerHalf);
-                if (Mathf.Abs(before - clamped.y) > 1e-4f) Debug.Log($"[InvisibleWall {wall.name}] BLOCKING horizontal: player y {before:F2} -> {clamped.y:F2} (wallY={wall.WallY})");
+                if (Mathf.Abs(before - clamped.y) > 1e-4f)
+                    Debug.Log($"[InvisibleWall {wall.name}] BLOCKING horizontal wall at ({wall.WallX:F2},{wall.WallY:F2}): player ({clamped.x:F2},{before:F2}) -> ({clamped.x:F2},{clamped.y:F2}) (locked={wall.Locked})");
             }
             else
             {
@@ -198,16 +195,21 @@ public class InvisibleWall : MonoBehaviour
                 if (!overlapY) continue;
                 float before = clamped.x;
                 clamped.x = (prevPos.x < wall.WallX) ? Mathf.Min(clamped.x, wall.WallX - playerHalf) : Mathf.Max(clamped.x, wall.WallX + playerHalf);
-                if (Mathf.Abs(before - clamped.x) > 1e-4f) Debug.Log($"[InvisibleWall {wall.name}] BLOCKING vertical: player x {before:F2} -> {clamped.x:F2} (wallX={wall.WallX})");
+                if (Mathf.Abs(before - clamped.x) > 1e-4f)
+                    Debug.Log($"[InvisibleWall {wall.name}] BLOCKING vertical wall at ({wall.WallX:F2},{wall.WallY:F2}): player ({before:F2},{clamped.y:F2}) -> ({clamped.x:F2},{clamped.y:F2}) (locked={wall.Locked})");
             }
         }
     }
 
     public void Unlock()
     {
-        Debug.Log($"[InvisibleWall {name}] UNLOCKED");
+        Debug.Log($"[InvisibleWall {name}] UNLOCKED (key={StableKey})");
         locked = false;
         SetPopupVisible(false);
+        // Remember this wall across scene loads: the trace reloads the main scene and re-creates every InvisibleWall
+        // with Locked=true, which would otherwise re-seal the way the player already opened. GameProgress survives
+        // the reload (DontDestroyOnLoad), so it can re-unlock these on the next scene load.
+        GameProgress.Instance?.PersistUnlockedWall(StableKey);
     }
 
     public bool ContainsPoint(Vector3 point)
@@ -244,8 +246,14 @@ public class InvisibleWall : MonoBehaviour
     /// Snaps this wall onto the shared boundary between its two nearest regions. A wall gates the edge where two regions
     /// touch: a horizontally-stacked pair (R1 below, R2 above) gets a horizontal wall at their shared Y spanning their
     /// X-overlap; a side-by-side pair gets a vertical wall at their shared X spanning their Y-overlap. Insensitive to rough
-    // manual placement: it just needs the wall to start somewhere near the two regions that share an edge.
+    /// manual placement: it just needs the wall to start somewhere near the two regions that share an edge.
+    ///
+    /// This is an EDITOR-ONLY authoring action (invoked from the component's context menu) — never run at runtime or in a
+    /// build. Walls are positioned and sized by hand in the Scene and must never be moved or resized on reload; the old
+    /// auto-snap ran every time a wall was enabled and silently overwrote each authored wall's position and collider
+    /// size on every scene load.
     /// </summary>
+    [ContextMenu("Snap to shared edge")]
     private void SnapToSharedEdge()
     {
         GameArea r1 = null, r2 = null;
@@ -304,39 +312,6 @@ public class InvisibleWall : MonoBehaviour
         transform.position = new Vector3(x, y, 0f);
         col.size = horiz ? new Vector2(b.size.x, 0.1f) : new Vector2(0.1f, b.size.y);
         Debug.Log($"[InvisibleWall {name}] snap single {r1.AreaName} ({x:F2},{y:F2}) span={b.size.x:F2}");    }
-
-    /// <summary>
-    /// If another wall already gates the SAME EDGE as this one, this wall is redundant — destroy it. "Same edge" means the
-    /// same snapped edge coordinate (Y for a horizontal wall, X for a vertical one) within epsilon, regardless of where each
-    /// wall's center falls along that edge. This catches the runtime-created bootstrap wall
-    /// (<see cref="GameProgress.EnsureWallBootstrap"/>) that snaps to the same R1/R2 edge as a hand-placed gate but at a
-    /// different X, and any accidental editor duplicates. The pre-existing wall always wins because it snaps first
-    /// (scene-load) while bootstrap/editor-duplicate walls snap later.</summary>
-    private void DeduplicateIfNeeded()
-    {
-        const float epsilon = 0.05f;
-        foreach (var other in GetRegistered())
-        {
-            if (other == null || other == this) continue;
-            if (other.Horizontal != Horizontal) continue;
-            float edgeCoord = Horizontal ? WallY : WallX;
-            float otherEdgeCoord = Horizontal ? other.WallY : other.WallX;
-            if (Mathf.Abs(otherEdgeCoord - edgeCoord) < epsilon)
-            {
-                Debug.Log($"[InvisibleWall {name}] DUPLICATE edge of {other.name} (edge={edgeCoord:F2}) — removing");
-                Destroy(gameObject);
-                return;
-            }
-        }
-    }
-
-    /// <summary>End-of-frame pass that removes this wall if it duplicates another. Run from a coroutine so it happens after
-    /// every wall has snapped this frame — deduping inside SnapToSharedEdge races the per-frame snap order.</summary>
-    private System.Collections.IEnumerator DedupAfterSnap()
-    {
-        yield return null;
-        DeduplicateIfNeeded();
-    }
 
     private void SetPopupVisible(bool visible)
     {

@@ -195,8 +195,6 @@ public class Dialogue : MonoBehaviour
 
     private int index = 0;
     private bool open;
-    private int pendingCol;
-    private int pendingRow;
     private int pendingResumeStep = -1;
     private int pendingRequiredTraceCount = 1;
     private readonly List<string> pendingTraceCharacters = new List<string>();
@@ -270,11 +268,9 @@ public class Dialogue : MonoBehaviour
         portrait = newPortrait;
     }
 
-    /// <summary>Open the dialogue over the room (col,row) that gates progress, starting from the first line.</summary>
-    public void Open(int areaCol, int areaRow)
+    /// <summary>Open the dialogue over the room that gates progress, starting from the first line.</summary>
+    public void Open()
     {
-        pendingCol = areaCol;
-        pendingRow = areaRow;
         index = 0;
         open = true;
         canvas.gameObject.SetActive(true);
@@ -462,8 +458,6 @@ public class Dialogue : MonoBehaviour
             carrier.AddComponent<GameProgress>();
         }
         GameProgress.Instance.BeginTrace(
-            pendingCol,
-            pendingRow,
             pendingResumeStep,
             pendingRequiredTraceCount,
             traceOwnerKey,

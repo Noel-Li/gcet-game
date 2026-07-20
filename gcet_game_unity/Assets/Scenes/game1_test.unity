@@ -35390,8 +35390,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e589a00c60fba8f40a0e965132a43832, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   interactRange: 2.5
   promptText: Press E to talk
   interactSprite: {fileID: 0}
@@ -35399,6 +35399,9 @@ MonoBehaviour:
   promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
+  wallToUnlock: {fileID: 9000000026}
+  resumeAfterTracing: 1
+  traceOwnerKey:
 --- !u!114 &9000000017
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35577,7 +35580,7 @@ MonoBehaviour:
   gameVoiceBackground: {fileID: 0}
   multipleChoiceBackground: {fileID: 0}
   unlockOnComplete: 0
-  wallToUnlock: {fileID: 1240246070}
+  wallToUnlock: {fileID: 9000000026}
   regionToUnlock: {fileID: 782562736}
 --- !u!50 &151484823
 Rigidbody2D:
@@ -36890,7 +36893,7 @@ Transform:
   m_GameObject: {fileID: 9000000031}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 45.2, y: 13.9, z: 0}
+  m_LocalPosition: {x: 45.5, y: 13.9, z: 0}
   m_LocalScale: {x: 1.2357, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -37368,7 +37371,7 @@ MonoBehaviour:
   gameVoiceBackground: {fileID: 0}
   multipleChoiceBackground: {fileID: 0}
   unlockOnComplete: 0
-  wallToUnlock: {fileID: 0}
+  wallToUnlock: {fileID: 9000000034}
   regionToUnlock: {fileID: 0}
 --- !u!50 &9000000048
 Rigidbody2D:

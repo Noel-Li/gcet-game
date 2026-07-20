@@ -37,6 +37,13 @@ public class GameProgress : MonoBehaviour
     [SerializeField] private List<string> requiredTraceCharacters = new List<string>();
     [SerializeField] private string traceOwnerKey;
 
+    /// <summary>Stable keys (<see cref="InvisibleWall.StableKey"/>) of walls the player has opened. A scene reload
+    /// (the trace reloads the main scene) re-creates every InvisibleWall with Locked=true, so without this the way the
+    /// player already opened would be re-sealed and they'd be teleported back into the previous region and stuck.
+    /// GameProgress is DontDestroyOnLoad, so this set survives the reload and is reapplied in
+    /// <see cref="OnSceneLoaded"/>.</summary>
+    [SerializeField] private List<string> unlockedWallKeys = new List<string>();
+
     /// <summary>
     /// The player position captured just before leaving for the tracing scene, so the reload can put the
     /// player back where they were instead of at the scene's authored default. Null until BeginTrace runs.
@@ -44,20 +51,14 @@ public class GameProgress : MonoBehaviour
     private Vector3? savedPlayerPosition;
 
 
-    /// <summary>The NPC scene to load back into.</summary>
-    [SerializeField] private string mainSceneName = "game1";
+    /// <summary>The name of the scene the player gets returned to after a trace. Captured at the moment a trace
+    /// begins (see <see cref="BeginTrace"/>) so the tracer always reloads whatever scene it was launched from —
+    /// never a hardcoded scene. This keeps the region-demo scene (game1_test) from being swapped for the bare
+    /// game1 scene, which previously teleported the player to the wrong place.</summary>
+    [SerializeField] private string mainSceneName;
 
     /// <summary>The hanzi tracing scene to open on the writing step.</summary>
     [SerializeField] private string traceSceneName = "hanzi tracing base";
-
-    /// <summary>Grid coordinate of the room whose forward exit should open on a correct trace.</summary>
-    [SerializeField] private int targetCol;
-    [SerializeField] private int targetRow;
-
-    /// <summary>Grid coordinate of the invisible wall that gates forward progress until the conversation completes.
-    /// Mirrors <see cref="targetCol"/>/<see cref="targetRow"/> but for the wall, which is now the only forward gate.</summary>
-    [SerializeField] private int wallCol = 1;
-    [SerializeField] private int wallRow = 1;
 
     /// <summary>Set the moment the hanzi tracer finishes a character correctly.</summary>
     public bool tracePassed { get; private set; }
@@ -129,19 +130,18 @@ public class GameProgress : MonoBehaviour
     }
 
     /// <summary>
-    /// Called from the dialogue's writing step. Records which room this NPC gates and which conversation step to resume
-    /// at on return, then opens the tracing scene. The player may move forward only once the trace completes.
+    /// Called from the dialogue's writing step. Records the conversation step to resume on return and which NPC owns
+    /// the trace, then opens the tracing scene. The player may move forward only once the trace completes — at which
+    /// point the NPC re-opens its conversation (see <see cref="NpcController.RefreshFromProgress"/>), which reads the
+    /// gate wall straight from the <see cref="Conversation.WallToUnlock"/> reference rather than from any grid
+    /// coordinate, so the wall is unlocked by stable fileID and no invisible wall is ever spawned at runtime.
     /// </summary>
     public void BeginTrace(
-        int areaCol,
-        int areaRow,
         int stepToResume,
         int charactersToComplete = 1,
         string ownerKey = null,
         IList<string> charactersToTrace = null)
     {
-        targetCol = areaCol;
-        targetRow = areaRow;
         resumeStep = stepToResume;
         requiredTraceCharacters.Clear();
         if (charactersToTrace != null)
@@ -163,10 +163,15 @@ public class GameProgress : MonoBehaviour
         tracePassed = false;
         dialogueResumed = false;
 
+        // Record which scene we're leaving so OnTraceCorrect reloads THIS scene (not a hardcoded one). Without
+        // this, launching the tracer from a non-default scene (e.g. game1_test) snaps the player back into the
+        // bare game1 scene and they reappear at the wrong place.
+        mainSceneName = SceneManager.GetActiveScene().name;
+
         // Capture the player's position now, while the main scene (and the Player it spawns) still exists.
         // The main scene is about to be unloaded for the tracing scene, which destroys the Player; we'll
         // restore this position in OnSceneLoaded when the player returns so they don't snap back to the
-        // scene's authored default.
+        // scene's authored default — they resume exactly where they were when they entered the interaction.
         PlayerMovement pm = FindObjectOfType<PlayerMovement>();
         savedPlayerPosition = pm != null ? pm.transform.position : (Vector3?)null;
 
@@ -261,39 +266,57 @@ public class GameProgress : MonoBehaviour
 
         tracePassed = true;
 
-        // The Areas live in the main scene, which is currently unloaded. Defer the gate unlock to OnSceneLoaded.
+        // The main scene is reloaded so its Objects (Player, dialogue, walls) are re-created fresh at their authored
+        // transforms. No invisible wall is spawned here: the gate wall assigned to each NPC by fileID in the Scene is
+        // unlocked through <see cref="Conversation.WallToUnlock"/> / <see cref="NpcController.RefreshFromProgress"/>
+        // once the conversation re-opens after the trace, so there is nothing for GameProgress to create. NOTE: the
+        // reload re-creates every InvisibleWall with Locked=true, so any wall the player already opened is re-sealed —
+        // <see cref="ReapplyUnlockedWalls"/> in <see cref="OnSceneLoaded"/> re-opens them from this persistent set.
         SceneManager.LoadScene(mainSceneName);
     }
 
-    /// <summary>Flips the forward gate once the main scene has reloaded and its Areas are registered.
-    /// Area exits are open now, so the only thing sealing the way ahead is the invisible wall — unlock it.</summary>
-    private void ApplyForwardUnlock()
+    /// <summary>Records that this wall stays open for the rest of the play session. Called from
+    /// <see cref="InvisibleWall.Unlock"/>. Keys are stable across reloads because they are derived from each wall's
+    /// authored (never-moved) world position.</summary>
+    public void PersistUnlockedWall(string wallKey)
     {
-        if (!tracePassed)
+        if (string.IsNullOrEmpty(wallKey))
         {
             return;
         }
-        InvisibleWall.UnlockWallAt(wallCol, wallRow);
+        if (unlockedWallKeys == null)
+        {
+            unlockedWallKeys = new List<string>();
+        }
+        if (!unlockedWallKeys.Contains(wallKey))
+        {
+            unlockedWallKeys.Add(wallKey);
+        }
     }
 
-    /// <summary>Ensures the invisible wall governing forward progress exists in the main scene. It is an invisible,
-    /// non-persistent GameObject, so it is rebuilt whenever (re)entering the main scene — exactly like the dialogue.</summary>
-    private void EnsureWallBootstrap()
+    /// <summary>Re-opens every wall the player previously unlocked. The trace reloads the main scene and re-creates
+    /// each InvisibleWall with Locked=true, so without this the way already opened is re-sealed and the player is
+    /// teleported back into the prior region and stuck there. Safe to call every scene load — only matching walls are
+    /// affected, and unlocking an already-unlocked wall is a no-op.</summary>
+    public void ReapplyUnlockedWalls()
     {
-        if (InvisibleWall.GetWallAt(wallCol, wallRow) != null)
+        if (unlockedWallKeys == null || unlockedWallKeys.Count == 0)
         {
             return;
         }
-        var wallObj = new GameObject($"InvisibleWall_{wallCol}_{wallRow}");
-        var wall = wallObj.AddComponent<InvisibleWall>();
-        wall.Col = wallCol;
-        wall.Row = wallRow;
+        var keys = new HashSet<string>(unlockedWallKeys);
+        foreach (var wall in InvisibleWall.GetRegistered())
+        {
+            if (wall != null && keys.Contains(wall.StableKey))
+            {
+                wall.Unlock();
+            }
+        }
     }
 
     /// <summary>
-    /// The invisible wall is bootstrapped from <see cref="OnSceneLoaded"/>, so <see cref="GameProgress"/> must exist before the
-    /// main scene finishes loading — but it is otherwise only created on the conversation's writing step. Create it here at
-    /// startup (inert until a trace begins) so the wall — and the door into its cell — exist from the first frame.
+    /// <see cref="GameProgress"/> must exist before the main scene finishes loading so it can subscribe to
+    /// <see cref="SceneManager.sceneLoaded"/>; the static constructor guarantees that.
     /// </summary>
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void AutoCreate()
@@ -332,11 +355,14 @@ public class GameProgress : MonoBehaviour
     {
         if (scene.name == mainSceneName)
         {
-            // Run first so the fresh Player exists at its (default) position before we restore the
-            // pre-trace position onto it — and bootstrap the (non-persistent) invisible wall before either.
-            EnsureWallBootstrap();
-            ApplyForwardUnlock();
+            // Restore the player to the position captured before the tracer launched (see
+            // <see cref="ApplySavedPlayerPosition"/>) so they resume the interaction exactly where they entered it.
+            // No invisible wall is (re)created here — gates are wall objects authored in the Scene and unlocked
+            // through the NPC's conversation once it re-opens.
             ApplySavedPlayerPosition();
+            // The reload re-created every InvisibleWall with Locked=true, re-sealing any way the player already
+            // opened. Re-open them from the persistent set so a wall, once unlocked, stays unlocked for the session.
+            ReapplyUnlockedWalls();
             StartCoroutine(LogPlayerPositionAfterTrace());
         }
 

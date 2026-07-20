@@ -124,3 +124,74 @@ Several non-wall objects (Player, Area_Left, Main Camera, the Tilemap GO, LAYER 
 ## Adding a new mechanic / Area / input / script
 
 Follow the recipes in README.md § "How to add new stuff". For scene *structure* changes, remember to update this file (Convention section, above).
+
+---
+
+## Current project state (July 2026) — region-access-control system
+
+The active work is the **region-access-control demo** in `game1_test.unity`. Below is everything you need to continue without re-deriving it.
+
+### Scene: `game1_test.unity`
+
+A 2D top-down demo of region gating: the player walks between four rectangular regions (R1–R4), each pair separated by an `InvisibleWall` that only opens after the player talks to the gate NPC for that region.
+
+**Functional object fileIDs** (verified against the working scene — these are the objects the scripts wire to; do NOT renumber):
+
+| Object | GO fileID | Transform | BoxCollider2D / notes |
+|---|---|---|---|
+| R1 | `9000000000` | `9000000001` | collider `9000000002`, GameArea `9000000003` |
+| R2 | `9000000008` | `9000000009` | collider `9000000010`, GameArea `9000000011` |
+| R3 | `9000000019` | `9000000020` | collider `9000000021`, GameArea `9000000022` |
+| R4 | `9000000004` | `9000000005` | collider `9000000006`, GameArea `9000000007` |
+| Wall1 (R1↔R2) | `9000000023` | `9000000024` | collider `9000000025`, InvisibleWall `9000000026` |
+| Wall2 (R2↔R3) | `9000000027` | `9000000028` | collider `9000000029`, InvisibleWall `9000000030` |
+| Wall3 (R3↔R4) | `9000000031` | `9000000032` | collider `9000000033`, InvisibleWall `9000000034` |
+| Soldier (gate NPC, R1) | `9000000012` | `9000000013` | NpcController `9000000016`, Conversation `9000000017` |
+| NPC_R2 (gate NPC, R2) | `9000000035` | `9000000036` | NpcController `9000000039`, Conversation `9000000040` |
+| NPC_R3 (gate NPC, R3) | `9000000042` | `9000000043` | NpcController `9000000046`, Conversation `9000000047` |
+| Player | `100000020` | `100000021` | PlayerMovement `100000024` |
+
+**Region R1 has a Transform scale of `(1.2929, 1, 1)`** on X, so its world width is collider-size × scale = `35.56 × 1.2929 ≈ 45.98`, not the raw collider size. Always use `GameArea.Bounds` (world-space) for region dimensions, never raw `collider.size`. The other regions use near-unity scale.
+
+**Critical invariant:** regions R1 and R4 **overlap** in world space (x ∈ [33.72, 34.29], y ∈ [4.61, 13.79]). This is intentional layout and the scripts now handle it — do NOT "fix" the overlap by moving regions unless you update the wall-snap and coverage logic accordingly.
+
+### Scripts — what each one does and the current gotchas
+
+**Core region gating:**
+- **`GameArea.cs`** — a region. `Bounds` = world-space bounds (honors transform scale). `ClampPlayer()` keeps the player inside, leaving a gap on any edge an `InvisibleWall` covers. `ClampCamera()` frames the camera inside the region. All bounds math uses `col.bounds`, never raw size.
+- **`InvisibleWall.cs`** — a gate. Walls are authored (position + collider size) in the Scene and are **never moved or resized at runtime.** `SnapToSharedEdge()` is an opt-in `[ContextMenu("Snap to shared edge")]` Editor tool, NOT automatic — the old auto-snap ran on every `Enable`/scene reload and silently overwrote each authored wall's position and collider size. `CoversHorizontalEdge(y, minX, maxX)` / `CoversVerticalEdge(x, minY, maxY)` require the wall's **center** to lie within the edge's run — this stops overlap neighbours from registering as a second gate. Blocking uses previous-frame position (`ClampPlayer(prevPos, ...)`) to prevent tunneling. Inverted `col.isTrigger` handling keeps the wall pure-logic. **No wall is spawned or deduplicated at runtime.**
+- **`FollowCamera.cs`** — clamped follow. Resolves the region from the player's position every frame, gates region transitions behind `HasCrossedInto()`, clamps to region bounds. `smoothTime`/`lookAheadInset` fields exist on disk but the local `FollowCamera` does not declare them (harmless serialized leftovers).
+- **`PlayerMovement.cs`** — WASD + `MoveInput` property (drives `PlayerWalkAnimation`). `ClampToArea` then `InvisibleWall.ClampPlayer`. Tracks `prevPos` for anti-tunneling. Freezes while `Dialogue.Instance.IsOpen`.
+
+**NPC + dialogue (game1's main flow, also reused):**
+- **`NpcController.cs`** — proximity + E-to-talk. Unlock target now lives on `Conversation` (read via `conversation.WallToComplete`... actually `conversation.WallToUnlock`). On talk: `UnlockGatedWall()` unlocks the explicitly-assigned wall, else falls back to unlocking whatever locked wall sits on the NPC's region edge. After tracing, `RefreshFromProgress()` resumes the saved dialogue step.
+- **`Conversation.cs`** — reusable per-NPC dialogue + presenter art. Has `[Header("Gate unlock")]` fields: `unlockOnComplete`, `wallToUnlock` (InvisibleWall), `regionToUnlock` (GameArea, identification only). `DefaultSteps()` returns a **full 27-step default conversation** (soldier + game-voice tracing + multiple-choice steps) — this is the fallback when a scene `Conversation` has empty `steps`. **This default was restored from origin/main in this session**; do not reduce it back to a placeholder.
+- **`Dialogue.cs`** — the click-to-advance renderer. `Writing` action hands off to `GameProgress.BeginTrace()`. `ResumeAfterWriting()` resumes at the saved step.
+- **`GameProgress.cs`** — lives across scene loads (`DontDestroyOnLoad`). Owns `tracePassed`, conversation-completion persistence, `savedPlayerPosition`. Records `mainSceneName` at the start of a trace so it returns to whatever scene launched the tracer. `ApplySavedPlayerPosition()` restores the player after a trace. **No invisible walls are spawned at runtime** — each NPC's gate wall is authored in the Scene (assigned by fileID to `Conversation.wallToUnlock`) and unlocked by `NpcController.RefreshFromProgress()`/`UnlockGatedWall()` once the conversation re-opens after the trace. `EnsureWallBootstrap()`/`ApplyForwardUnlock()`/`targetCol,targetRow,wallCol,wallRow` were removed; the old `(1,1)` bootstrap wall never matched a scene wall and spawned a stray `InvisibleWall_1_1` on every scene load.
+
+**Tracing scene:** `hanzi tracing base.unity` hosts `Script1` (stroke tracer) which fires `OnCharacterDone` → `GameProgress.OnTraceCorrect()`.
+
+### Debug logging currently in place (intentionally left for diagnosis)
+
+These print during play — capture them when reproducing issues, then remove once resolved:
+- `[GameProgress] ApplySavedPlayerPosition: restoring player to ...` — in `ApplySavedPlayerPosition`.
+- `[GameProgress] post-trace frame N: player at (...) (area=...)` — 10-frame dump after a trace (`LogPlayerPositionAfterTrace` coroutine).
+- `[GameArea X] CLAMPED player A -> B (bounds ...)` — fires whenever a region clamp moves the player.
+- `[PlayerMovement] pos A -> B (area=... input=...)` — fires whenever the player position changes by >1e-3.
+
+Removed after this session's auto-snap/bootstrap fix — they printed every frame and now never fire because walls no longer snap or spawn at runtime:
+- `[InvisibleWall ...] snap stacked R#/R# ... snap side ...` / `... snap single ...` — obsolete; `SnapToSharedEdge` is now an editor-only `[ContextMenu]` action, never automatic.
+
+### Lessons learned (don't repeat these)
+
+1. **Region scale matters.** R1's 1.2929× scale made its real width 45.98, not 35.56. Always use `col.bounds`.
+2. ~~**Runtime wall creation returns duplicates.**~~ **Removed in this session.** The old `GameProgress.EnsureWallBootstrap` + `DeduplicateIfNeeded` auto-snap system spawned a stray `InvisibleWall_1_1` on every scene load (its hardcoded `(1,1)` grid coord never matched a scene wall) and silently overwrote each authored wall's position + collider size on every reload. Gate walls are now authored in the Scene only, assigned by fileID to `Conversation.wallToUnlock`, unlocked via `NpcController` once the post-trace conversation re-opens — no runtime wall creation, no auto-snap, no dedup.
+3. **Overlap neighbours false-gate.** R1/R4 overlap made W3 (R3-R4) appear to cover R1's edge. Solved by requiring the wall *center* within the edge run in `Covers*HorizontalEdge`.
+4. **Merge reconciliation:** `NpcController.cs` (and the W5 SDF / LiberationSans font assets) had genuine merge conflicts. The local side held the wall-unlock + test-square system; origin/main held the tracing/NPC-resume flow. Both were kept. Font assets were resolved local (`--ours`).
+5. **DefaultSteps was gutted locally.** The local `DefaultSteps()` was a single generic line; origin/main's 27-step version is the real default and was restored. If a gate NPC shows wrong/empty dialogue, check `DefaultSteps` first.
+6. **Gate walls must be assigned by fileID, not by fallback.** A `Conversation` with `wallToUnlock: {fileID: 0}` falls back to `NpcController`'s region-edge scan, which unlocks a locked wall only if its *center* sits within `edgeTol` (0.6) of a region edge — easy to miss (Soldier's Wall1 at y=14.23 missed R1's top edge at 14.90 by 0.67). Always assign the gate wall explicitly by its `InvisibleWall` MonoBehaviour fileID (`Conversation.wallToUnlock`) matching the hand-authored wall that actually spans that boundary.
+7. **Wall authored geometry must clear neighbouring regions.** A wall's *effective* transform scale (`col.size × lossyScale`) decides how far it reaches. Wall3's authored `col.size.x = 1.78... 17.78 × scale.x 1.2357` reached x=34.215, inside R1 whose right edge is 34.29 — so it gating R3↔R4 also leaked into R1. Check walls against *all* adjoining regions' world bounds, not just the two they intend to gate.
+
+### Git state
+
+Branch `main`, recently reconciled with `origin/main` (diverged 3-and-5 commits, now merged). Recent commits: region-access dedup/edge-detection fix, Soldier dialogue restore in both scenes, `DefaultSteps()` restore. There is a backup `game1.MERGED_backup.unity` in the repo root (the pre-revert merged scene) — safe to delete once you're confident the current `game1.unity` works.

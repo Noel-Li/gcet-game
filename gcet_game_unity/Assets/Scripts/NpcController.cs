@@ -271,8 +271,20 @@ public class NpcController : MonoBehaviour
         // Resume at the step saved before entering the tracing scene.
         Dialogue.Instance.ResumeAfterWriting();
 
+        // The main scene reload that hands back from the tracing scene re-creates every InvisibleWall with
+        // Locked=true, so the gate that let the player in is instantly sealed shut again — and nothing else
+        // re-opens it here. Unlock it now (by the explicit fileID on this NPC's conversation) so the player can
+        // advance instead of being teleported back into the room and stuck.
+        if (conversation != null && conversation.WallToUnlock != null)
+        {
+            conversation.WallToUnlock.Unlock();
+        }
+
         Debug.Log(
-            "[NpcController] Dialogue resumed after tracing."
+            "[NpcController] Dialogue resumed after tracing; wallToUnlock=" +
+            (conversation != null && conversation.WallToUnlock != null
+                ? conversation.WallToUnlock.name + " now=" + conversation.WallToUnlock.Locked
+                : "(none)")
         );
     }
 
@@ -320,12 +332,6 @@ public class NpcController : MonoBehaviour
         activated = true;
         HidePrompt();
 
-        GameArea area =
-            GameArea.GetAreaContaining(transform.position);
-
-        int col = area != null ? area.AreaCol : 0;
-        int row = area != null ? area.AreaRow : 0;
-
         EnsureDialogueExists();
 
         if (Dialogue.Instance == null)
@@ -345,7 +351,7 @@ public class NpcController : MonoBehaviour
         Dialogue.Instance.OnClosed -= OnConversationClosed;
         Dialogue.Instance.OnClosed += OnConversationClosed;
 
-        Dialogue.Instance.Open(col, row);
+        Dialogue.Instance.Open();
 
         // Open the gated wall the moment the conversation starts — a gate NPC's whole job is to unseal
         // the way ahead, and firing on open (rather than on the eventual close) guarantees the unlock even
