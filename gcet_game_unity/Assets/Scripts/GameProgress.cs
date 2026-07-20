@@ -206,7 +206,8 @@ public class GameProgress : MonoBehaviour
             if (pm != null)
             {
                 var area = GameArea.GetAreaContaining(pm.transform.position);
-                Debug.Log($"[GameProgress] post-trace frame {i}: player at {pm.transform.position} (area={area != null ? area.AreaName : "NONE"})");
+                string areaName = area != null ? area.AreaName : "NONE";
+                Debug.Log($"[GameProgress] post-trace frame {i}: player at {pm.transform.position} (area={areaName})");
             }
             yield return null;
         }

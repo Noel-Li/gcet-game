@@ -2167,157 +2167,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Conversation
   steps:
-  - speakerName: 郭小月
-    expression: normal
+  - speakerName: 
+    expression: 
     panelStyle: 0
-    text: Hi! Are you 王喜悦 (Wáng Xǐyuè)?
+    text: 
     action: 0
-    nextStep: -1
-    requiredTraceCount: 1
+    nextStep: 0
+    requiredTraceCount: 0
     traceCharacters: []
     choices: []
     useMultipleChoicePanel: 0
-  - speakerName: 王喜悦
-    expression: normal
-    panelStyle: 0
-    text: 对，我是。你是谁？ (Duì, wǒ shì. Nǐ shì shéi?)
-    action: 0
-    nextStep: -1
-    requiredTraceCount: 1
-    traceCharacters: []
-    choices: []
-    useMultipleChoicePanel: 0
-  - speakerName: game
-    expression: normal
-    panelStyle: 1
-    text: 'Press number pad 1 to trace 我 (Wǒ) and complete: ___ 是郭小月 (shì Guō Xiǎoyuè).'
-    action: 0
-    nextStep: -1
-    requiredTraceCount: 1
-    traceCharacters: []
-    choices:
-    - label: Start tracing 我
-      targetStep: 3
-      action: 1
-      requiredTraceCount: 1
-      traceCharacters:
-      - 我
-    useMultipleChoicePanel: 0
-  - speakerName: 郭小月
-    expression: normal
-    panelStyle: 0
-    text: 我是郭小月 (Wǒ shì Guō Xiǎoyuè). I was told that you know where my... my grandma is, 郭品玉 (Guō Pǐnyù).
-    action: 0
-    nextStep: -1
-    requiredTraceCount: 1
-    traceCharacters: []
-    choices: []
-    useMultipleChoicePanel: 0
-  - speakerName: 郭小月
-    expression: normal
-    panelStyle: 0
-    text: <i>Don't want them to get suspicious with me.</i>
-    action: 0
-    nextStep: -1
-    requiredTraceCount: 1
-    traceCharacters: []
-    choices: []
-    useMultipleChoicePanel: 0
-  - speakerName: 王喜悦
-    expression: normal
-    panelStyle: 0
-    text: Woah! 我 (Wǒ) never 听说过郭品玉有个 (tīng shuōguò Guō Pǐnyù yǒu gè) granddaughter?
-    action: 0
-    nextStep: -1
-    requiredTraceCount: 1
-    traceCharacters: []
-    choices: []
-    useMultipleChoicePanel: 0
-  - speakerName: 王喜悦
-    expression: normal
-    panelStyle: 0
-    text: I haven't seen her in 两天... 但是我听说 (Liǎng tiān... dànshì wǒ tīng shuō) she is going to be giving her stuff to the trader who passes by here.
-    action: 0
-    nextStep: -1
-    requiredTraceCount: 1
-    traceCharacters: []
-    choices: []
-    useMultipleChoicePanel: 0
-  - speakerName: game
-    expression: normal
-    panelStyle: 1
-    text: Trace 知 and 道 to complete 郭小月's question.
-    action: 0
-    nextStep: -1
-    requiredTraceCount: 1
-    traceCharacters: []
-    choices:
-    - label: Start tracing 知 and 道
-      targetStep: 8
-      action: 1
-      requiredTraceCount: 2
-      traceCharacters:
-      - 知
-      - 道
-    useMultipleChoicePanel: 0
-  - speakerName: 郭小月
-    expression: normal
-    panelStyle: 0
-    text: 你知道在哪里吗？ (Nǐ zhīdào zài nǎlǐ ma?)
-    action: 0
-    nextStep: -1
-    requiredTraceCount: 1
-    traceCharacters: []
-    choices: []
-    useMultipleChoicePanel: 0
-  - speakerName: 王喜悦
-    expression: normal
-    panelStyle: 0
-    text: 我昨天看到吴叔杨 (Wǒ zuótiān kàn dào Tángjiālín), who is our trader. He said he was meeting 郭品玉 (Guō Pǐnyù) at the bridge across the river.
-    action: 0
-    nextStep: -1
-    requiredTraceCount: 1
-    traceCharacters: []
-    choices: []
-    useMultipleChoicePanel: 0
-  - speakerName: 王喜悦
+  repeatSteps:
+  - speakerName: "\u738B\u559C\u60A6"
     expression: panic
     panelStyle: 0
-    text: Maybe if you hurry you will be able to catch them. 很多别人会在哪里，所以一定要小心。 (Hěnduō biérén huì zài nǎlǐ, suǒyǐ yīdìng yào xiǎoxīn.)
+    text: "Hurry! \u5434\u53D4\u6768 is waiting at the bridge across the river."
     action: 0
     nextStep: -1
     requiredTraceCount: 1
     traceCharacters: []
     choices: []
     useMultipleChoicePanel: 0
-  - speakerName: 郭小月
-    expression: excited
-    panelStyle: 0
-    text: 谢谢！ (Xièxie!)
-    action: 0
-    nextStep: -1
-    requiredTraceCount: 1
-    traceCharacters: []
-    choices: []
-    useMultipleChoicePanel: 0
-  - speakerName: game
-    expression: normal
-    panelStyle: 1
-    text: <i>Quick! Hurry to the bridge before you miss your chance!</i> Trace 别 and 人 (biérén), which means other people.
-    action: 0
-    nextStep: -1
-    requiredTraceCount: 1
-    traceCharacters: []
-    choices:
-    - label: Start tracing 别 and 人
-      targetStep: 13
-      action: 1
-      requiredTraceCount: 2
-      traceCharacters:
-      - 别
-      - 人
-    useMultipleChoicePanel: 0
-  repeatSteps: []
   speakerBackgrounds: []
   speakerPortraits: []
   gameVoiceBackground: {fileID: 0}
@@ -2364,6 +2234,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c8221bfa6541bd4f86e75a52582cc80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Conversation
+  steps: []
+  repeatSteps: []
+  speakerBackgrounds: []
+  speakerPortraits: []
+  gameVoiceBackground: {fileID: 0}
+  multipleChoiceBackground: {fileID: 0}
+  unlockOnComplete: 0
+  wallToUnlock: {fileID: 0}
+  regionToUnlock: {fileID: 0}
 --- !u!114 &151484825
 MonoBehaviour:
   m_ObjectHideFlags: 0
