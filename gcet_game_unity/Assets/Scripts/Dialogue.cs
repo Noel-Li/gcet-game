@@ -1084,10 +1084,13 @@ public class Dialogue : MonoBehaviour
 
         // TMP needs a font asset to emit any glyphs at all; resolve the project-wide default explicitly so runtime-created
         // text renders even when TMP hasn't auto-assigned one (otherwise the canvas exists but draws nothing). The
-        // material must come from the font asset (its SDF atlas) or TMP draws with no glyph material.
-        if (TMP_Settings.defaultFontAsset != null)
+        // material must come from the font asset (its SDF atlas) or TMP draws with no glyph material. Chinese dialogue
+        // can exceed one atlas page over a full playthrough, so keep dynamic multi-atlas expansion enabled at runtime.
+        TMP_FontAsset defaultFont = TMP_Settings.defaultFontAsset;
+        if (defaultFont != null)
         {
-            tmp.font = TMP_Settings.defaultFontAsset;
+            defaultFont.isMultiAtlasTexturesEnabled = true;
+            tmp.font = defaultFont;
             Material mat = tmp.font.material;
             if (mat != null)
             {

@@ -27,6 +27,10 @@ public class GameProgress : MonoBehaviour
     [Tooltip("Persists across scene reloads so the player's opening line is shown only on the first arrival in game1.")]
     [SerializeField] private bool openingDialogueShown;
 
+    [Header("NPC Conversations")]
+    [Tooltip("Stable NPC keys whose first conversation has already closed during this play session.")]
+    [SerializeField] private List<string> completedConversationKeys = new List<string>();
+
 
     [SerializeField] private int requiredTraceCount = 1;
     [SerializeField] private int completedTraceCount;
@@ -63,6 +67,54 @@ public class GameProgress : MonoBehaviour
     public int CompletedTraceCount => completedTraceCount;
     public IReadOnlyList<string> RequiredTraceCharacters => requiredTraceCharacters;
     public string TraceOwnerKey => traceOwnerKey;
+
+    /// <summary>Returns whether this NPC should use its repeat conversation after a scene reload.</summary>
+    public bool HasCompletedConversation(string npcKey)
+    {
+        string normalizedKey = NormalizeNpcKey(npcKey);
+        if (string.IsNullOrEmpty(normalizedKey))
+        {
+            return false;
+        }
+
+        if (completedConversationKeys == null)
+        {
+            completedConversationKeys = new List<string>();
+            return false;
+        }
+
+        for (int i = 0; i < completedConversationKeys.Count; i++)
+        {
+            if (string.Equals(completedConversationKeys[i], normalizedKey, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Persists that this NPC's first conversation has closed for the rest of the play session.</summary>
+    public void MarkConversationCompleted(string npcKey)
+    {
+        string normalizedKey = NormalizeNpcKey(npcKey);
+        if (string.IsNullOrEmpty(normalizedKey) || HasCompletedConversation(normalizedKey))
+        {
+            return;
+        }
+
+        if (completedConversationKeys == null)
+        {
+            completedConversationKeys = new List<string>();
+        }
+
+        completedConversationKeys.Add(normalizedKey);
+    }
+
+    private static string NormalizeNpcKey(string npcKey)
+    {
+        return string.IsNullOrWhiteSpace(npcKey) ? string.Empty : npcKey.Trim();
+    }
 
     /// <summary>Claims the one-time opening line for this game session.</summary>
     public bool TryBeginOpeningDialogue()

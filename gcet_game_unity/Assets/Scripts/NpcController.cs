@@ -23,8 +23,12 @@ public class NpcController : MonoBehaviour
     [Tooltip("Optional image (e.g. the 'E' key prompt) shown above the NPC while the player is nearby. If left empty the text prompt is used on its own.")]
     [SerializeField] private Sprite interactSprite;
 
-    [Tooltip("World-space size of the displayed interact image (X/Y in local units).")]
-    [SerializeField] private Vector2 interactImageSize = new Vector2(0.4f, 0.4f);
+    [Tooltip("Maximum world-space size of the displayed interact image. Its original aspect ratio is preserved.")]
+    [SerializeField] private Vector2 interactImageSize = new Vector2(1.4f, 1.45f);
+
+    [Tooltip("Empty world-space gap between the NPC's head and the bottom of the interact image.")]
+    [Range(0.05f, 1f)]
+    [SerializeField] private float interactPromptGap = 0.12f;
 
     [Range(0f, 3f)]
     [SerializeField] private float promptVerticalOffset = 1.2f;
@@ -38,6 +42,13 @@ public class NpcController : MonoBehaviour
     [Header("Wall unlock")]
     [Tooltip("If set, this invisible wall is unlocked when the conversation with this NPC closes — gating the player's forward progress. Leave empty for flavour NPCs that open no gate.")]
     [SerializeField] private InvisibleWall wallToUnlock;
+
+    [Header("Tracing")]
+    [Tooltip("Enable only when this NPC owns the conversation that launches and resumes the hanzi tracing scene.")]
+    [SerializeField] private bool resumeAfterTracing;
+
+    [Tooltip("Stable NPC id used for tracing resumes and repeat-conversation persistence. Leave empty to use this GameObject's name.")]
+    [SerializeField] private string traceOwnerKey;
 
     private Conversation conversation;
 
@@ -59,6 +70,7 @@ public class NpcController : MonoBehaviour
     private SpriteRenderer interactSpriteRenderer;
 
     private const string PlayerName = "Player";
+    private string TraceOwnerKey => string.IsNullOrWhiteSpace(traceOwnerKey) ? gameObject.name : traceOwnerKey.Trim();
 
     private void Awake()
     {
@@ -73,20 +85,22 @@ public class NpcController : MonoBehaviour
     private void Start()
     {
         LocatePlayer();
+        RefreshConversationState();
 
         // Check whether we just returned from the tracing scene.
-        RefreshFromProgress();
+       RefreshFromProgress();
     }
 
     private void Update()
     {
-        if (PauseController.IsPaused)
+        if (OpeningOverlay.IsShowing || PauseController.IsPaused || ControlsOverlayController.IsOpen)
         {
             return;
         }
 
         // Check every frame because GameProgress or Dialogue may not
         // have finished initializing when Start() first runs.
+        RefreshConversationState();
         RefreshFromProgress();
 
         // Find the player again if the scene was reloaded.
@@ -103,9 +117,12 @@ public class NpcController : MonoBehaviour
         // Show or hide the prompts above the NPC while the player is nearby and no dialogue is open.
         bool shouldShow = nearPlayer && !activated;
 
-        if (promptObj != null && promptObj.activeSelf != shouldShow)
+        // The text is a fallback for NPCs without an image. Showing both would stack
+        // two prompts over the character and make the interaction cue harder to read.
+        bool shouldShowText = shouldShow && interactObj == null;
+        if (promptObj != null && promptObj.activeSelf != shouldShowText)
         {
-            promptObj.SetActive(shouldShow);
+            promptObj.SetActive(shouldShowText);
         }
 
         if (interactObj != null && interactObj.activeSelf != shouldShow)
@@ -198,6 +215,12 @@ public class NpcController : MonoBehaviour
     /// </summary>
     private void RefreshFromProgress()
     {
+        // Simple repeatable NPCs must not claim another NPC's saved tracing conversation.
+        if (!resumeAfterTracing)
+        {
+            return;
+        }
+
         // We already restored the dialogue once.
         if (resumedAfterTrace)
         {
@@ -210,8 +233,8 @@ public class NpcController : MonoBehaviour
             return;
         }
 
-        // The tracing task has not been passed yet.
-        if (!GameProgress.Instance.tracePassed)
+        // Only the NPC that launched the completed task may restore its saved step.
+        if (!GameProgress.Instance.TryClaimTraceResume(TraceOwnerKey))
         {
             return;
         }
@@ -282,6 +305,7 @@ public class NpcController : MonoBehaviour
         dialogue.SetAuxiliaryPanelBackgrounds(
             conversation.GetGameVoiceBackground(),
             conversation.GetMultipleChoiceBackground());
+        dialogue.SetTraceOwner(TraceOwnerKey);
     }
 
     /// <summary>
@@ -337,11 +361,27 @@ public class NpcController : MonoBehaviour
         activated = false;
         hasSpokenBefore = true;
 
+        if (GameProgress.Instance != null)
+        {
+            GameProgress.Instance.MarkConversationCompleted(TraceOwnerKey);
+        }
+
         // Conversation finished: open the gated wall (if any) so the player may advance. This is the
         // reusable contract between an NPC and the gate that seals the way ahead — one NPC, one wall.
         if (wallToUnlock != null)
         {
             wallToUnlock.Unlock();
+        }
+    }
+
+    /// <summary>Restores the local repeat-dialogue cache from the persistent play-session state.</summary>
+    private void RefreshConversationState()
+    {
+        if (!hasSpokenBefore &&
+            GameProgress.Instance != null &&
+            GameProgress.Instance.HasCompletedConversation(TraceOwnerKey))
+        {
+            hasSpokenBefore = true;
         }
     }
 
@@ -352,35 +392,51 @@ public class NpcController : MonoBehaviour
     /// </summary>
     private void BuildInteractImage()
     {
-        // The floating "E" image prompt. Only built when a sprite is explicitly assigned — clear
-        // the Interact Sprite field to show no image (the text prompt still appears above the NPC).
-        if (interactSprite == null)
+        // Resolve the sprite: prefer the serialized reference, but if it came
+        // back null (e.g. the YAML PPtr did not survive a reload), fall back to
+        // looking the asset up by its known import GUID. This keeps the prompt
+        // working even when the serialized reference fails to deserialize.
+        Sprite resolved = interactSprite != null
+            ? interactSprite
+            : LoadInteractSprite();
+
+        if (resolved == null)
         {
+            Debug.LogError(
+                "[NpcController] interactSprite is null on " + name +
+                " — assign Assets/misc/interactE to the Interact Sprite field in the " +
+                "Inspector, or re-save the scene. No E-prompt will show.",
+                this
+            );
+
             return;
         }
-
-        Sprite resolved = interactSprite;
 
         if (interactObj != null)
         {
             return;
         }
 
-        // Hang the image just above the NPC's real visual top edge, computed
-        // from its SpriteRenderer bounds. Bounding the offset to the actual head
-        // puts the prompt above the body (never in the middle) across any sprite,
-        // scale, or pivot, regardless of the NPC's 0.3 world scale.
+        // Scale from the sprite's imported bounds. SpriteRenderer.size is ignored in
+        // Simple draw mode, which previously left this 281x291 image at full size.
         SpriteRenderer npcRenderer = GetComponent<SpriteRenderer>();
         Bounds headBounds = npcRenderer.bounds;
-        float gapAboveHead = 0.15f;
-        float imageHalfHeight = interactImageSize.y * 0.5f;
-        float worldTopY = headBounds.max.y + gapAboveHead + imageHalfHeight;
-        float offsetY = worldTopY - transform.position.y;
+        Vector2 sourceSize = resolved.bounds.size;
+        float scaleX = sourceSize.x > 0f ? interactImageSize.x / sourceSize.x : 1f;
+        float scaleY = sourceSize.y > 0f ? interactImageSize.y / sourceSize.y : 1f;
+        float imageScale = Mathf.Max(0.001f, Mathf.Min(scaleX, scaleY));
+        Vector2 displayedSize = sourceSize * imageScale;
+        float offsetX = -resolved.bounds.center.x * imageScale;
+        float offsetY = headBounds.max.y - transform.position.y
+            + interactPromptGap
+            - resolved.bounds.min.y * imageScale;
+        Vector3 promptOffset = new Vector3(offsetX, offsetY, 0f);
 
         // Parent to the root so the NPC's scale cannot shrink the offset or image.
         interactObj = new GameObject("InteractPrompt");
         interactObj.transform.SetParent(null, false);
-        interactObj.transform.position = transform.position + Vector3.up * offsetY;
+        interactObj.transform.localScale = Vector3.one * imageScale;
+        interactObj.transform.position = transform.position + promptOffset;
         interactObj.SetActive(false);
 
         interactSpriteRenderer = interactObj.AddComponent<SpriteRenderer>();
@@ -388,7 +444,6 @@ public class NpcController : MonoBehaviour
         // Sort above the NPC so the prompt is never occluded by the body.
         interactSpriteRenderer.sortingLayerID = npcRenderer.sortingLayerID;
         interactSpriteRenderer.sortingOrder = npcRenderer.sortingOrder + 1;
-        interactSpriteRenderer.size = interactImageSize;
         interactSpriteRenderer.drawMode = SpriteDrawMode.Simple;
         // A runtime-created SpriteRenderer has no material of its own; the URP
         // 2D renderer draws sprites through the scene-view path, so it renders
@@ -402,11 +457,13 @@ public class NpcController : MonoBehaviour
             billboard.Cache(Camera.main.transform);
         }
 
-        billboard.Follow(transform, Vector3.up * offsetY);
+        billboard.Follow(transform, promptOffset);
 
         Debug.Log(
             "[NpcController] E-prompt image ready on " + name +
-            " (sprite=" + resolved.name + ", offsetY=" + offsetY.ToString("F2") + ")",
+            " (sprite=" + resolved.name +
+            ", size=" + displayedSize.ToString("F2") +
+            ", offset=" + promptOffset.ToString("F2") + ")",
             this
         );
     }

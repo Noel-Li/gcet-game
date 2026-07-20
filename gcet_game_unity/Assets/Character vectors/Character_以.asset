@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d037a544de6d55845a7ba3a44ce3edd1, type: 3}
+  m_Name: "Character_\u4EE5"
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterData
+  characterName: "\u4EE5"
+  strokes:
+  - strokeName: Vertical Rising
+    points:
+    - {x: -1.56, y: 0.77, z: 0}
+    - {x: -1.35, y: 0.65, z: 0}
+    - {x: -1.31, y: 0.6, z: 0}
+    - {x: -1.29, y: 0.04, z: 0}
+    - {x: -1.35, y: -0.39, z: 0}
+    - {x: -1.3, y: -0.48, z: 0}
+    - {x: -1.07, y: -0.41, z: 0}
+    - {x: -0.12, y: 0.27, z: 0}
+  - strokeName: Dot
+    points:
+    - {x: -0.35, y: 1.08, z: 0}
+    - {x: 0.07, y: 0.85, z: 0}
+    - {x: 0.14, y: 0.76, z: 0}
+  - strokeName: Left Falling
+    points:
+    - {x: 1.04, y: 1.25, z: 0}
+    - {x: 1.15, y: 1.19, z: 0}
+    - {x: 1.25, y: 1.09, z: 0}
+    - {x: 1.23, y: 0.97, z: 0}
+    - {x: 1.15, y: 0.59, z: 0}
+    - {x: 1.07, y: 0.36, z: 0}
+    - {x: 0.9, y: 0.01, z: 0}
+    - {x: 0.78, y: -0.16, z: 0}
+    - {x: 0.58, y: -0.39, z: 0}
+    - {x: 0.13, y: -0.72, z: 0}
+    - {x: -0.11, y: -0.84, z: 0}
+    - {x: -0.59, y: -1.01, z: 0}
+  - strokeName: Dot
+    points:
+    - {x: 0.96, y: -0.23, z: 0}
+    - {x: 0.98, y: -0.29, z: 0}
+    - {x: 1.36, y: -0.5, z: 0}
+    - {x: 1.7, y: -0.74, z: 0}
+    - {x: 1.79, y: -0.84, z: 0}
+    - {x: 1.85, y: -0.98, z: 0}
