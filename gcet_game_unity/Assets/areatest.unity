@@ -30119,7 +30119,7 @@ GameObject:
   - component: {fileID: 3000000013}
   - component: {fileID: 3000000012}
   m_Layer: 0
-  m_Name: PauseController
+  m_Name: ReviewBookController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30134,10 +30134,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3000000011}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fdc47bfd1f3542f5baa18a3c042784c4, type: 3}
+  m_Script: {fileID: 11500000, guid: 5d1cf693b9a04ca69b1d21dde65c9e2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pauseSceneName: PauseScene
+  reviewBookSceneName: ReviewBookScene
 --- !u!4 &3000000013
 Transform:
   m_ObjectHideFlags: 0

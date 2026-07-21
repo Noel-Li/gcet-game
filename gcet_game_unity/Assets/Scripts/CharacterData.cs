@@ -14,6 +14,15 @@ public class CharacterData : ScriptableObject
     [Tooltip("Concise English meaning shown after a single-character tracing task.")]
     public string meaning;
 
+    [Header("Review example")]
+    [Tooltip("Chinese example sentence shown after this character is retraced from the review book.")]
+    [TextArea(1, 3)]
+    public string reviewExampleChinese;
+
+    [Tooltip("English translation paired with the Chinese review example.")]
+    [TextArea(1, 3)]
+    public string reviewExampleEnglish;
+
     [Header("Stroke data")]
     public List<StrokeData> strokes = new List<StrokeData>();
 }

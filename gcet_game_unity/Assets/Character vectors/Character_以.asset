@@ -15,6 +15,8 @@ MonoBehaviour:
   characterName: "\u4EE5"
   pinyin: "y\u01D0"
   meaning: by means of
+  reviewExampleChinese: "\u4F60\u53EF\u4EE5\u95EE\u5979\u3002"
+  reviewExampleEnglish: You can ask her.
   strokes:
   - strokeName: Vertical Rising
     points:

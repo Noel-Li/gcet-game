@@ -6,10 +6,9 @@ using System.Collections.Generic;
 /// <summary>
 /// Survives scene loads (<see cref="DontDestroyOnLoad"/>) as the contract between the main scene and the hanzi tracing
 /// scene. The NPC's placeholder dialogue runs as a multi-step conversation; one of its steps links to the hanzi scene.
-/// The tracer fires <see cref="Script1.OnCharacterDone"/> the moment a character is completed correctly. Once that fires
-/// we do the work the NPC used to do immediately — unlock the forward (Top) exit of the room the NPC stands in — and
-/// reload the main scene at the post-writing step so the conversation can continue and tell the player where to go next.
-/// (Uses the same Top-exit gate the player movement already respects, so forward progress is data-driven.)
+/// Each <see cref="Script1.OnCharacterCompleted"/> event records a distinct Hanzi for the review book.
+/// Once the complete request is reviewed, <see cref="Script1.OnCharacterDone"/> returns to the launcher scene so
+/// story traces can resume their owning conversation and review traces can return directly to gameplay.
 ///
 /// The gated room and the conversation step to resume at are stored by plain data, so they survive the main scene being
 /// torn down and rebuilt.
@@ -30,6 +29,15 @@ public class GameProgress : MonoBehaviour
     [Header("NPC Conversations")]
     [Tooltip("Stable NPC keys whose first conversation has already closed during this play session.")]
     [SerializeField] private List<string> completedConversationKeys = new List<string>();
+
+    [Header("Review Book")]
+    [Tooltip("Distinct traced Hanzi in first-completed order. The review artwork has twelve slots.")]
+    [SerializeField] private List<string> reviewCharacters = new List<string>();
+
+    [SerializeField] private bool reviewTraceActive;
+
+    private const int ReviewCapacity = 12;
+    private const string ReviewTraceOwnerKey = "__review_book__";
 
 
     [SerializeField] private int requiredTraceCount = 1;
@@ -68,6 +76,9 @@ public class GameProgress : MonoBehaviour
     public int CompletedTraceCount => completedTraceCount;
     public IReadOnlyList<string> RequiredTraceCharacters => requiredTraceCharacters;
     public string TraceOwnerKey => traceOwnerKey;
+    public IReadOnlyList<string> ReviewCharacters =>
+        reviewCharacters ?? (reviewCharacters = new List<string>());
+    public bool IsReviewTrace => reviewTraceActive;
 
     /// <summary>Returns whether this NPC should use its repeat conversation after a scene reload.</summary>
     public bool HasCompletedConversation(string npcKey)
@@ -140,8 +151,10 @@ public class GameProgress : MonoBehaviour
         int stepToResume,
         int charactersToComplete = 1,
         string ownerKey = null,
-        IList<string> charactersToTrace = null)
+        IList<string> charactersToTrace = null,
+        bool launchedFromReview = false)
     {
+        reviewTraceActive = launchedFromReview;
         resumeStep = stepToResume;
         requiredTraceCharacters.Clear();
         if (charactersToTrace != null)
@@ -158,7 +171,7 @@ public class GameProgress : MonoBehaviour
         requiredTraceCount = requiredTraceCharacters.Count > 0
             ? requiredTraceCharacters.Count
             : Mathf.Max(1, charactersToComplete);
-        traceOwnerKey = ownerKey ?? string.Empty;
+        traceOwnerKey = launchedFromReview ? ReviewTraceOwnerKey : ownerKey ?? string.Empty;
         completedTraceCount = 0;
         tracePassed = false;
         dialogueResumed = false;
@@ -166,13 +179,13 @@ public class GameProgress : MonoBehaviour
         // Record which scene we're leaving so OnTraceCorrect reloads THIS scene (not a hardcoded one). Without
         // this, launching the tracer from a non-default scene (e.g. game1_test) snaps the player back into the
         // bare game1 scene and they reappear at the wrong place.
-        mainSceneName = SceneManager.GetActiveScene().name;
-
         // Capture the player's position now, while the main scene (and the Player it spawns) still exists.
         // The main scene is about to be unloaded for the tracing scene, which destroys the Player; we'll
         // restore this position in OnSceneLoaded when the player returns so they don't snap back to the
         // scene's authored default — they resume exactly where they were when they entered the interaction.
-        PlayerMovement pm = FindObjectOfType<PlayerMovement>();
+        PlayerMovement pm = FindFirstObjectByType<PlayerMovement>();
+        // Prefer the Player's owning scene so an additive review overlay can never become the return target.
+        mainSceneName = pm != null ? pm.gameObject.scene.name : SceneManager.GetActiveScene().name;
         savedPlayerPosition = pm != null ? pm.transform.position : (Vector3?)null;
 
         if (SceneManager.GetSceneByName(traceSceneName).isLoaded)
@@ -180,6 +193,41 @@ public class GameProgress : MonoBehaviour
             return;
         }
         SceneManager.LoadScene(traceSceneName);
+    }
+
+    /// <summary>Launches a one-character practice trace from an unlocked review-book slot.</summary>
+    public void BeginReviewTrace(string characterName)
+    {
+        string normalizedName = string.IsNullOrWhiteSpace(characterName)
+            ? string.Empty
+            : characterName.Trim();
+        if (string.IsNullOrEmpty(normalizedName) || !HasReviewCharacter(normalizedName))
+        {
+            Debug.LogWarning("[GameProgress] Review trace requested for a character that is not unlocked: '" + normalizedName + "'.");
+            return;
+        }
+
+        Time.timeScale = 1f;
+        BeginTrace(-1, 1, ReviewTraceOwnerKey, new[] { normalizedName }, true);
+    }
+
+    public bool HasReviewCharacter(string characterName)
+    {
+        if (reviewCharacters == null || string.IsNullOrWhiteSpace(characterName))
+        {
+            return false;
+        }
+
+        string normalizedName = characterName.Trim();
+        for (int i = 0; i < reviewCharacters.Count; i++)
+        {
+            if (string.Equals(reviewCharacters[i], normalizedName, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Atomically lets the NPC that launched the trace restore its dialogue exactly once.</summary>
@@ -195,11 +243,6 @@ public class GameProgress : MonoBehaviour
         return true;
     }
 
-
-    /// <summary>
-    /// Fired by <see cref="Script1.OnCharacterDone"/> whenever one character is traced correctly.
-    /// The tracing scene remains open until every character requested by the dialogue has been completed.
-    /// </summary>
 
     /// <summary>One-shot diagnostic: logs the player position for the first several frames after a trace restore so the
     /// post-trace "teleported down" can be pinned to a specific frame/clamp.</summary>
@@ -249,8 +292,6 @@ public class GameProgress : MonoBehaviour
         savedPlayerPosition = null;
     }
 
-    /// <summary>Fired by <see cref="Script1.OnCharacterDone"/> when the character is traced correctly.</summary>
-
     /// <summary>Testing aid: skip the trace and return to the dialogue as if every character were traced correctly.
     /// Mirrors the end state of <see cref="OnTraceCorrect"/> (tracePassed + reload the scene the trace was launched from),
     /// so the post-trace conversation resumes identically. Bound to Delete+Backspace in the tracer.</summary>
@@ -262,6 +303,7 @@ public class GameProgress : MonoBehaviour
         }
 
         tracePassed = true;
+        reviewTraceActive = false;
 
         if (string.IsNullOrEmpty(mainSceneName))
         {
@@ -285,6 +327,7 @@ public class GameProgress : MonoBehaviour
         }
 
         tracePassed = true;
+        reviewTraceActive = false;
 
         // The main scene is reloaded so its Objects (Player, dialogue, walls) are re-created fresh at their authored
         // transforms. No invisible wall is spawned here: the gate wall assigned to each NPC by fileID in the Scene is
@@ -365,6 +408,12 @@ public class GameProgress : MonoBehaviour
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        if (tracingSubscribed)
+        {
+            Script1.OnCharacterDone -= HandleCharacterDone;
+            Script1.OnCharacterCompleted -= HandleCharacterCompleted;
+            tracingSubscribed = false;
+        }
         if (Instance == this)
         {
             Instance = null;
@@ -390,11 +439,13 @@ public class GameProgress : MonoBehaviour
         if ((scene.name == traceSceneName || traceLoaded) && !tracingSubscribed)
         {
             Script1.OnCharacterDone += HandleCharacterDone;
+            Script1.OnCharacterCompleted += HandleCharacterCompleted;
             tracingSubscribed = true;
         }
         else if (tracingSubscribed)
         {
             Script1.OnCharacterDone -= HandleCharacterDone;
+            Script1.OnCharacterCompleted -= HandleCharacterCompleted;
             tracingSubscribed = false;
         }
     }
@@ -405,5 +456,32 @@ public class GameProgress : MonoBehaviour
         {
             OnTraceCorrect();
         }
+    }
+
+    private void HandleCharacterCompleted(CharacterData character)
+    {
+        if (character == null || string.IsNullOrWhiteSpace(character.characterName))
+        {
+            return;
+        }
+
+        string normalizedName = character.characterName.Trim();
+        if (HasReviewCharacter(normalizedName))
+        {
+            return;
+        }
+
+        if (reviewCharacters == null)
+        {
+            reviewCharacters = new List<string>();
+        }
+
+        if (reviewCharacters.Count >= ReviewCapacity)
+        {
+            Debug.LogWarning("[GameProgress] Review book is full; cannot add '" + normalizedName + "'.");
+            return;
+        }
+
+        reviewCharacters.Add(normalizedName);
     }
 }

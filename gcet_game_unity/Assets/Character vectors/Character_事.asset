@@ -15,6 +15,8 @@ MonoBehaviour:
   characterName: "\u4E8B"
   pinyin: "sh\u00EC"
   meaning: thing
+  reviewExampleChinese: "\u8FD9\u662F\u4E00\u4EF6\u91CD\u8981\u7684\u4E8B\u3002"
+  reviewExampleEnglish: This is an important matter.
   strokes:
   - strokeName: Horizontal
     points:

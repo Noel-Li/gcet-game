@@ -4,13 +4,13 @@ using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Starts gameplay from the standalone controls screen. When ControlsScene is loaded
-/// additively over game1, the gameplay scene's ControlsOverlayController owns Tab instead.
+/// additively over game1, the gameplay scene's ControlsOverlayController owns the return input.
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class ControlsSceneEntry : MonoBehaviour
 {
     [Header("Flow")]
-    [Tooltip("Gameplay scene loaded when Tab is pressed after the opening comics.")]
+    [Tooltip("Gameplay scene loaded when Space or Tab is pressed after the opening comics.")]
     [SerializeField] private string gameSceneName = "game1";
 
     [Header("Standalone Rendering")]
@@ -41,7 +41,8 @@ public sealed class ControlsSceneEntry : MonoBehaviour
         }
 
         Keyboard keyboard = Keyboard.current;
-        if (keyboard == null || !keyboard.tabKey.wasPressedThisFrame)
+        if (keyboard == null ||
+            (!keyboard.spaceKey.wasPressedThisFrame && !keyboard.tabKey.wasPressedThisFrame))
         {
             return;
         }

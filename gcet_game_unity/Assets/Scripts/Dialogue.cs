@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
+using System.Text;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -116,13 +116,8 @@ public enum DialogueAction
 /// </summary>
 public class Dialogue : MonoBehaviour
 {
-    private const string PinyinFontAssetName = "LiberationSans SDF";
-
-    // The main dialogue font is a Chinese typeface whose accented Latin glyphs use full CJK advances. Select the
-    // project's Latin TMP font for parenthesized pinyin so tone-marked vowels retain normal Latin spacing.
-    private static readonly Regex ParenthesizedPinyin = new Regex(
-        @"\((?=[^)]*[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜüĀÁǍÀĒÉĚÈĪÍǏÌŌÓǑÒŪÚǓÙǕǗǙǛÜ])[^)]*\)",
-        RegexOptions.CultureInvariant);
+    // Use the bundled dynamic, multi-atlas variant directly so every tone-marked vowel can be added at runtime.
+    private const string LatinFontAssetName = "LiberationSans SDF - Fallback";
 
     [Header("Content")]
     [TextArea(2, 4)]
@@ -152,12 +147,21 @@ public class Dialogue : MonoBehaviour
     [SerializeField] private float fontSize = 26f;
     [Tooltip("Largest size used for short prompts and answers.")]
     [SerializeField] private float shortLineFontSize = 32f;
+    [Range(1f, 1.5f)]
+    [Tooltip("Scales English and pinyin so their lowercase height visually matches the Chinese glyph height.")]
+    [SerializeField] private float latinTextScale = 1.33f;
     [SerializeField] private float outlineWidth = 0.14f;
     [Range(0.1f, 0.8f)]
     [SerializeField] private float maxHeightFraction = 0.45f;
     [SerializeField] private float minWidth = 260f;
 
     public static Dialogue Instance { get; private set; }
+
+    /// <summary>True while the singleton dialogue is actively presenting a conversation.</summary>
+    public static bool IsAnyOpen => Instance != null && Instance.open;
+
+    /// <summary>Raised immediately when dialogue presentation opens or closes.</summary>
+    public static event System.Action<bool> OpenStateChanged;
 
     /// <summary>True while the dialogue is showing and the player is interacting with it.</summary>
     public bool IsOpen => open;
@@ -271,8 +275,13 @@ public class Dialogue : MonoBehaviour
     /// <summary>Open the dialogue over the room that gates progress, starting from the first line.</summary>
     public void Open()
     {
+        bool wasOpen = open;
         index = 0;
         open = true;
+        if (!wasOpen)
+        {
+            OpenStateChanged?.Invoke(true);
+        }
         canvas.gameObject.SetActive(true);
         RenderCurrent();
         ArmInput();
@@ -281,11 +290,16 @@ public class Dialogue : MonoBehaviour
 
     public void Close()
     {
+        bool wasOpen = open;
         open = false;
         waitingInput = false;
         if (canvas != null)
         {
             canvas.gameObject.SetActive(false);
+        }
+        if (wasOpen)
+        {
+            OpenStateChanged?.Invoke(false);
         }
         // Give the opportunity for subscribers to react to the conversation ending — e.g. NpcController uses this to flip `activated` back to false so the NPC can be clicked again.
         OnClosed?.Invoke();
@@ -293,7 +307,7 @@ public class Dialogue : MonoBehaviour
 
     private void Update()
     {
-        if (PauseController.IsPaused || ControlsOverlayController.IsOpen || !open || !waitingInput)
+        if (ReviewBookController.IsOpen || ControlsOverlayController.IsOpen || !open || !waitingInput)
         {
             return;
         }
@@ -530,7 +544,7 @@ public class Dialogue : MonoBehaviour
         bool hasPortrait = !isGameVoice && currentPortrait != null;
 
         nameTag.text = speakerName;
-        body.text = FormatPinyin(step.text);
+        body.text = FormatDialogueText(step.text);
         body.color = hasPanelArtwork ? speakerBackgroundTextColor : textColor;
         nameTag.gameObject.SetActive(!isGameVoice && !hasSpeakerBackground);
         body.gameObject.SetActive(true);
@@ -957,9 +971,10 @@ public class Dialogue : MonoBehaviour
 
         for (int i = 0; i < step.choices.Count; i++)
         {
-            string text = string.IsNullOrEmpty(step.choices[i].label)
+            string rawText = string.IsNullOrEmpty(step.choices[i].label)
                 ? "(...)"
-                : $"{i + 1}. {FormatPinyin(step.choices[i].label)}";
+                : $"{i + 1}. {step.choices[i].label}";
+            string text = FormatDialogueText(rawText);
             var rowObj = new GameObject($"Choice_{i}");
             rowObj.transform.SetParent(hostPanel.transform, false);
             var tmp = MakeText(
@@ -1126,19 +1141,91 @@ public class Dialogue : MonoBehaviour
     }
 
     /// <summary>
-    /// Wraps tone-marked pinyin in a TMP font tag. Chinese characters stay in the project's Chinese font while the
-    /// pronunciation uses Latin glyph metrics, preventing the wide gaps previously visible around accented vowels.
+    /// Keeps Chinese glyphs in the dynamic Chinese font while rendering every English and pinyin run with the same
+    /// Latin font. The Latin run is enlarged to compensate for its smaller lowercase metrics, and authored TMP tags
+    /// such as italics pass through unchanged.
     /// </summary>
-    private static string FormatPinyin(string text)
+    private string FormatDialogueText(string text)
     {
         if (string.IsNullOrEmpty(text))
         {
             return text;
         }
 
-        return ParenthesizedPinyin.Replace(
-            text,
-            match => $"<font=\"{PinyinFontAssetName}\">{match.Value}</font>");
+        int scalePercent = Mathf.RoundToInt(latinTextScale * 100f);
+        var formatted = new StringBuilder(text.Length + 64);
+        var latinRun = new StringBuilder();
+
+        for (int i = 0; i < text.Length; i++)
+        {
+            char current = text[i];
+
+            if (current == '<')
+            {
+                int tagEnd = text.IndexOf('>', i);
+                if (tagEnd >= 0)
+                {
+                    AppendLatinRun(formatted, latinRun, scalePercent);
+                    formatted.Append(text, i, tagEnd - i + 1);
+                    i = tagEnd;
+                    continue;
+                }
+            }
+
+            if (IsChineseGlyph(current))
+            {
+                AppendLatinRun(formatted, latinRun, scalePercent);
+                formatted.Append(current);
+                continue;
+            }
+
+            latinRun.Append(current);
+        }
+
+        AppendLatinRun(formatted, latinRun, scalePercent);
+        return formatted.ToString();
+    }
+
+    private static void AppendLatinRun(StringBuilder output, StringBuilder run, int scalePercent)
+    {
+        if (run.Length == 0)
+        {
+            return;
+        }
+
+        bool containsText = false;
+        for (int i = 0; i < run.Length; i++)
+        {
+            if (char.IsLetterOrDigit(run[i]))
+            {
+                containsText = true;
+                break;
+            }
+        }
+
+        if (containsText)
+        {
+            output.Append("<font=\"");
+            output.Append(LatinFontAssetName);
+            output.Append("\"><size=");
+            output.Append(scalePercent);
+            output.Append("%>");
+            output.Append(run);
+            output.Append("</size></font>");
+        }
+        else
+        {
+            output.Append(run);
+        }
+
+        run.Clear();
+    }
+
+    private static bool IsChineseGlyph(char value)
+    {
+        return (value >= '\u2E80' && value <= '\u9FFF')
+            || (value >= '\uF900' && value <= '\uFAFF')
+            || (value >= '\uFF00' && value <= '\uFFEF');
     }
 
     private void Build()

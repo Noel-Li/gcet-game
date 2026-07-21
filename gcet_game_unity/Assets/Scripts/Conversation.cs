@@ -121,7 +121,7 @@ public class Conversation : MonoBehaviour
             {
                 speakerName = "game voice",
                 panelStyle = DialoguePanelStyle.GameVoice,
-                text = "Select the translation for this:",
+                text = "你叫什么名字？\nSelect the correct translation:",
                 useMultipleChoicePanel = true,
                 choices = new List<DialogueChoice>
                 {
@@ -131,7 +131,7 @@ public class Conversation : MonoBehaviour
                 }
             },
 
-            // 5-6 — Wrong: How are you? Clicking the correction returns directly to the choices.
+            // 5-6 — Wrong: How are you? The correction returns to the retry-only choices.
             new DialogueStep
             {
                 speakerName = "player",
@@ -145,10 +145,10 @@ public class Conversation : MonoBehaviour
                 text =
                     "I didn't ask how you are. I asked “你叫什么名字？” My name is 李沅诺 " +
                     "(Lǐ Yuánnuò). 你叫什么名字？ (Nǐ jiào shénme míngzi?)",
-                nextStep = 4
+                nextStep = 27
             },
 
-            // 7-8 — Wrong: Where are you from? Clicking the correction returns directly to the choices.
+            // 7-8 — Wrong: Where are you from? The correction returns to the retry-only choices.
             new DialogueStep
             {
                 speakerName = "player",
@@ -162,7 +162,7 @@ public class Conversation : MonoBehaviour
                 text =
                     "I didn't ask where you are from. I asked “你叫什么名字？” My name is 李沅诺 " +
                     "(Lǐ Yuánnuò). 你叫什么名字？ (Nǐ jiào shénme míngzi?)",
-                nextStep = 4
+                nextStep = 27
             },
 
             // 9 — Correct response.
@@ -178,7 +178,7 @@ public class Conversation : MonoBehaviour
             {
                 speakerName = "soldier",
                 expression = "normal",
-                text = "Hello, 小月 (Xiǎoyuè). My name is 李沅诺 (Lǐ Yuánnuò)."
+                text = "Hello, 郭小月 (Guō Xiǎoyuè). My name is 李沅诺 (Lǐ Yuánnuò)."
             },
             new DialogueStep
             {
@@ -328,7 +328,38 @@ public class Conversation : MonoBehaviour
             {
                 speakerName = "player",
                 expression = "normal",
-                text = "I will find her. 谢谢！ (Xièxie!)"
+                text = "I will find her. 谢谢！ (Xièxie!)",
+                nextStep = 30
+            },
+
+            // 27 — Retry-only MCQ. Reaching this step means at least one wrong answer was selected.
+            new DialogueStep
+            {
+                speakerName = "game voice",
+                panelStyle = DialoguePanelStyle.GameVoice,
+                text = "你叫什么名字？\nSelect the correct translation:",
+                useMultipleChoicePanel = true,
+                choices = new List<DialogueChoice>
+                {
+                    new DialogueChoice { label = "What is your name?", targetStep = 28 },
+                    new DialogueChoice { label = "How are you?", targetStep = 5 },
+                    new DialogueChoice { label = "Where are you from?", targetStep = 7 }
+                }
+            },
+
+            // 28-29 — Short response after any incorrect first attempt, then rejoin the main branch.
+            new DialogueStep
+            {
+                speakerName = "soldier",
+                expression = "normal",
+                text = "Hello, 小月 (Xiǎoyuè)."
+            },
+            new DialogueStep
+            {
+                speakerName = "soldier",
+                expression = "confused",
+                text = "Wait... did you say 过 (Guò)?",
+                nextStep = 12
             }
         };
     }
