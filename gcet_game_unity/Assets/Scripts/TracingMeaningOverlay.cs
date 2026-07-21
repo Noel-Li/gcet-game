@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>Displays a Game Voice meaning card before the tracing scene returns to gameplay.</summary>
+/// <summary>Displays the Game Voice completion card before the tracing scene returns to gameplay.</summary>
 [DisallowMultipleComponent]
 public sealed class TracingMeaningOverlay : MonoBehaviour
 {
@@ -11,7 +11,7 @@ public sealed class TracingMeaningOverlay : MonoBehaviour
     [Tooltip("Game Voice panel enabled only after the tracing task is complete.")]
     [SerializeField] private GameObject panel;
 
-    [Tooltip("Text formatted as Hanzi or phrase, an arrow, and its English meaning.")]
+    [Tooltip("Completion text: a meaning during story tracing or a bilingual example during review tracing.")]
     [SerializeField] private TMP_Text meaningLabel;
 
     [Header("Input")]

@@ -93,7 +93,7 @@ public class NpcController : MonoBehaviour
 
     private void Update()
     {
-        if (OpeningOverlay.IsShowing || PauseController.IsPaused || ControlsOverlayController.IsOpen)
+        if (OpeningOverlay.IsShowing || ReviewBookController.IsOpen || ControlsOverlayController.IsOpen)
         {
             return;
         }

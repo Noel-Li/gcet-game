@@ -15,6 +15,8 @@ MonoBehaviour:
   characterName: "\u6C34"
   pinyin: "shu\u01D0"
   meaning: water
+  reviewExampleChinese: "\u6211\u9700\u8981\u4E00\u4E9B\u6C34\u3002"
+  reviewExampleEnglish: I need some water.
   strokes:
   - strokeName: Vertical Hook
     points:

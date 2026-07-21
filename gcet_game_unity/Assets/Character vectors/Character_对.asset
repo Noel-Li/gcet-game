@@ -15,6 +15,8 @@ MonoBehaviour:
   characterName: "\u5BF9"
   pinyin: "du\u00EC"
   meaning: right
+  reviewExampleChinese: "\u5BF9\uFF0C\u8FD9\u662F\u6211\u7684\u4E66\u3002"
+  reviewExampleEnglish: Right, this is my book.
   strokes:
   - strokeName: Horizontal Fold
     points:

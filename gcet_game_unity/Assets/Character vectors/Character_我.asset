@@ -15,6 +15,8 @@ MonoBehaviour:
   characterName: "\u6211"
   pinyin: "w\u01D2"
   meaning: I / me
+  reviewExampleChinese: "\u6211\u53EB\u90ED\u5C0F\u6708\u3002"
+  reviewExampleEnglish: My name is Guo Xiaoyue.
   strokes:
   - strokeName: Left Falling
     points:

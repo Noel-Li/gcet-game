@@ -15,6 +15,8 @@ MonoBehaviour:
   characterName: "\u77E5"
   pinyin: "zh\u012B"
   meaning: know
+  reviewExampleChinese: "\u6211\u77E5\u9053\u5979\u5728\u54EA\u91CC\u3002"
+  reviewExampleEnglish: I know where she is.
   strokes:
   - strokeName: Left Falling
     points:

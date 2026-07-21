@@ -15,6 +15,8 @@ MonoBehaviour:
   characterName: "\u6B22"
   pinyin: "hu\u0101n"
   meaning: joy / happy
+  reviewExampleChinese: "\u6B22\u8FCE\u6765\u5230\u5357\u4EAC\u3002"
+  reviewExampleEnglish: Welcome to Nanjing.
   strokes:
   - strokeName: Horizontal Fold
     points:

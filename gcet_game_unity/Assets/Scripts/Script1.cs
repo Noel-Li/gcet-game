@@ -8,6 +8,9 @@ public class Script1 : MonoBehaviour
     /// <summary>Raised once whenever one requested character has been completed correctly.</summary>
     public static event Action<bool> OnCharacterDone;
 
+    /// <summary>Raised immediately when an individual Hanzi is completed, before advancing the task.</summary>
+    public static event Action<CharacterData> OnCharacterCompleted;
+
     /// <summary>Raised whenever a tracing sequence advances to another character.</summary>
     public event Action<CharacterData> CurrentCharacterChanged;
 
@@ -454,6 +457,8 @@ public class Script1 : MonoBehaviour
 
     private void MoveToNextRequestedCharacter()
     {
+        CharacterData completedCharacter = CurrentCharacterData;
+        OnCharacterCompleted?.Invoke(completedCharacter);
         currentCharacterIndex++;
 
         if (currentCharacterIndex < activeSequence.Count)
@@ -478,7 +483,7 @@ public class Script1 : MonoBehaviour
             arrowTransform.gameObject.SetActive(false);
         }
 
-        string completedMeaning = BuildCompletedMeaning();
+        string completedMeaning = BuildCompletionText();
         if (meaningOverlay != null)
         {
             meaningOverlay.Show(completedMeaning, NotifyTracingComplete);
@@ -489,8 +494,29 @@ public class Script1 : MonoBehaviour
         NotifyTracingComplete();
     }
 
-    private string BuildCompletedMeaning()
+    private string BuildCompletionText()
     {
+        if (GameProgress.Instance != null &&
+            GameProgress.Instance.IsReviewTrace &&
+            activeSequence.Count == 1 &&
+            activeSequence[0] != null)
+        {
+            CharacterData reviewedCharacter = activeSequence[0];
+            string chinese = reviewedCharacter.reviewExampleChinese;
+            string english = reviewedCharacter.reviewExampleEnglish;
+
+            if (string.IsNullOrWhiteSpace(chinese) || string.IsNullOrWhiteSpace(english))
+            {
+                Debug.LogWarning(
+                    "[Script1] Review example is not fully configured for '" +
+                    reviewedCharacter.characterName + "'."
+                );
+                return reviewedCharacter.characterName + "\nExample sentence not set";
+            }
+
+            return chinese + "\n<font=\"LiberationSans SDF - Fallback\">" + english + "</font>";
+        }
+
         string characters = string.Empty;
         for (int i = 0; i < activeSequence.Count; i++)
         {

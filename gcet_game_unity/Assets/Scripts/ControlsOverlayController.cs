@@ -3,8 +3,8 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Opens and closes the controls reference scene with Tab. The scene is additive so the
-/// player returns to the exact same gameplay state when the overlay closes.
+/// Opens the controls reference scene with Tab and closes it with Space or Tab. The scene is
+/// additive so the player returns to the exact same gameplay state when the overlay closes.
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class ControlsOverlayController : MonoBehaviour
@@ -34,12 +34,15 @@ public sealed class ControlsOverlayController : MonoBehaviour
     private void Update()
     {
         Keyboard keyboard = Keyboard.current;
-        if (keyboard == null || transitionInProgress || PauseController.IsPaused || OpeningOverlay.IsShowing)
+        if (keyboard == null || transitionInProgress || ReviewBookController.IsOpen || OpeningOverlay.IsShowing)
         {
             return;
         }
 
-        if (!keyboard.tabKey.wasPressedThisFrame)
+        bool tabPressed = keyboard.tabKey.wasPressedThisFrame;
+        // Close on release so the Space press cannot also advance dialogue underneath the overlay.
+        bool returnPressed = IsOpen && keyboard.spaceKey.wasReleasedThisFrame;
+        if (!tabPressed && !returnPressed)
         {
             return;
         }
@@ -95,7 +98,7 @@ public sealed class ControlsOverlayController : MonoBehaviour
         }
 
         IsOpen = false;
-        Time.timeScale = PauseController.IsPaused ? 0f : 1f;
+        Time.timeScale = ReviewBookController.IsOpen ? 0f : 1f;
 
         Scene scene = SceneManager.GetSceneByName(controlsSceneName);
         if (!scene.isLoaded)
@@ -122,7 +125,7 @@ public sealed class ControlsOverlayController : MonoBehaviour
         unload.completed += _ => transitionInProgress = false;
     }
 
-    /// <summary>Closes the controls overlay before another full-screen flow, such as Pause, opens.</summary>
+    /// <summary>Closes the controls overlay before another full-screen flow opens.</summary>
     public static bool CloseIfOpen()
     {
         if (!IsOpen)

@@ -15,6 +15,8 @@ MonoBehaviour:
   characterName: "\u559C"
   pinyin: "x\u01D0"
   meaning: joy / happiness
+  reviewExampleChinese: "\u6211\u5F88\u559C\u6B22\u8FD9\u672C\u4E66\u3002"
+  reviewExampleEnglish: I really like this book.
   strokes:
   - strokeName: Horizontal
     points:
