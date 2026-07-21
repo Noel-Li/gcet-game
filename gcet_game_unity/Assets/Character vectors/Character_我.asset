@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: "Character_\u6211"
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
   characterName: "\u6211"
+  pinyin: "w\u01D2"
+  meaning: I / me
   strokes:
   - strokeName: Left Falling
     points:

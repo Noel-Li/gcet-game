@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: "Character_\u4EBA"
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
   characterName: "\u4EBA"
+  pinyin: "r\xE9n"
+  meaning: person
   strokes:
   - strokeName: Left Falling
     points:

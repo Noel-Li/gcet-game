@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: "Character_\u4E0D"
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
   characterName: "\u4E0D"
+  pinyin: "b\xF9"
+  meaning: no / not
   strokes:
   - strokeName: Horizontal
     points:

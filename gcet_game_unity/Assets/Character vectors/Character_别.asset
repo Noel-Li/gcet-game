@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: "Character_\u522B"
   m_EditorClassIdentifier: Assembly-CSharp::CharacterData
   characterName: "\u522B"
+  pinyin: "bi\xE9"
+  meaning: other / do not
   strokes:
   - strokeName: Vertical
     points:

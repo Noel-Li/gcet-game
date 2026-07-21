@@ -8,6 +8,9 @@ public class Script1 : MonoBehaviour
     /// <summary>Raised once whenever one requested character has been completed correctly.</summary>
     public static event Action<bool> OnCharacterDone;
 
+    /// <summary>Raised whenever a tracing sequence advances to another character.</summary>
+    public event Action<CharacterData> CurrentCharacterChanged;
+
     [Header("Character library")]
     [Tooltip("Add every CharacterData asset that dialogue may request.")]
     [SerializeField] private List<CharacterData> availableCharacters = new List<CharacterData>();
@@ -18,6 +21,13 @@ public class Script1 : MonoBehaviour
     [Header("Line appearance")]
     [Tooltip("Color used while the player draws a stroke. Correct/incorrect feedback remains green/red.")]
     [SerializeField] private Color userStrokeColor = Color.black;
+
+    [Header("Completion meaning")]
+    [Tooltip("Exact multi-character phrases and their concise English meanings.")]
+    [SerializeField] private List<TracePhraseMeaning> phraseMeanings = new List<TracePhraseMeaning>();
+
+    [Tooltip("Game Voice card shown after the complete character or phrase has been traced.")]
+    [SerializeField] private TracingMeaningOverlay meaningOverlay;
 
     private readonly List<CharacterData> activeSequence = new List<CharacterData>();
     private readonly List<GameObject> completedStrokeObjects = new List<GameObject>();
@@ -64,6 +74,9 @@ public class Script1 : MonoBehaviour
             return characterData;
         }
     }
+
+    /// <summary>The character currently displayed by the tracer.</summary>
+    public CharacterData CurrentCharacter => CurrentCharacterData;
 
     private Vector3[] targetStroke
     {
@@ -216,6 +229,7 @@ public class Script1 : MonoBehaviour
         }
 
         DrawGuideStroke();
+        CurrentCharacterChanged?.Invoke(data);
 
         Debug.Log(
             "[Script1] Now tracing " + data.characterName +
@@ -227,6 +241,20 @@ public class Script1 : MonoBehaviour
     {
         if (characterComplete)
         {
+            return;
+        }
+
+        // Testing aid: hold Delete and press Backspace to skip the trace entirely, returning to the
+        // dialogue as if every character was traced correctly. Remove before shipping.
+        if (Keyboard.current != null &&
+            Keyboard.current.deleteKey.isPressed &&
+            Keyboard.current.backspaceKey.wasPressedThisFrame)
+        {
+            if (GameProgress.Instance != null)
+            {
+                Debug.Log("[Script1] Skip hotkey (Delete+Backspace) pressed — treating trace as passed.");
+                GameProgress.Instance.ForcePassTrace();
+            }
             return;
         }
 
@@ -450,7 +478,56 @@ public class Script1 : MonoBehaviour
             arrowTransform.gameObject.SetActive(false);
         }
 
-        Debug.Log("[Script1] All requested characters completed.");
+        string completedMeaning = BuildCompletedMeaning();
+        if (meaningOverlay != null)
+        {
+            meaningOverlay.Show(completedMeaning, NotifyTracingComplete);
+            return;
+        }
+
+        Debug.LogWarning("[Script1] No meaning overlay is assigned; returning immediately.");
+        NotifyTracingComplete();
+    }
+
+    private string BuildCompletedMeaning()
+    {
+        string characters = string.Empty;
+        for (int i = 0; i < activeSequence.Count; i++)
+        {
+            if (activeSequence[i] != null)
+            {
+                characters += activeSequence[i].characterName;
+            }
+        }
+
+        string meaning = string.Empty;
+        if (activeSequence.Count == 1 && activeSequence[0] != null)
+        {
+            meaning = activeSequence[0].meaning;
+        }
+        else
+        {
+            TracePhraseMeaning phrase = phraseMeanings != null
+                ? phraseMeanings.Find(entry => entry != null && entry.characters == characters)
+                : null;
+            if (phrase != null)
+            {
+                meaning = phrase.meaning;
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(meaning))
+        {
+            meaning = "meaning not set";
+            Debug.LogWarning("[Script1] No tracing meaning is configured for '" + characters + "'.");
+        }
+
+        return characters + " \u2192 " + meaning;
+    }
+
+    private void NotifyTracingComplete()
+    {
+        Debug.Log("[Script1] All requested characters completed; meaning reviewed.");
         OnCharacterDone?.Invoke(true);
     }
 
@@ -709,4 +786,14 @@ public class Script1 : MonoBehaviour
 
 
 
+}
+
+[System.Serializable]
+public sealed class TracePhraseMeaning
+{
+    [Tooltip("Exact ordered Hanzi phrase, for example 知道.")]
+    public string characters;
+
+    [Tooltip("Concise English meaning shown after tracing the full phrase.")]
+    public string meaning;
 }
