@@ -244,6 +244,20 @@ public class Script1 : MonoBehaviour
             return;
         }
 
+        // Testing aid: hold Delete and press Backspace to skip the trace entirely, returning to the
+        // dialogue as if every character was traced correctly. Remove before shipping.
+        if (Keyboard.current != null &&
+            Keyboard.current.deleteKey.isPressed &&
+            Keyboard.current.backspaceKey.wasPressedThisFrame)
+        {
+            if (GameProgress.Instance != null)
+            {
+                Debug.Log("[Script1] Skip hotkey (Delete+Backspace) pressed — treating trace as passed.");
+                GameProgress.Instance.ForcePassTrace();
+            }
+            return;
+        }
+
         AnimateArrow();
 
         if (Mouse.current == null)
