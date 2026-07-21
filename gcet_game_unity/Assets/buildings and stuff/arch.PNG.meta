@@ -103,13 +103,13 @@ TextureImporter:
       name: arch_0
       rect:
         serializedVersion: 2
-        x: 104
-        y: 368
-        width: 1805
-        height: 1411
+        x: 0
+        y: 1012
+        width: 2024
+        height: 1012
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      border: {x: 0, y: 70, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
@@ -117,6 +117,28 @@ TextureImporter:
       bones: []
       spriteID: 613234de1f52c2d80800000000000000
       internalID: -8274196694388497642
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: arch_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 2024
+        height: 1082
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0e167ced6f233ff429ec4ea246dcaefc
+      internalID: -883319816
       vertices: []
       indices: 
       edges: []
@@ -135,9 +157,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":2.0},"gridSpriteSize":{"x":2024.0,"y":1012.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       arch_0: -8274196694388497642
+      arch_1: -883319816
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
