@@ -114,10 +114,10 @@ public class NpcController : MonoBehaviour
             Vector2.Distance(transform.position, player.position)
             <= interactRange;
 
-        // Show the prompt whenever the player can start a conversation. Completed NPCs deliberately
-        // remain interactable through their repeatSteps, so hasSpokenBefore must select dialogue content
-        // without suppressing the interaction cue.
-        bool shouldShow = nearPlayer && !activated;
+        // Only show the prompt for NPCs the player hasn't talked to yet. Once a conversation has
+        // happened the prompt is suppressed for good — repeatSteps still exist for replay but the
+        // interaction cue never reappears after the first interaction.
+        bool shouldShow = nearPlayer && !activated && !hasSpokenBefore;
 
         // The text is a fallback for NPCs without an image. Showing both would stack
         // two prompts over the character and make the interaction cue harder to read.
