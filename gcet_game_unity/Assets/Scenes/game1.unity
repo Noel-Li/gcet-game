@@ -5620,14 +5620,19 @@ MonoBehaviour:
   - speakerName: game
     expression: normal
     panelStyle: 1
-    text: "Trace \u6211 (W\u01D2) to complete: ___ \u662F\u90ED\u5C0F\u6708 (sh\xEC
-      Gu\u014D Xi\u01CEoyu\xE8)."
-    action: 1
-    nextStep: 3
+    text: "Press number pad 1 to trace \u6211 (W\u01D2) and complete: ___ \u662F\u90ED\u5C0F\u6708
+      (sh\xEC Gu\u014D Xi\u01CEoyu\xE8)."
+    action: 0
+    nextStep: -1
     requiredTraceCount: 1
-    traceCharacters:
-    - "\u6211"
-    choices: []
+    traceCharacters: []
+    choices:
+    - label: "Start tracing \u6211"
+      targetStep: 3
+      action: 1
+      requiredTraceCount: 1
+      traceCharacters:
+      - "\u6211"
     useMultipleChoicePanel: 0
   - speakerName: "\u90ED\u5C0F\u6708"
     expression: normal
@@ -5758,8 +5763,7 @@ MonoBehaviour:
   - speakerName: "\u738B\u559C\u60A6"
     expression: panic
     panelStyle: 0
-    text: "Hurry! \u90ED\u54C1\u7389 is meeting the trader at the bridge across the
-      river."
+    text: "Hurry! \u5434\u53D4\u6768 is waiting at the bridge across the river."
     action: 0
     nextStep: -1
     requiredTraceCount: 1

@@ -1,3 +1,8 @@
 *.dylib filter=lfs diff=lfs merge=lfs -text
 *.mov filter=lfs diff=lfs merge=lfs -text
 *.resource filter=lfs diff=lfs merge=lfs -text
+
+# Unity text assets must be merged by fileID-aware Smart Merge, not line-by-line.
+*.unity merge=unityyamlmerge eol=lf
+*.prefab merge=unityyamlmerge eol=lf
+*.asset merge=unityyamlmerge eol=lf
