@@ -114,10 +114,10 @@ public class NpcController : MonoBehaviour
             Vector2.Distance(transform.position, player.position)
             <= interactRange;
 
-        // Show or hide the prompts above the NPC while the player is nearby and no dialogue is open.
-        // Once the player has spoken to this NPC once, never show the interact prompt again — the gate
-        // is already open and the repeat conversation serves only to replay dialogue, not to summon the cue.
-        bool shouldShow = nearPlayer && !activated && !hasSpokenBefore;
+        // Show the prompt whenever the player can start a conversation. Completed NPCs deliberately
+        // remain interactable through their repeatSteps, so hasSpokenBefore must select dialogue content
+        // without suppressing the interaction cue.
+        bool shouldShow = nearPlayer && !activated;
 
         // The text is a fallback for NPCs without an image. Showing both would stack
         // two prompts over the character and make the interaction cue harder to read.

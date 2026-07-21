@@ -2304,22 +2304,169 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35e65e4302661f84f8428024eb88eebc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Conversation
-  steps: []
-  repeatSteps:
-  - speakerName: "\u738B\u559C\u60A6"
-    expression: panic
+  steps:
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: tired
     panelStyle: 0
-    text: "Hurry! \u5434\u53D4\u6768 is waiting at the bridge across the river."
+    text: "\u4F60\u7684\u540D\u5B57\u662F\u90ED\u54C1\u7389\u5417\uFF1F (N\u01D0 de m\u00EDngz\u00EC sh\u00EC Gu\u014D P\u01D0ny\u00F9 ma?)"
     action: 0
     nextStep: -1
     requiredTraceCount: 1
     traceCharacters: []
     choices: []
     useMultipleChoicePanel: 0
-  speakerBackgrounds: []
-  speakerPortraits: []
-  gameVoiceBackground: {fileID: 0}
-  multipleChoiceBackground: {fileID: 0}
+  - speakerName: "game"
+    expression: normal
+    panelStyle: 1
+    text: "Trace \u7684 (de), meaning \u201Cof.\u201D"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices:
+    - label: "Trace \u7684"
+      targetStep: 2
+      action: 1
+      requiredTraceCount: 1
+      traceCharacters:
+      - "\u7684"
+    useMultipleChoicePanel: 0
+  - speakerName: "\u5434\u53D4\u6768"
+    expression: stern
+    panelStyle: 0
+    text: "\u4E0D\u662F\u3002\u4F60\u662F\u8C01\uFF1F (B\u00F9 sh\u00EC. N\u01D0 sh\u00EC sh\u00E9i?)"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: tired
+    panelStyle: 0
+    text: "\u6211\u662F\u90ED\u5C0F\u6708\u3002 (W\u01D2 sh\u00EC Gu\u014D Xi\u01CEoyu\u00E8.) Then are you \u5434\u53D4\u6768\u5417\uFF1F (W\u00FA Sh\u016By\u00E1ng ma?)"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u5434\u53D4\u6768"
+    expression: stern
+    panelStyle: 0
+    text: "\u6211\u662F\u5440\uFF01 How do you \u77E5\u9053\u5440\uFF1F (N\u01D0 z\u011Bnme zh\u012Bd\u00E0o ya?)"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: normal
+    panelStyle: 0
+    text: "\u738B\u559C\u60A6 (W\u00E1ng X\u01D0yu\u00E8) said you would be meeting \u90ED\u54C1\u7389 (Gu\u014D P\u01D0ny\u00F9)."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u5434\u53D4\u6768"
+    expression: shock
+    panelStyle: 0
+    text: "Oh yes, I did! But that was an hour ago. I'm not sure where she is. \u6211\u5F88\u559C\u6B22\u5979\u7684 materials."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "game"
+    expression: normal
+    panelStyle: 1
+    text: "Trace \u559C\u6B22 (x\u01D0hu\u0101n), meaning \u201Clike.\u201D"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices:
+    - label: "Trace \u559C and \u6B22"
+      targetStep: 8
+      action: 1
+      requiredTraceCount: 2
+      traceCharacters:
+      - "\u559C"
+      - "\u6B22"
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: normal
+    panelStyle: 0
+    text: "Do you know where I can find her?"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u5434\u53D4\u6768"
+    expression: normal
+    panelStyle: 0
+    text: "Not sure... But maybe look in that book? I recognize the design; it has an inscription from \u90ED\u54C1\u7389 (Gu\u014D P\u01D0ny\u00F9) on it."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: normal
+    panelStyle: 0
+    text: "\u8C22\u8C22\uFF01 (Xi\u00E8xie!)"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  repeatSteps:
+  - speakerName: "\u5434\u53D4\u6768"
+    expression: normal
+    panelStyle: 0
+    text: "Maybe look in that book. I recognize \u90ED\u54C1\u7389's inscription on it."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  speakerBackgrounds:
+  - speakerName: "\u90ED\u5C0F\u6708"
+    background: {fileID: 5026058822647386680, guid: 90632d7d2df81e34cb10bd441244ebb5, type: 3}
+  - speakerName: "\u5434\u53D4\u6768"
+    background: {fileID: 2275792330239745679, guid: 8a61a6c8b3f2bc24f9aac0a2c737ed7f, type: 3}
+  speakerPortraits:
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: normal
+    portrait: {fileID: 367173573683222419, guid: 6eafc250f344d7848bb41726d712aa81, type: 3}
+    slotOffset: {x: 0, y: 0}
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: tired
+    portrait: {fileID: 5487685175929054760, guid: ee8b35da6107dba4396efb88c261acfc, type: 3}
+    slotOffset: {x: 0, y: 0}
+  - speakerName: "\u5434\u53D4\u6768"
+    expression: normal
+    portrait: {fileID: 5386588618949567342, guid: 7d379ae46fb7cbe46b11954216a0f617, type: 3}
+    slotOffset: {x: 0, y: 0}
+  - speakerName: "\u5434\u53D4\u6768"
+    expression: stern
+    portrait: {fileID: -3353088238712625599, guid: 28b1ef8eed575eb438cc81cadfa36e2a, type: 3}
+    slotOffset: {x: 0, y: 0}
+  - speakerName: "\u5434\u53D4\u6768"
+    expression: shock
+    portrait: {fileID: 1988131225986853932, guid: d94c3841922951e41a1cb4fb654e475a, type: 3}
+    slotOffset: {x: 0, y: 0}
+  gameVoiceBackground: {fileID: 8702785369876850875, guid: 6183e110186ac8a42bad440dacedf15a, type: 3}
+  multipleChoiceBackground: {fileID: -9018818332010216090, guid: dd1d2b4546a5cb34a817cf814d3cecf5, type: 3}
   unlockOnComplete: 1
   wallToUnlock: {fileID: 1240246070}
   regionToUnlock: {fileID: 782562736}
@@ -2392,8 +2539,8 @@ MonoBehaviour:
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
   wallToUnlock: {fileID: 0}
-  resumeAfterTracing: 0
-  traceOwnerKey: 
+  resumeAfterTracing: 1
+  traceOwnerKey: Trader
 --- !u!61 &151484826
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2428,7 +2575,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 1.715, y: 0.75}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -2438,7 +2585,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 3, y: 9}
+  m_Size: {x: 2.4, y: 1.5}
   m_EdgeRadius: 0
 --- !u!212 &151484827
 SpriteRenderer:
@@ -2508,7 +2655,7 @@ Transform:
   m_GameObject: {fileID: 151484821}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 45.94, y: 22.98, z: 0}
+  m_LocalPosition: {x: 45.94, y: 21.98, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3192,7 +3339,297 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35e65e4302661f84f8428024eb88eebc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Conversation
-  steps: []
+  steps:
+  - speakerName: soldier
+    expression: normal
+    panelStyle: 0
+    text: "Hello, are you \u5F20\u4E09 (Zh\u0101ng S\u0101n)?"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: game voice
+    expression: normal
+    panelStyle: 1
+    text: "Use the tracer to write the player's answer: \u4E0D"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices:
+    - label: "Trace \u4E0D"
+      targetStep: 2
+      action: 1
+      requiredTraceCount: 1
+      traceCharacters:
+      - "\u4E0D"
+    useMultipleChoicePanel: 0
+  - speakerName: player
+    expression: normal
+    panelStyle: 0
+    text: "\u4E0D\u3002 (B\u00F9.)"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: soldier
+    expression: normal
+    panelStyle: 0
+    text: "\u4F60\u53EB\u4EC0\u4E48\u540D\u5B57 (N\u01D0 ji\u00E0o sh\u00E9nme m\u00EDngz\u00EC)\uFF1F"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: game voice
+    expression: normal
+    panelStyle: 1
+    text: "Select the translation for this:"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices:
+    - label: "What is your name?"
+      targetStep: 9
+      action: 0
+      requiredTraceCount: 1
+      traceCharacters: []
+    - label: "How are you?"
+      targetStep: 5
+      action: 0
+      requiredTraceCount: 1
+      traceCharacters: []
+    - label: "Where are you from?"
+      targetStep: 7
+      action: 0
+      requiredTraceCount: 1
+      traceCharacters: []
+    useMultipleChoicePanel: 1
+  - speakerName: player
+    expression: normal
+    panelStyle: 0
+    text: "\u6211\u5F88\u597D\u3002 (W\u01D2 h\u011Bn h\u01CEo.)"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: soldier
+    expression: normal
+    panelStyle: 0
+    text: "I didn't ask how you are. I asked \u201C\u4F60\u53EB\u4EC0\u4E48\u540D\u5B57\uFF1F\u201D My name is \u674E\u6C85\u8BFA (L\u01D0 Yu\u00E1nnu\u00F2). \u4F60\u53EB\u4EC0\u4E48\u540D\u5B57 (N\u01D0 ji\u00E0o sh\u00E9nme m\u00EDngz\u00EC)\uFF1F"
+    action: 0
+    nextStep: 4
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: player
+    expression: normal
+    panelStyle: 0
+    text: "\u7F8E\u56FD\u3002 (M\u011Bigu\u00F3.)"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: soldier
+    expression: normal
+    panelStyle: 0
+    text: "I didn't ask where you are from. I asked \u201C\u4F60\u53EB\u4EC0\u4E48\u540D\u5B57\uFF1F\u201D My name is \u674E\u6C85\u8BFA (L\u01D0 Yu\u00E1nnu\u00F2). \u4F60\u53EB\u4EC0\u4E48\u540D\u5B57 (N\u01D0 ji\u00E0o sh\u00E9nme m\u00EDngz\u00EC)\uFF1F"
+    action: 0
+    nextStep: 4
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: player
+    expression: normal
+    panelStyle: 0
+    text: "\u90ED\u5C0F\u6708\u3002 (Gu\u014D Xi\u01CEoyu\u00E8.)"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: soldier
+    expression: normal
+    panelStyle: 0
+    text: "Hello, \u90ED\u5C0F\u6708 (Gu\u014D Xi\u01CEoyu\u00E8). My name is \u674E\u6C85\u8BFA (L\u01D0 Yu\u00E1nnu\u00F2)."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: soldier
+    expression: confused
+    panelStyle: 0
+    text: "Wait... did you say \u90ED (Gu\u014D)?"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: game voice
+    expression: normal
+    panelStyle: 1
+    text: "Trace \u5BF9 (Du\u00EC) to answer \u201Cright.\u201D"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices:
+    - label: "Trace \u5BF9"
+      targetStep: 13
+      action: 1
+      requiredTraceCount: 1
+      traceCharacters:
+      - "\u5BF9"
+    useMultipleChoicePanel: 0
+  - speakerName: player
+    expression: confused
+    panelStyle: 0
+    text: "\u5BF9...? (Du\u00EC...?)"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: soldier
+    expression: confused
+    panelStyle: 0
+    text: "Are you related to \u90ED\u54C1\u7389 (Gu\u014D P\u01D0ny\u00F9)?"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: player
+    expression: worried
+    panelStyle: 0
+    text: "*Hmm... that name sounds familiar. Wait\u2014that's the first person in my family line to have powers!*"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: player
+    expression: excited
+    panelStyle: 0
+    text: "Yes! I am. How did you know?"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: soldier
+    expression: surprised
+    panelStyle: 0
+    text: "She is our local Artisan. \u5979\u505A\u7684 (T\u0101 zu\u00F2 de) equipment \u662F\u6700\u597D\u7684 (sh\u00EC zu\u00EC h\u01CEo de). We all don't know how, but we don't ask questions."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: game voice
+    expression: normal
+    panelStyle: 1
+    text: "What does \u201C\u5979\u505A\u6700\u597D\u7684...\u201D mean?"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices:
+    - label: "He makes the best..."
+      targetStep: 19
+      action: 0
+      requiredTraceCount: 1
+      traceCharacters: []
+    - label: "She makes the best..."
+      targetStep: 20
+      action: 0
+      requiredTraceCount: 1
+      traceCharacters: []
+    - label: "She drinks the best..."
+      targetStep: 19
+      action: 0
+      requiredTraceCount: 1
+      traceCharacters: []
+    useMultipleChoicePanel: 1
+  - speakerName: game voice
+    expression: normal
+    panelStyle: 1
+    text: "Wrong answer. Try again."
+    action: 0
+    nextStep: 18
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: player
+    expression: confused
+    panelStyle: 0
+    text: "Do you know where I can find her?"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: soldier
+    expression: normal
+    panelStyle: 0
+    text: "She never stays \u540C\u4E00\u5730\u65B9 (t\u00F3ng y\u012B d\u00ECf\u0101ng), but I'm sure \u738B\u559C\u60A6 (W\u00E1ng X\u01D0yu\u00E8) knows where she is. She sells her silk in town. You can \u95EE\u5979 (W\u00E8n t\u0101). She is just up ahead. \u4E0D\u8981 (B\u00FA y\u00E0o) cause any trouble."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: game voice
+    expression: normal
+    panelStyle: 1
+    text: "Trace characters to remember important information from the conversation. Trace \u4E0D, \u8981, and \u95EE."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices:
+    - label: "Start tracing \u4E0D, \u8981, and \u95EE"
+      targetStep: 23
+      action: 1
+      requiredTraceCount: 3
+      traceCharacters:
+      - "\u4E0D"
+      - "\u8981"
+      - "\u95EE"
+    useMultipleChoicePanel: 0
+  - speakerName: player
+    expression: excited
+    panelStyle: 0
+    text: "\u8C22\u8C22\uFF01 (Xi\u00E8xie!)"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
   repeatSteps:
   - speakerName: soldier
     expression: normal
@@ -5599,7 +6036,7 @@ MonoBehaviour:
   - speakerName: "\u90ED\u5C0F\u6708"
     expression: normal
     panelStyle: 0
-    text: "Hi! Are you \u738B\u559C\u60A6 (W\xE1ng X\u01D0yu\xE8)?"
+    text: "Hi! Are you \u738B\u559C\u60A6 (W\u00E1ng X\u01D0yu\u00E8)?"
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -5609,47 +6046,43 @@ MonoBehaviour:
   - speakerName: "\u738B\u559C\u60A6"
     expression: normal
     panelStyle: 0
-    text: "\u5BF9\uFF0C\u6211\u662F\u3002\u4F60\u662F\u8C01\uFF1F (Du\xEC, w\u01D2
-      sh\xEC. N\u01D0 sh\xEC sh\xE9i?)"
+    text: "\u5BF9\uFF0C\u6211\u662F\u3002Who are you? (Du\u00EC, w\u01D2 sh\u00EC.)"
     action: 0
     nextStep: -1
     requiredTraceCount: 1
     traceCharacters: []
     choices: []
     useMultipleChoicePanel: 0
-  - speakerName: game
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: normal
+    panelStyle: 0
+    text: "\u6211\u662F\u90ED\u5C0F\u6708 (W\u01D2 sh\u00EC Gu\u014D Xi\u01CEoyu\u00E8). \u6211\u6709\u4E00\u4EF6\u4E8B\u60C5 (W\u01D2 y\u01D2u y\u00ED ji\u00E0n sh\u00ECq\u00EDng). I was told that you know where my... my grandma is, \u90ED\u54C1\u7389 (Gu\u014D P\u01D0ny\u00F9)."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "game"
     expression: normal
     panelStyle: 1
-    text: "Press number pad 1 to trace \u6211 (W\u01D2) and complete: ___ \u662F\u90ED\u5C0F\u6708
-      (sh\xEC Gu\u014D Xi\u01CEoyu\xE8)."
+    text: "Trace \u4E8B (sh\u00EC), meaning \u201Cthing.\u201D"
     action: 0
     nextStep: -1
     requiredTraceCount: 1
     traceCharacters: []
     choices:
-    - label: "Start tracing \u6211"
-      targetStep: 3
+    - label: "Trace \u4E8B"
+      targetStep: 4
       action: 1
       requiredTraceCount: 1
       traceCharacters:
-      - "\u6211"
+      - "\u4E8B"
     useMultipleChoicePanel: 0
   - speakerName: "\u90ED\u5C0F\u6708"
     expression: normal
     panelStyle: 0
-    text: "\u6211\u662F\u90ED\u5C0F\u6708 (W\u01D2 sh\xEC Gu\u014D Xi\u01CEoyu\xE8).
-      I was told that you know where my... my grandma is, \u90ED\u54C1\u7389 (Gu\u014D
-      P\u01D0ny\xF9)."
-    action: 0
-    nextStep: -1
-    requiredTraceCount: 1
-    traceCharacters: []
-    choices: []
-    useMultipleChoicePanel: 0
-  - speakerName: "\u90ED\u5C0F\u6708"
-    expression: normal
-    panelStyle: 0
-    text: <i>Don't want them to get suspicious with me.</i>
+    text: "<i>*Don't want them to get suspicious of me.*</i>"
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -5659,8 +6092,7 @@ MonoBehaviour:
   - speakerName: "\u738B\u559C\u60A6"
     expression: normal
     panelStyle: 0
-    text: "Woah! \u6211 (W\u01D2) never \u542C\u8BF4\u8FC7\u90ED\u54C1\u7389\u6709\u4E2A
-      (t\u012Bng shu\u014Dgu\xF2 Gu\u014D P\u01D0ny\xF9 y\u01D2u g\xE8) granddaughter?"
+    text: "Woah! \u6211 (W\u01D2) never \u542C\u8BF4\u8FC7\u90ED\u54C1\u7389\u6709\u4E2A (t\u012Bng shu\u014Dgu\u00F2 Gu\u014D P\u01D0ny\u00F9 y\u01D2u g\u00E8) granddaughter?"
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -5670,37 +6102,33 @@ MonoBehaviour:
   - speakerName: "\u738B\u559C\u60A6"
     expression: normal
     panelStyle: 0
-    text: "I haven't seen her in \u4E24\u5929... \u4F46\u662F\u6211\u542C\u8BF4 (Li\u01CEng
-      ti\u0101n... d\xE0nsh\xEC w\u01D2 t\u012Bng shu\u014D) she is going to be giving
-      her stuff to the trader who passes by here."
+    text: "I haven't seen her in 2 days... \u4F46\u662F\u6211\u542C\u8BF4 (D\u00E0nsh\u00EC w\u01D2 t\u012Bng shu\u014D) she is going to be giving her stuff to the trader who passes by here."
     action: 0
     nextStep: -1
     requiredTraceCount: 1
     traceCharacters: []
     choices: []
     useMultipleChoicePanel: 0
-  - speakerName: game
+  - speakerName: "\u90ED\u5C0F\u6708"
     expression: normal
-    panelStyle: 1
-    text: "Trace \u77E5 and \u9053 to complete \u90ED\u5C0F\u6708's question."
+    panelStyle: 0
+    text: "Fill in the blank: ___\u77E5\u9053\u5979\u5728\u54EA\u91CC\u5417\uFF1F"
     action: 0
     nextStep: -1
     requiredTraceCount: 1
     traceCharacters: []
     choices:
-    - label: "Start tracing \u77E5 and \u9053"
+    - label: "Trace \u4F60"
       targetStep: 8
       action: 1
-      requiredTraceCount: 2
+      requiredTraceCount: 1
       traceCharacters:
-      - "\u77E5"
-      - "\u9053"
+      - "\u4F60"
     useMultipleChoicePanel: 0
   - speakerName: "\u90ED\u5C0F\u6708"
     expression: normal
     panelStyle: 0
-    text: "\u4F60\u77E5\u9053\u5728\u54EA\u91CC\u5417\uFF1F (N\u01D0 zh\u012Bd\xE0o
-      z\xE0i n\u01CEl\u01D0 ma?)"
+    text: "\u4F60\u77E5\u9053\u5979\u5728\u54EA\u91CC\u5417\uFF1F (N\u01D0 zh\u012Bd\u00E0o t\u0101 z\u00E0i n\u01CEl\u01D0 ma?)"
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -5710,9 +6138,7 @@ MonoBehaviour:
   - speakerName: "\u738B\u559C\u60A6"
     expression: normal
     panelStyle: 0
-    text: "\u6211\u6628\u5929\u770B\u5230\u5434\u53D4\u6768 (W\u01D2 zu\xF3ti\u0101n
-      k\xE0n d\xE0o T\xE1ngji\u0101l\xEDn), who is our trader. He said he was meeting
-      \u90ED\u54C1\u7389 (Gu\u014D P\u01D0ny\xF9) at the bridge across the river."
+    text: "\u6211\u6628\u5929\u770B\u5230\u5434\u53D4\u6768 (W\u01D2 zu\u00F3ti\u0101n k\u00E0n d\u00E0o W\u00FA Sh\u016By\u00E1ng), who is our trader. He said he was meeting \u90ED\u54C1\u7389 (Gu\u014D P\u01D0ny\u00F9) at the bridge across the river."
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -5722,42 +6148,49 @@ MonoBehaviour:
   - speakerName: "\u738B\u559C\u60A6"
     expression: panic
     panelStyle: 0
-    text: "Maybe if you hurry you will be able to catch them. \u5F88\u591A\u522B\u4EBA\u4F1A\u5728\u54EA\u91CC\uFF0C\u6240\u4EE5\u4E00\u5B9A\u8981\u5C0F\u5FC3\u3002
-      (H\u011Bndu\u014D bi\xE9r\xE9n hu\xEC z\xE0i n\u01CEl\u01D0, su\u01D2y\u01D0
-      y\u012Bd\xECng y\xE0o xi\u01CEox\u012Bn.)"
+    text: "Maybe if you hurry, you will be able to catch them. \u5F88\u591A\u522B\u4EBA (H\u011Bndu\u014D bi\u00E9r\u00E9n) will be there, so be careful."
     action: 0
     nextStep: -1
     requiredTraceCount: 1
     traceCharacters: []
     choices: []
     useMultipleChoicePanel: 0
-  - speakerName: "\u90ED\u5C0F\u6708"
-    expression: excited
-    panelStyle: 0
-    text: "\u8C22\u8C22\uFF01 (Xi\xE8xie!)"
-    action: 0
-    nextStep: -1
-    requiredTraceCount: 1
-    traceCharacters: []
-    choices: []
-    useMultipleChoicePanel: 0
-  - speakerName: game
+  - speakerName: "game"
     expression: normal
     panelStyle: 1
-    text: "<i>Quick! Hurry to the bridge before you miss your chance!</i> Trace \u522B
-      and \u4EBA (bi\xE9r\xE9n), which means other people."
+    text: "Trace \u522B\u4EBA (bi\u00E9r\u00E9n), which means \u201Cother.\u201D"
     action: 0
     nextStep: -1
     requiredTraceCount: 1
     traceCharacters: []
     choices:
-    - label: "Start tracing \u522B and \u4EBA"
-      targetStep: 13
+    - label: "Trace \u522B and \u4EBA"
+      targetStep: 12
       action: 1
       requiredTraceCount: 2
       traceCharacters:
       - "\u522B"
       - "\u4EBA"
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: excited
+    panelStyle: 0
+    text: "\u8C22\u8C22\uFF01 (Xi\u00E8xie!)"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "game"
+    expression: normal
+    panelStyle: 1
+    text: "<i>Quick! Hurry to the bridge before you miss your chance!</i>"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
     useMultipleChoicePanel: 0
   repeatSteps:
   - speakerName: "\u738B\u559C\u60A6"
@@ -9322,193 +9755,6 @@ Transform:
   - {fileID: 1153638705}
   - {fileID: 1749996440}
   - {fileID: 1209525940}
-<<<<<<< Updated upstream
-=======
-  - {fileID: 1133622285}
-  - {fileID: 627279909}
-  - {fileID: 461645234}
-  - {fileID: 1469785553}
-  - {fileID: 457228751}
-  - {fileID: 1269096267}
-  - {fileID: 584600300}
-  - {fileID: 1909269834}
-  - {fileID: 1782560466}
-  - {fileID: 645901220}
-  - {fileID: 31952262}
-  - {fileID: 1612070760}
-  - {fileID: 1439802530}
-  - {fileID: 506929419}
-  - {fileID: 1382448846}
-  - {fileID: 1311730615}
-  - {fileID: 1534200824}
-  - {fileID: 337313997}
-  - {fileID: 1801384297}
-  - {fileID: 844428174}
-  - {fileID: 975091461}
-  - {fileID: 231624325}
-  - {fileID: 1779190221}
-  - {fileID: 1721384890}
-  - {fileID: 920690180}
-  - {fileID: 1266931408}
-  - {fileID: 741965350}
-  - {fileID: 1217953871}
-  - {fileID: 1403373414}
-  - {fileID: 1351805508}
-  - {fileID: 585992968}
-  - {fileID: 1564146249}
-  - {fileID: 855002109}
-  - {fileID: 562716916}
-  - {fileID: 347959977}
-  - {fileID: 1308898537}
-  - {fileID: 1936457837}
-  - {fileID: 898630229}
-  - {fileID: 1283640367}
-  - {fileID: 1974017937}
-  - {fileID: 508239415}
-  - {fileID: 881441861}
-  - {fileID: 1500254171}
-  - {fileID: 1507216379}
-  - {fileID: 1112347822}
-  - {fileID: 1758782280}
-  - {fileID: 1608243436}
-  - {fileID: 43556525}
-  - {fileID: 400993630}
-  - {fileID: 1681547345}
-  - {fileID: 970758236}
-  - {fileID: 1601782339}
-  - {fileID: 853028588}
-  - {fileID: 429425788}
-  - {fileID: 1129624312}
-  - {fileID: 436110920}
-  - {fileID: 1773689459}
-  - {fileID: 2027178080}
-  - {fileID: 172627802}
-  - {fileID: 977883129}
-  - {fileID: 1807702087}
-  - {fileID: 213899903}
-  - {fileID: 165100684}
-  - {fileID: 306736618}
-  - {fileID: 1845574861}
-  - {fileID: 1492886233}
-  - {fileID: 1186703342}
-  - {fileID: 830056860}
-  - {fileID: 637667804}
-  - {fileID: 587709233}
-  - {fileID: 668601846}
-  - {fileID: 1739462746}
-  - {fileID: 217136693}
-  - {fileID: 432251741}
-  - {fileID: 417009142}
-  - {fileID: 305083256}
-  - {fileID: 1982624107}
-  - {fileID: 1287238658}
-  - {fileID: 1571486359}
-  - {fileID: 637023203}
-  - {fileID: 577969039}
-  - {fileID: 1585049465}
-  - {fileID: 1620252478}
-  - {fileID: 1183326356}
-  - {fileID: 599521710}
-  - {fileID: 85424235}
-  - {fileID: 1978297087}
-  - {fileID: 25987924}
-  - {fileID: 693238654}
-  - {fileID: 1988149674}
-  - {fileID: 1011420031}
-  - {fileID: 561066134}
-  - {fileID: 559925824}
-  - {fileID: 1416879636}
-  - {fileID: 582476367}
-  - {fileID: 1181276371}
-  - {fileID: 1713536887}
-  - {fileID: 1721897477}
-  - {fileID: 1861310794}
-  - {fileID: 447175091}
-  - {fileID: 1405774165}
-  - {fileID: 372497674}
-  - {fileID: 103694734}
-  - {fileID: 1217410695}
-  - {fileID: 2667161}
-  - {fileID: 142807506}
-  - {fileID: 1337996807}
-  - {fileID: 1998056677}
-  - {fileID: 1160360280}
-  - {fileID: 1200620185}
-  - {fileID: 712131521}
-  - {fileID: 42340683}
-  - {fileID: 1450874933}
-  - {fileID: 2022876079}
-  - {fileID: 1185795626}
-  - {fileID: 1383123728}
-  - {fileID: 39162480}
-  - {fileID: 480527542}
-  - {fileID: 1903998640}
-  - {fileID: 1485900954}
-  - {fileID: 2126252648}
-  - {fileID: 478034287}
-  - {fileID: 2032799202}
-  - {fileID: 1474177722}
-  - {fileID: 1734391818}
-  - {fileID: 1323661967}
-  - {fileID: 82139111}
-  - {fileID: 1393324111}
-  - {fileID: 1166140799}
-  - {fileID: 1562022524}
-  - {fileID: 1115920849}
-  - {fileID: 628485307}
-  - {fileID: 1429845837}
-  - {fileID: 1462306274}
-  - {fileID: 1184116906}
-  - {fileID: 1507147050}
-  - {fileID: 717560566}
-  - {fileID: 325077389}
-  - {fileID: 1964857460}
-  - {fileID: 1017768263}
-  - {fileID: 141962576}
-  - {fileID: 222131424}
-  - {fileID: 2045121403}
-  - {fileID: 1138685613}
-  - {fileID: 2109677091}
-  - {fileID: 2106669006}
-  - {fileID: 1484545992}
-  - {fileID: 1121943575}
-  - {fileID: 1093152985}
-  - {fileID: 185981872}
-  - {fileID: 1749966568}
-  - {fileID: 726991933}
-  - {fileID: 2063874605}
-  - {fileID: 1176405460}
-  - {fileID: 1838250967}
-  - {fileID: 1920848097}
-  - {fileID: 727894189}
-  - {fileID: 1369397108}
-  - {fileID: 84106757}
-  - {fileID: 534299589}
-  - {fileID: 2081477370}
-  - {fileID: 1455440146}
-  - {fileID: 1228570470}
-  - {fileID: 1560790430}
-  - {fileID: 161774549}
-  - {fileID: 1948259906}
-  - {fileID: 965132854}
-  - {fileID: 283491254}
-  - {fileID: 232813497}
-  - {fileID: 1929652604}
-  - {fileID: 382202300}
-  - {fileID: 85131643}
-  - {fileID: 351100644}
-  - {fileID: 1329945702}
-  - {fileID: 1606000587}
-  - {fileID: 1169853095}
-  - {fileID: 1161021464}
-  - {fileID: 1842324594}
-  - {fileID: 1182506052}
-  - {fileID: 529789784}
-  - {fileID: 1476388205}
-  - {fileID: 44377939}
-  - {fileID: 1790326595}
-  - {fileID: 1021183478}
->>>>>>> Stashed changes
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &627279906
@@ -19873,6 +20119,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1166140799}
   - component: {fileID: 1166140798}
+  - component: {fileID: 3500000200}
+  - component: {fileID: 3500000201}
+  - component: {fileID: 3500000202}
   m_Layer: 0
   m_Name: guopinyuMain_0
   m_TagString: Untagged
@@ -19954,6 +20203,276 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &3500000200
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1166140797}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 1.665, y: 0.75}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 3.33, y: 10.06}
+    newSize: {x: 3.33, y: 10.06}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 2.4, y: 1.5}
+  m_EdgeRadius: 0
+--- !u!114 &3500000201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1166140797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e589a00c60fba8f40a0e965132a43832, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactRange: 2.5
+  promptText: Press E to talk
+  interactSprite: {fileID: -2983803142128348173, guid: d9840369a815df6478c698adc42a790b, type: 3}
+  interactImageSize: {x: 1.4, y: 1.45}
+  interactPromptGap: 0.12
+  promptVerticalOffset: 3
+  promptFontSize: 22
+  promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
+  wallToUnlock: {fileID: 0}
+  resumeAfterTracing: 1
+  traceOwnerKey: Guopinyu
+--- !u!114 &3500000202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1166140797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e65e4302661f84f8428024eb88eebc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Conversation
+  steps:
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: tired
+    panelStyle: 0
+    text: "Excuse me! Excuse me! \u4F60\u662F\u90ED\u54C1\u7389\u5417\uFF1F (N\u01D0 sh\u00EC Gu\u014D P\u01D0ny\u00F9 ma?)"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u54C1\u7389"
+    expression: confused
+    panelStyle: 0
+    text: "\u5BF9\u5440\u3002\u4F60\u662F\u8C01\u5440\uFF1F (Du\u00EC ya. N\u01D0 sh\u00EC sh\u00E9i ya?)"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: normal
+    panelStyle: 0
+    text: "\u6211\u662F\u90ED\u5C0F\u6708\u3002 (W\u01D2 sh\u00EC Gu\u014D Xi\u01CEoyu\u00E8.) I think this is your book...?"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u54C1\u7389"
+    expression: normal
+    panelStyle: 0
+    text: "Yes, it is... How did you get it?"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: normal
+    panelStyle: 0
+    text: "I'm from the future, and I got teleported back in time with this book in hand. It has taught me a lot."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u54C1\u7389"
+    expression: normal
+    panelStyle: 0
+    text: "Ah... yes. It's a magic book that helps you learn Chinese."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u54C1\u7389"
+    expression: confused
+    panelStyle: 0
+    text: "Wait, but how are you here?"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: normal
+    panelStyle: 0
+    text: "I have a bracelet that apparently you made, but I accidentally broke it\u2014and the charms too."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u54C1\u7389"
+    expression: normal
+    panelStyle: 0
+    text: "Charms...? I believe I have just the thing for you."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: excited
+    panelStyle: 0
+    text: "Yes, that's exactly it! Thank you!"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u54C1\u7389"
+    expression: normal
+    panelStyle: 0
+    text: "I made it with the oasis water of Dunhuang, as well as crystals of azurite. Try casting a spell!"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: normal
+    panelStyle: 0
+    text: "Okay..."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  - speakerName: game
+    expression: normal
+    panelStyle: 1
+    text: "Trace \u6C34 (shu\u01D0) to cast the spell."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices:
+    - label: "Trace \u6C34"
+      targetStep: 13
+      action: 1
+      requiredTraceCount: 1
+      traceCharacters:
+      - "\u6C34"
+    useMultipleChoicePanel: 0
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: excited
+    panelStyle: 0
+    text: "It works! Thank you, thank you!"
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  repeatSteps:
+  - speakerName: "\u90ED\u54C1\u7389"
+    expression: normal
+    panelStyle: 0
+    text: "Take care of the book\u2014and your new charm."
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
+  speakerBackgrounds:
+  - speakerName: "\u90ED\u5C0F\u6708"
+    background: {fileID: 5026058822647386680, guid: 90632d7d2df81e34cb10bd441244ebb5, type: 3}
+  - speakerName: "\u90ED\u54C1\u7389"
+    background: {fileID: 3477035459128247512, guid: 77be6708ab8d75846b8e0b14ef519511, type: 3}
+  speakerPortraits:
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: normal
+    portrait: {fileID: 367173573683222419, guid: 6eafc250f344d7848bb41726d712aa81, type: 3}
+    slotOffset: {x: 0, y: 0}
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: tired
+    portrait: {fileID: 5487685175929054760, guid: ee8b35da6107dba4396efb88c261acfc, type: 3}
+    slotOffset: {x: 0, y: 0}
+  - speakerName: "\u90ED\u5C0F\u6708"
+    expression: excited
+    portrait: {fileID: 7377018004420343006, guid: aeeb714301957a540aa0c83917ba04b8, type: 3}
+    slotOffset: {x: 0, y: 0}
+  - speakerName: "\u90ED\u54C1\u7389"
+    expression: normal
+    portrait: {fileID: 580482740572647817, guid: 345afa28ad090dc498bf32e0522818c9, type: 3}
+    slotOffset: {x: 0, y: 0}
+  - speakerName: "\u90ED\u54C1\u7389"
+    expression: confused
+    portrait: {fileID: -5011904555696654944, guid: 020d8495ba9119245a13995a242c325d, type: 3}
+    slotOffset: {x: 0, y: 0}
+  gameVoiceBackground: {fileID: 8702785369876850875, guid: 6183e110186ac8a42bad440dacedf15a, type: 3}
+  multipleChoiceBackground: {fileID: -9018818332010216090, guid: dd1d2b4546a5cb34a817cf814d3cecf5, type: 3}
+  unlockOnComplete: 0
+  wallToUnlock: {fileID: 0}
+  regionToUnlock: {fileID: 0}
 --- !u!1 &1169853093
 GameObject:
   m_ObjectHideFlags: 0
@@ -36906,7 +37425,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OpeningDialogue
   speakerName: player
   expression: confused
-  openingLine: Where am I?
+  openingLine: Where am I? What is this book?
   dialogueBackground: {fileID: 5026058822647386680, guid: 90632d7d2df81e34cb10bd441244ebb5, type: 3}
   portrait: {fileID: -196453758366477838, guid: d99d95ba23aa5544f810e2700b8f14e1, type: 3}
   openingOverlay: {fileID: 3200000006}
