@@ -2347,7 +2347,8 @@ MonoBehaviour:
   - speakerName: game voice
     expression: normal
     panelStyle: 1
-    text: "\u4E0D\u8981\u95EE\u522B\u4EBA\u4F60\u4E0D\u559C\u6B22\u7684\u4E8B\nDon't ask others about things you don't like."
+    text: "\u4E0D\u8981\u95EE\u522B\u4EBA\u4F60\u4E0D\u559C\u6B22\u7684\u4E8B\nDon't
+      ask others about things you don't like."
     action: 1
     nextStep: 12
     requiredTraceCount: 11
@@ -2405,6 +2406,10 @@ MonoBehaviour:
     slotOffset: {x: 0, y: 0}
   gameVoiceBackground: {fileID: 8702785369876850875, guid: 6183e110186ac8a42bad440dacedf15a, type: 3}
   multipleChoiceBackground: {fileID: -9018818332010216090, guid: dd1d2b4546a5cb34a817cf814d3cecf5, type: 3}
+  playEndComic: 0
+  endComicPanels: []
+  endComicNextScene: 
+  endComicPromptSprite: {fileID: 0}
   unlockOnComplete: 1
   wallToUnlock: {fileID: 1240246070}
   regionToUnlock: {fileID: 782562736}
@@ -2476,13 +2481,13 @@ MonoBehaviour:
   promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
-  wallToUnlock: {fileID: 0}
-  resumeAfterTracing: 1
-  traceOwnerKey: Trader
   facePlayerDuringConversation: 1
   characterRenderer: {fileID: 151484827}
   artworkFacesRightWhenUnflipped: 1
   horizontalFacingDeadZone: 0.05
+  wallToUnlock: {fileID: 0}
+  resumeAfterTracing: 1
+  traceOwnerKey: Trader
 --- !u!61 &151484826
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3266,13 +3271,13 @@ MonoBehaviour:
   promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
-  wallToUnlock: {fileID: 0}
-  resumeAfterTracing: 1
-  traceOwnerKey:
   facePlayerDuringConversation: 1
   characterRenderer: {fileID: 200000022}
   artworkFacesRightWhenUnflipped: 1
   horizontalFacingDeadZone: 0.05
+  wallToUnlock: {fileID: 0}
+  resumeAfterTracing: 1
+  traceOwnerKey: 
 --- !u!114 &200000026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3684,6 +3689,10 @@ MonoBehaviour:
     slotOffset: {x: 0, y: 0}
   gameVoiceBackground: {fileID: 8702785369876850875, guid: 6183e110186ac8a42bad440dacedf15a, type: 3}
   multipleChoiceBackground: {fileID: -9018818332010216090, guid: dd1d2b4546a5cb34a817cf814d3cecf5, type: 3}
+  playEndComic: 0
+  endComicPanels: []
+  endComicNextScene: 
+  endComicPromptSprite: {fileID: 0}
   unlockOnComplete: 1
   wallToUnlock: {fileID: 441900785}
   regionToUnlock: {fileID: 1824965852}
@@ -6102,6 +6111,10 @@ MonoBehaviour:
     slotOffset: {x: 0, y: 0}
   gameVoiceBackground: {fileID: 8702785369876850875, guid: 6183e110186ac8a42bad440dacedf15a, type: 3}
   multipleChoiceBackground: {fileID: -9018818332010216090, guid: dd1d2b4546a5cb34a817cf814d3cecf5, type: 3}
+  playEndComic: 0
+  endComicPanels: []
+  endComicNextScene: 
+  endComicPromptSprite: {fileID: 0}
   unlockOnComplete: 1
   wallToUnlock: {fileID: 324422041}
   regionToUnlock: {fileID: 104130290}
@@ -6152,13 +6165,13 @@ MonoBehaviour:
   promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
-  wallToUnlock: {fileID: 0}
-  resumeAfterTracing: 1
-  traceOwnerKey: Silk Seller
   facePlayerDuringConversation: 1
   characterRenderer: {fileID: 368804124}
   artworkFacesRightWhenUnflipped: 1
   horizontalFacingDeadZone: 0.05
+  wallToUnlock: {fileID: 0}
+  resumeAfterTracing: 1
+  traceOwnerKey: Silk Seller
 --- !u!61 &368804123
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -37213,13 +37226,13 @@ MonoBehaviour:
   promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
-  wallToUnlock: {fileID: 0}
-  resumeAfterTracing: 0
-  traceOwnerKey:
   facePlayerDuringConversation: 1
   characterRenderer: {fileID: 1741795590}
   artworkFacesRightWhenUnflipped: 0
   horizontalFacingDeadZone: 0.05
+  wallToUnlock: {fileID: 0}
+  resumeAfterTracing: 0
+  traceOwnerKey: 
 --- !u!114 &3400000101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37254,6 +37267,10 @@ MonoBehaviour:
     slotOffset: {x: 0, y: 0.15}
   gameVoiceBackground: {fileID: 0}
   multipleChoiceBackground: {fileID: 0}
+  playEndComic: 0
+  endComicPanels: []
+  endComicNextScene: 
+  endComicPromptSprite: {fileID: 0}
   unlockOnComplete: 0
   wallToUnlock: {fileID: 0}
   regionToUnlock: {fileID: 0}
@@ -37277,13 +37294,13 @@ MonoBehaviour:
   promptVerticalOffset: 3
   promptFontSize: 22
   promptColor: {r: 1, g: 0.92, b: 0.4, a: 1}
-  wallToUnlock: {fileID: 0}
-  resumeAfterTracing: 1
-  traceOwnerKey: Guopinyu
   facePlayerDuringConversation: 1
   characterRenderer: {fileID: 1166140798}
   artworkFacesRightWhenUnflipped: 1
   horizontalFacingDeadZone: 0.05
+  wallToUnlock: {fileID: 0}
+  resumeAfterTracing: 1
+  traceOwnerKey: Guopinyu
 --- !u!114 &3500000202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37488,6 +37505,16 @@ MonoBehaviour:
     slotOffset: {x: 0, y: 0}
   gameVoiceBackground: {fileID: 8702785369876850875, guid: 6183e110186ac8a42bad440dacedf15a, type: 3}
   multipleChoiceBackground: {fileID: -9018818332010216090, guid: dd1d2b4546a5cb34a817cf814d3cecf5, type: 3}
+  playEndComic: 1
+  endComicPanels:
+  - {fileID: 6188951069893892178, guid: d2e0781e452f59144b1e5435b488f4e0, type: 3}
+  - {fileID: -3501889833286323744, guid: 8fbdadf469010e8428a57612208ccccd, type: 3}
+  - {fileID: -3855900064470187131, guid: 188d1128e581f5b4ca8e201031ef51e7, type: 3}
+  - {fileID: 8178377429917557293, guid: 4e01e56d4816c7e42800dbb23c1f41e3, type: 3}
+  - {fileID: 3598375752720953634, guid: ed39833f5427d8c4aa50c0453b269a4b, type: 3}
+  - {fileID: -5686248928360940233, guid: a36917918b3786a478e351e33b815283, type: 3}
+  endComicNextScene: EndScene
+  endComicPromptSprite: {fileID: -5858099061022299432, guid: 09c234a8dfbdee449bdcd66690f76c54, type: 3}
   unlockOnComplete: 0
   wallToUnlock: {fileID: 0}
   regionToUnlock: {fileID: 0}

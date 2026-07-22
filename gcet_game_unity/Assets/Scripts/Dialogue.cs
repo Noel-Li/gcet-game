@@ -169,6 +169,13 @@ public class Dialogue : MonoBehaviour
     /// <summary>Raised when the conversation ends (the player reached the final step or Close() was invoked externally). Subscribers use it to re-arm click-based triggers such as <see cref="NpcController"/>.</summary>
     public event System.Action OnClosed;
 
+    /// <summary>
+    /// Raised when the conversation reaches its natural final step — the player advanced past the last line.
+    /// This does NOT fire on a mid-conversation Writing handoff (which closes only to resume later in the tracer), so
+    /// subscribers such as <see cref="NpcController"/> can trigger a one-shot end-of-dialogue cutscene exactly once.
+    /// </summary>
+    public event System.Action OnReachedEnd;
+
     // The authored dialogue frames are 700x211. Keep that aspect ratio and reserve the left 28% for the frame's
     // built-in portrait/name treatment; dialogue content belongs in the open area to its right.
     private const float BackgroundAspect = 700f / 211f;
@@ -305,6 +312,17 @@ public class Dialogue : MonoBehaviour
         OnClosed?.Invoke();
     }
 
+    /// <summary>
+    /// Fire <see cref="OnReachedEnd"/> (one-shot, natural end of the conversation) and close. Used at every point the player
+    /// advances past the final line. The Writing-handoff closes bypass this so an end cutscene is not launched for a
+    /// conversation that only paused to visit the tracer.
+    /// </summary>
+    private void ReachEnd()
+    {
+        OnReachedEnd?.Invoke();
+        Close();
+    }
+
     private void Update()
     {
         if (ReviewBookController.IsOpen || ControlsOverlayController.IsOpen || !open || !waitingInput)
@@ -411,7 +429,7 @@ public class Dialogue : MonoBehaviour
         int target = toIndex ?? (current.nextStep >= 0 ? current.nextStep : index + 1);
         if (target >= steps.Count)
         {
-            Close();
+            ReachEnd();
             return;
         }
 
@@ -444,7 +462,7 @@ public class Dialogue : MonoBehaviour
         // None / GoTop: jump straight to the target step.
         if (choice.targetStep < 0 || choice.targetStep >= steps.Count)
         {
-            Close();
+            ReachEnd();
             return;
         }
         index = choice.targetStep;
@@ -497,7 +515,7 @@ public class Dialogue : MonoBehaviour
         int resume = GameProgress.Instance.ResumeStep;
         if (resume == steps.Count)
         {
-            Close();
+            ReachEnd();
             return;
         }
         if (resume < 0 || resume > steps.Count)
