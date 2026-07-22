@@ -2344,6 +2344,27 @@ MonoBehaviour:
     traceCharacters: []
     choices: []
     useMultipleChoicePanel: 0
+  - speakerName: game voice
+    expression: normal
+    panelStyle: 1
+    text: "\u4E0D\u8981\u95EE\u522B\u4EBA\u4F60\u4E0D\u559C\u6B22\u7684\u4E8B\nDon't ask others about things you don't like."
+    action: 1
+    nextStep: 12
+    requiredTraceCount: 11
+    traceCharacters:
+    - "\u4E0D"
+    - "\u8981"
+    - "\u95EE"
+    - "\u522B"
+    - "\u4EBA"
+    - "\u4F60"
+    - "\u4E0D"
+    - "\u559C"
+    - "\u6B22"
+    - "\u7684"
+    - "\u4E8B"
+    choices: []
+    useMultipleChoicePanel: 0
   repeatSteps:
   - speakerName: "\u5434\u53D4\u6768"
     expression: normal
@@ -2368,7 +2389,7 @@ MonoBehaviour:
     slotOffset: {x: 0, y: 0}
   - speakerName: "\u90ED\u5C0F\u6708"
     expression: tired
-    portrait: {fileID: 5487685175929054760, guid: ee8b35da6107dba4396efb88c261acfc, type: 3}
+    portrait: {fileID: -3512010154181630999, guid: 06b738ee801c55f4d8c324a462436e8b, type: 3}
     slotOffset: {x: 0, y: 0}
   - speakerName: "\u5434\u53D4\u6768"
     expression: normal
@@ -3635,15 +3656,15 @@ MonoBehaviour:
     slotOffset: {x: 0, y: 0}
   - speakerName: player
     expression: confused
-    portrait: {fileID: -196453758366477838, guid: d99d95ba23aa5544f810e2700b8f14e1, type: 3}
+    portrait: {fileID: 656793949757835485, guid: fc8a143e1a95f22489af5a125900ed28, type: 3}
     slotOffset: {x: 0, y: 0}
   - speakerName: player
     expression: excited
-    portrait: {fileID: 7377018004420343006, guid: aeeb714301957a540aa0c83917ba04b8, type: 3}
+    portrait: {fileID: -2300303421564334034, guid: d8c44b0e2fadca94fac7128d6791a7f4, type: 3}
     slotOffset: {x: 0, y: 0}
   - speakerName: player
     expression: worried
-    portrait: {fileID: 6055673445537903171, guid: 955bf497ff0fea848accd9a03062b402, type: 3}
+    portrait: {fileID: 4266554736165343286, guid: e52b6057cf4ea874a9c64661f4d91c2b, type: 3}
     slotOffset: {x: 0, y: 0}
   - speakerName: soldier
     expression: normal
@@ -6069,7 +6090,7 @@ MonoBehaviour:
     slotOffset: {x: 0, y: 0}
   - speakerName: "\u90ED\u5C0F\u6708"
     expression: excited
-    portrait: {fileID: 7377018004420343006, guid: aeeb714301957a540aa0c83917ba04b8, type: 3}
+    portrait: {fileID: -2300303421564334034, guid: d8c44b0e2fadca94fac7128d6791a7f4, type: 3}
     slotOffset: {x: 0, y: 0}
   - speakerName: "\u738B\u559C\u60A6"
     expression: normal
@@ -37451,11 +37472,11 @@ MonoBehaviour:
     slotOffset: {x: 0, y: 0}
   - speakerName: "\u90ED\u5C0F\u6708"
     expression: tired
-    portrait: {fileID: 5487685175929054760, guid: ee8b35da6107dba4396efb88c261acfc, type: 3}
+    portrait: {fileID: -3512010154181630999, guid: 06b738ee801c55f4d8c324a462436e8b, type: 3}
     slotOffset: {x: 0, y: 0}
   - speakerName: "\u90ED\u5C0F\u6708"
     expression: excited
-    portrait: {fileID: 7377018004420343006, guid: aeeb714301957a540aa0c83917ba04b8, type: 3}
+    portrait: {fileID: -2300303421564334034, guid: d8c44b0e2fadca94fac7128d6791a7f4, type: 3}
     slotOffset: {x: 0, y: 0}
   - speakerName: "\u90ED\u54C1\u7389"
     expression: normal
@@ -37658,7 +37679,7 @@ MonoBehaviour:
   expression: confused
   openingLine: Where am I? What is this book?
   dialogueBackground: {fileID: 5026058822647386680, guid: 90632d7d2df81e34cb10bd441244ebb5, type: 3}
-  portrait: {fileID: -196453758366477838, guid: d99d95ba23aa5544f810e2700b8f14e1, type: 3}
+  portrait: {fileID: 656793949757835485, guid: fc8a143e1a95f22489af5a125900ed28, type: 3}
   openingOverlay: {fileID: 3200000006}
 --- !u!212 &3900000011
 SpriteRenderer:
