@@ -903,10 +903,11 @@ public class Dialogue : MonoBehaviour
 
         if (speaker == "player")
         {
-            if (mood == "confused") return "Assets/character_img/xiaoyueConfused.PNG";
-            if (mood == "excited") return "Assets/character_img/xiaoyueExcited.PNG";
-            if (mood == "worried") return "Assets/character_img/xiaoyueWorries.PNG";
-            return "Assets/character_img/xiaoyueMain.PNG";
+            if (mood == "confused") return "Assets/character_img/bookConfusedXY.PNG";
+            if (mood == "excited") return "Assets/character_img/bookExcitedXY.PNG";
+            if (mood == "tired") return "Assets/character_img/bookSleepyXY.PNG";
+            if (mood == "worried") return "Assets/character_img/bookWorriedXY.PNG";
+            return "Assets/character_img/xiaoyueBook.PNG";
         }
 
         if (speaker == "soldier")

@@ -39,6 +39,20 @@ public class NpcController : MonoBehaviour
     private Color promptColor =
         new Color(1f, 0.92f, 0.4f, 1f);
 
+    [Header("Conversation facing")]
+    [Tooltip("Turn this NPC's world sprite toward the player while they are in interaction range or dialogue is active.")]
+    [SerializeField] private bool facePlayerDuringConversation = true;
+
+    [Tooltip("Renderer that should turn toward the player. Leave empty to use this GameObject's SpriteRenderer.")]
+    [SerializeField] private SpriteRenderer characterRenderer;
+
+    [Tooltip("Enable when the unflipped source artwork faces right; disable when it faces left.")]
+    [SerializeField] private bool artworkFacesRightWhenUnflipped = true;
+
+    [Tooltip("Horizontal separation below which the NPC keeps its current facing direction.")]
+    [Min(0f)]
+    [SerializeField] private float horizontalFacingDeadZone = 0.05f;
+
     [Header("Wall unlock")]
     [Tooltip("If set, this invisible wall is unlocked when the conversation with this NPC closes — gating the player's forward progress. Leave empty for flavour NPCs that open no gate.")]
     [SerializeField] private InvisibleWall wallToUnlock;
@@ -69,12 +83,17 @@ public class NpcController : MonoBehaviour
     private GameObject interactObj;
     private SpriteRenderer interactSpriteRenderer;
 
+    private bool originalFlipX;
+    private bool hasOriginalFacing;
+
     private const string PlayerName = "Player";
     private string TraceOwnerKey => string.IsNullOrWhiteSpace(traceOwnerKey) ? gameObject.name : traceOwnerKey.Trim();
 
     private void Awake()
     {
         conversation = GetComponent<Conversation>();
+        ResolveCharacterRenderer();
+        RememberOriginalFacing();
         BuildPrompt();
         BuildInteractImage();
 
@@ -113,6 +132,8 @@ public class NpcController : MonoBehaviour
             player != null &&
             Vector2.Distance(transform.position, player.position)
             <= interactRange;
+
+        UpdateInteractionFacing();
 
         // Only show the prompt for NPCs the player hasn't talked to yet. Once a conversation has
         // happened the prompt is suppressed for good — repeatSteps still exist for replay but the
@@ -269,6 +290,7 @@ public class NpcController : MonoBehaviour
         activated = true;
 
         HidePrompt();
+        FacePlayer();
 
         // Resume at the step saved before entering the tracing scene.
         Dialogue.Instance.ResumeAfterWriting();
@@ -333,6 +355,7 @@ public class NpcController : MonoBehaviour
     {
         activated = true;
         HidePrompt();
+        FacePlayer();
 
         EnsureDialogueExists();
 
@@ -569,6 +592,99 @@ public class NpcController : MonoBehaviour
         {
             player = playerObject.transform;
         }
+    }
+
+    /// <summary>
+    /// Mirrors only the NPC artwork toward Xiaoyue. The root Transform and collider
+    /// stay unchanged, so interaction range and collision geometry never move.
+    /// </summary>
+    private void FacePlayer()
+    {
+        if (!facePlayerDuringConversation)
+        {
+            return;
+        }
+
+        ResolveCharacterRenderer();
+
+        if (player == null)
+        {
+            LocatePlayer();
+        }
+
+        if (characterRenderer == null || player == null)
+        {
+            return;
+        }
+
+        float horizontalDifference = player.position.x - transform.position.x;
+        if (Mathf.Abs(horizontalDifference) <= horizontalFacingDeadZone)
+        {
+            return;
+        }
+
+        bool shouldFaceRight = horizontalDifference > 0f;
+        characterRenderer.flipX =
+            artworkFacesRightWhenUnflipped != shouldFaceRight;
+    }
+
+    /// <summary>
+    /// Faces the player as soon as the interaction prompt becomes available and
+    /// keeps that facing through dialogue. The authored direction returns only
+    /// after the player leaves interaction range.
+    /// </summary>
+    private void UpdateInteractionFacing()
+    {
+        if (nearPlayer || activated)
+        {
+            FacePlayer();
+            return;
+        }
+
+        RestoreOriginalFacing();
+    }
+
+    private void ResolveCharacterRenderer()
+    {
+        if (characterRenderer == null)
+        {
+            characterRenderer = GetComponent<SpriteRenderer>();
+        }
+    }
+
+    private void RememberOriginalFacing()
+    {
+        if (characterRenderer == null)
+        {
+            return;
+        }
+
+        originalFlipX = characterRenderer.flipX;
+        hasOriginalFacing = true;
+    }
+
+    private void RestoreOriginalFacing()
+    {
+        if (hasOriginalFacing && characterRenderer != null)
+        {
+            characterRenderer.flipX = originalFlipX;
+        }
+    }
+
+    private void OnDisable()
+    {
+        RestoreOriginalFacing();
+    }
+
+    private void OnValidate()
+    {
+        horizontalFacingDeadZone = Mathf.Max(0f, horizontalFacingDeadZone);
+        ResolveCharacterRenderer();
+    }
+
+    private void Reset()
+    {
+        ResolveCharacterRenderer();
     }
 
     public void ShowPrompt()
