@@ -69,6 +69,10 @@ public class NpcController : MonoBehaviour
     private bool activated = false;
     private bool nearPlayer = false;
 
+    // Set while this NPC owns the active dialogue, so the shared Dialogue.OnReachedEnd event only fires the end
+    // cutscene for the NPC that actually opened the conversation (not for every NPC subscribed to the singleton).
+    private bool ownsDialogue = false;
+
     // Stops the post-tracing dialogue from being restored repeatedly.
     private bool resumedAfterTrace = false;
 
@@ -112,7 +116,7 @@ public class NpcController : MonoBehaviour
 
     private void Update()
     {
-        if (OpeningOverlay.IsShowing || ReviewBookController.IsOpen || ControlsOverlayController.IsOpen)
+        if (OpeningOverlay.IsShowing || ReviewBookController.IsOpen || ControlsOverlayController.IsOpen || ComicSequence.IsPlaying)
         {
             return;
         }
@@ -286,6 +290,11 @@ public class NpcController : MonoBehaviour
         Dialogue.Instance.OnClosed -= OnConversationClosed;
         Dialogue.Instance.OnClosed += OnConversationClosed;
 
+        // Claim ownership and listen for the natural end so an end comic can fire after the post-trace resume too.
+        Dialogue.Instance.OnReachedEnd -= OnReachedEnd;
+        Dialogue.Instance.OnReachedEnd += OnReachedEnd;
+        ownsDialogue = true;
+
         resumedAfterTrace = true;
         activated = true;
 
@@ -376,6 +385,11 @@ public class NpcController : MonoBehaviour
         Dialogue.Instance.OnClosed -= OnConversationClosed;
         Dialogue.Instance.OnClosed += OnConversationClosed;
 
+        // Subscribe to the natural-end event and claim ownership so only this NPC fires the end cutscene.
+        Dialogue.Instance.OnReachedEnd -= OnReachedEnd;
+        Dialogue.Instance.OnReachedEnd += OnReachedEnd;
+        ownsDialogue = true;
+
         Dialogue.Instance.Open();
 
         // Open the gated wall the moment the conversation starts — a gate NPC's whole job is to unseal
@@ -395,6 +409,7 @@ public class NpcController : MonoBehaviour
     private void OnConversationClosed()
     {
         activated = false;
+        ownsDialogue = false;
         hasSpokenBefore = true;
 
         if (GameProgress.Instance != null)
@@ -409,6 +424,47 @@ public class NpcController : MonoBehaviour
         {
             conversation.WallToUnlock.Unlock();
         }
+    }
+
+    /// <summary>
+    /// Natural end of the conversation for the NPC that opened it: play its end-of-dialogue comic cutscene if one is
+    /// authored. The ownership guard stops every NPC subscribed to the Dialogue singleton from firing the cutscene
+    /// when only one of them ended a conversation.
+    /// </summary>
+    private void OnReachedEnd()
+    {
+        if (!ownsDialogue)
+        {
+            return;
+        }
+        ownsDialogue = false;
+
+        if (conversation == null || !conversation.PlayEndComic)
+        {
+            return;
+        }
+
+        Sprite[] panels = conversation.EndComicPanels;
+        if (panels == null || panels.Length == 0)
+        {
+            return;
+        }
+
+        string nextScene = !string.IsNullOrWhiteSpace(conversation.EndComicNextScene)
+            ? conversation.EndComicNextScene
+            : null;
+        Sprite prompt = conversation.EndComicPromptSprite;
+
+        // ReachEnd() fires OnReachedEnd before Close(), so the normal OnClosed -> OnConversationClosed cleanup
+        // (marking the conversation complete and re-arming the NPC) still runs immediately after this handler.
+        // Detach only from the end event so a later conversation on this NPC does not replay the cutscene.
+        if (Dialogue.Instance != null)
+        {
+            Dialogue.Instance.OnReachedEnd -= OnReachedEnd;
+        }
+
+        ComicSequence.Play(panels, nextScene ?? "", prompt, null);
+        Debug.Log($"[NpcController {name}] playing end-of-dialogue comic ({panels.Length} panels -> {(nextScene ?? "gameplay")}, prompt={(prompt != null ? "yes" : "no")}).");
     }
 
     /// <summary>Restores the local repeat-dialogue cache from the persistent play-session state.</summary>

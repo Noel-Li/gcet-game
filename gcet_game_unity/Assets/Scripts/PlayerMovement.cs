@@ -71,9 +71,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        // Freeze the player while a dialogue is open so they can't walk away mid-conversation (or drift
-        // the NPC into a locked region). Update still runs so the input device stays live.
-        if (Dialogue.Instance != null && Dialogue.Instance.IsOpen)
+        // Freeze the player while a dialogue is open or a comic cutscene is playing so they can't walk away
+        // mid-conversation / mid-cutscene (or drift the NPC into a locked region). Update still runs so the
+        // input device stays live.
+        if ((Dialogue.Instance != null && Dialogue.Instance.IsOpen) || ComicSequence.IsPlaying)
         {
             return;
         }

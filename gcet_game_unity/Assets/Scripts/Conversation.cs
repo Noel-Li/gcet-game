@@ -27,6 +27,19 @@ public class Conversation : MonoBehaviour
     [Tooltip("Blue frame shown at the bottom-right when a step has choices.")]
     [SerializeField] private Sprite multipleChoiceBackground;
 
+    [Header("Comic cutscene on complete")]
+    [Tooltip("If enabled, plays the below comic panels when this conversation reaches its final step. Space advances each panel; the final panel loads the scene below, or returns to gameplay when the scene is left empty.")]
+    [SerializeField] private bool playEndComic;
+
+    [Tooltip("Panels shown in order once the conversation ends. Reuse the ComicScene art by pointing this at the same sprites, or author dedicated ending art.")]
+    [SerializeField] private Sprite[] endComicPanels = new Sprite[0];
+
+    [Tooltip("Optional scene loaded after the final panel. Leave empty to return to gameplay instead of loading a scene.")]
+    [SerializeField] private string endComicNextScene;
+
+    [Tooltip("Optional 'Press Space to Continue' prompt shown bottom-right of the ending cutscene, matching the starting ComicScene.")]
+    [SerializeField] private Sprite endComicPromptSprite;
+
     [Header("Gate unlock")]
     [Tooltip("If enabled, talking to this NPC unlocks the chosen wall — gating the player's forward progress. Leave disabled for flavour NPCs that open no gate.")]
     [SerializeField] private bool unlockOnComplete;
@@ -69,6 +82,13 @@ public class Conversation : MonoBehaviour
     public bool UnlockOnComplete => unlockOnComplete;
     public InvisibleWall WallToUnlock => wallToUnlock;
     public GameArea RegionToUnlock => regionToUnlock;
+
+    public bool PlayEndComic => playEndComic;
+    public Sprite[] EndComicPanels => endComicPanels != null
+        ? (Sprite[])endComicPanels.Clone()
+        : new Sprite[0];
+    public string EndComicNextScene => endComicNextScene;
+    public Sprite EndComicPromptSprite => endComicPromptSprite;
 
     private static List<DialogueStep> DefaultSteps()
     {
