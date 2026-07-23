@@ -16,14 +16,17 @@ internal static class PlayModeStartScene
 {
     private const string IntroScenePath = "Assets/Scenes/StartScene.unity";
     private const string TestScenePath = "Assets/Scenes/game1_test.unity";
+    private const string EndScenePath = "Assets/Scenes/EndScene.unity";
 
     private static SceneAsset introScene;
     private static SceneAsset testScene;
+    private static SceneAsset endScene;
 
     static PlayModeStartScene()
     {
         introScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(IntroScenePath);
         testScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(TestScenePath);
+        endScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(EndScenePath);
 
         // Default to the intro so a fresh editor session still boots the real opening.
         SetIntroAsPlayModeStartScene();
@@ -61,6 +64,23 @@ internal static class PlayModeStartScene
 
         EditorSceneManager.playModeStartScene = testScene;
         Debug.Log("[PlayModeStartScene] Play Mode Start Scene set to: game1_test (standalone test).");
+    }
+
+    [MenuItem("Tools/GCET/Play Mode Start Scene/EndScene (Standalone)")]
+    private static void SetEndAsPlayModeStartScene()
+    {
+        if (endScene == null)
+        {
+            endScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(EndScenePath);
+        }
+        if (endScene == null)
+        {
+            Debug.LogError($"[PlayModeStartScene] Could not find the end scene at {EndScenePath}.");
+            return;
+        }
+
+        EditorSceneManager.playModeStartScene = endScene;
+        Debug.Log("[PlayModeStartScene] Play Mode Start Scene set to: EndScene (standalone).");
     }
 
     [MenuItem("Tools/GCET/Play Mode Start Scene/Clear (Use Open Scene)")]

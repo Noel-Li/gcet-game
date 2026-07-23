@@ -243,9 +243,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -472,9 +472,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -2100,9 +2100,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -2416,8 +2416,8 @@ Transform:
   m_GameObject: {fileID: 107530178}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -22.06159, y: 3.3194602, z: 0}
-  m_LocalScale: {x: 0.4, y: 0.15, z: 1}
+  m_LocalPosition: {x: -22.3265, y: 3.2816, z: 0}
+  m_LocalScale: {x: 0.45808002, y: 0.138315, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1163802577}
@@ -2880,9 +2880,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -3116,6 +3116,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "\u4F60\u7684\u540D\u5B57\u662F\u90ED\u54C1\u7389\u5417\uFF1F (N\u01D0
       de m\xEDngz\xEC sh\xEC Gu\u014D P\u01D0ny\xF9 ma?)"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -3126,6 +3127,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 1
     text: "Trace \u7684 (de), meaning \u201Cof.\u201D"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -3143,6 +3145,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "\u4E0D\u662F\u3002\u4F60\u662F\u8C01\uFF1F (B\xF9 sh\xEC. N\u01D0 sh\xEC
       sh\xE9i?)"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -3154,6 +3157,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "\u6211\u662F\u90ED\u5C0F\u6708\u3002 (W\u01D2 sh\xEC Gu\u014D Xi\u01CEoyu\xE8.)
       Then are you \u5434\u53D4\u6768\u5417\uFF1F (W\xFA Sh\u016By\xE1ng ma?)"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -3165,6 +3169,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "\u6211\u662F\u5440\uFF01 How do you \u77E5\u9053\u5440\uFF1F (N\u01D0
       z\u011Bnme zh\u012Bd\xE0o ya?)"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -3176,6 +3181,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "\u738B\u559C\u60A6 (W\xE1ng X\u01D0yu\xE8) said you would be meeting \u90ED\u54C1\u7389
       (Gu\u014D P\u01D0ny\xF9)."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -3187,6 +3193,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "Oh yes, I did! But that was an hour ago. I'm not sure where she is. \u6211\u5F88\u559C\u6B22\u5979\u7684
       (W\u01D2 h\u011Bn x\u01D0hu\u0101n t\u0101 de) materials."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -3197,6 +3204,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 1
     text: "Trace \u559C\u6B22 (x\u01D0hu\u0101n), meaning \u201Clike.\u201D"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -3214,6 +3222,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: Do you know where I can find her?
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -3225,6 +3234,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "Not sure... But maybe look in that book? I recognize the design; it has
       an inscription from \u90ED\u54C1\u7389 (Gu\u014D P\u01D0ny\xF9) on it."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -3235,6 +3245,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "\u8C22\u8C22\uFF01 (Xi\xE8xie!)"
+    panelIllustration: {fileID: 0}
     action: 3
     nextStep: -1
     requiredTraceCount: 1
@@ -3246,6 +3257,7 @@ MonoBehaviour:
     panelStyle: 1
     text: "\u4E0D\u8981\u95EE\u522B\u4EBA\u4F60\u4E0D\u559C\u6B22\u7684\u4E8B\nDon't
       ask others about things you don't like."
+    panelIllustration: {fileID: 0}
     action: 1
     nextStep: 12
     requiredTraceCount: 11
@@ -3269,6 +3281,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "Maybe look in that book. I recognize \u90ED\u54C1\u7389's inscription
       on it."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4273,6 +4286,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "Hello, are you \u5F20\u4E09 (Zh\u0101ng S\u0101n)?"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4283,6 +4297,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 1
     text: "Use the tracer to write the player's answer: \u4E0D"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4299,6 +4314,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "\u4E0D\u3002 (B\xF9.)"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4309,6 +4325,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "\u4F60\u53EB\u4EC0\u4E48\u540D\u5B57 (N\u01D0 ji\xE0o sh\xE9nme m\xEDngz\xEC)\uFF1F"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4319,6 +4336,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 1
     text: What did the soldier just say?
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4344,6 +4362,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "\u6211\u5F88\u597D\u3002 (W\u01D2 h\u011Bn h\u01CEo.)"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4356,6 +4375,7 @@ MonoBehaviour:
     text: "I didn't ask how you are. I asked \u201C\u4F60\u53EB\u4EC0\u4E48\u540D\u5B57\uFF1F\u201D
       My name is \u674E\u6C85\u8BFA (L\u01D0 Yu\xE1nnu\xF2). \u4F60\u53EB\u4EC0\u4E48\u540D\u5B57
       (N\u01D0 ji\xE0o sh\xE9nme m\xEDngz\xEC)\uFF1F"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: 24
     requiredTraceCount: 1
@@ -4366,6 +4386,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "\u7F8E\u56FD\u3002 (M\u011Bigu\xF3.)"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4378,6 +4399,7 @@ MonoBehaviour:
     text: "I didn't ask where you are from. I asked \u201C\u4F60\u53EB\u4EC0\u4E48\u540D\u5B57\uFF1F\u201D
       My name is \u674E\u6C85\u8BFA (L\u01D0 Yu\xE1nnu\xF2). \u4F60\u53EB\u4EC0\u4E48\u540D\u5B57
       (N\u01D0 ji\xE0o sh\xE9nme m\xEDngz\xEC)\uFF1F"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: 24
     requiredTraceCount: 1
@@ -4388,6 +4410,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "\u90ED\u5C0F\u6708\u3002 (Gu\u014D Xi\u01CEoyu\xE8.)"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4399,6 +4422,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "Hello, \u90ED\u5C0F\u6708 (Gu\u014D Xi\u01CEoyu\xE8). My name is \u674E\u6C85\u8BFA
       (L\u01D0 Yu\xE1nnu\xF2)."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4409,6 +4433,7 @@ MonoBehaviour:
     expression: confused
     panelStyle: 0
     text: "Wait... did you say \u90ED (Gu\u014D)?"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4419,6 +4444,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 1
     text: "Trace \u5BF9 (Du\xEC) to answer \u201Cright.\u201D"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4435,6 +4461,7 @@ MonoBehaviour:
     expression: confused
     panelStyle: 0
     text: "\u5BF9...? (Du\xEC...?)"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4445,6 +4472,7 @@ MonoBehaviour:
     expression: confused
     panelStyle: 0
     text: "Are you related to \u90ED\u54C1\u7389 (Gu\u014D P\u01D0ny\xF9)?"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4456,6 +4484,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "*Hmm... that name sounds familiar. Wait\u2014that's the first person in
       my family line to have powers!*"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4466,6 +4495,7 @@ MonoBehaviour:
     expression: excited
     panelStyle: 0
     text: Yes! I am. How did you know?
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4478,6 +4508,7 @@ MonoBehaviour:
     text: "She is our local Artisan. \u5979\u505A\u7684 (T\u0101 zu\xF2 de) equipment
       \u662F\u6700\u597D\u7684 (sh\xEC zu\xEC h\u01CEo de). We all don't know how,
       but we don't ask questions."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4488,6 +4519,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 1
     text: "What does \u201C\u5979\u505A\u6700\u597D\u7684...\u201D mean?"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4513,6 +4545,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 1
     text: Wrong answer. Try again.
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: 18
     requiredTraceCount: 1
@@ -4523,6 +4556,7 @@ MonoBehaviour:
     expression: confused
     panelStyle: 0
     text: Do you know where I can find her?
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4536,6 +4570,7 @@ MonoBehaviour:
       but I'm sure \u738B\u559C\u60A6 (W\xE1ng X\u01D0yu\xE8) knows where she is.
       She sells her silk in town. You can \u95EE\u5979 (W\xE8n t\u0101). She is just
       up ahead. \u4E0D\u8981 (B\xFA y\xE0o) cause any trouble."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4547,6 +4582,7 @@ MonoBehaviour:
     panelStyle: 1
     text: "Trace characters to remember important information from the conversation.
       Trace \u4E0D, \u8981, and \u95EE."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4565,6 +4601,7 @@ MonoBehaviour:
     expression: excited
     panelStyle: 0
     text: "\u8C22\u8C22\uFF01 (Xi\xE8xie!)"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: 27
     requiredTraceCount: 1
@@ -4575,6 +4612,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 1
     text: What did the soldier just say?
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4600,6 +4638,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "Hello, \u5C0F\u6708 (Xi\u01CEoyu\xE8)."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4610,6 +4649,7 @@ MonoBehaviour:
     expression: confused
     panelStyle: 0
     text: "Wait... did you say \u8FC7 (Gu\xF2)?"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: 12
     requiredTraceCount: 1
@@ -4621,6 +4661,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "Did you find \u738B\u559C\u60A6\uFF1F"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4671,6 +4712,12 @@ MonoBehaviour:
   endComicPanels: []
   endComicNextScene: 
   endComicPromptSprite: {fileID: 0}
+  playTraceCutscene: 0
+  traceCutsceneResumeStep: 0
+  beforeTracePanels: []
+  afterTraceAnimation: {fileID: 0}
+  afterTraceFinalPanel: {fileID: 0}
+  traceCutscenePromptSprite: {fileID: 0}
   unlockOnComplete: 1
   wallToUnlock: {fileID: 441900785}
   regionToUnlock: {fileID: 1824965852}
@@ -5286,9 +5333,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -5367,7 +5414,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: -0.9163604}
+  m_Offset: {x: -3.7052064, y: -0.91636086}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -5377,7 +5424,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 18.63, y: 16.847279}
+  m_Size: {x: 11.219584, y: 16.847279}
   m_EdgeRadius: 0
 --- !u!212 &229871408
 SpriteRenderer:
@@ -5424,8 +5471,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 995576332666775122, guid: 05f7b58f12a1b074d9c0b90c755c2c4b, type: 3}
@@ -6813,6 +6860,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "Hi! Are you \u738B\u559C\u60A6 (W\xE1ng X\u01D0yu\xE8)?"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -6823,6 +6871,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "\u5BF9\uFF0C\u6211\u662F\u3002Who are you? (Du\xEC, w\u01D2 sh\xEC.)"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -6836,6 +6885,7 @@ MonoBehaviour:
       \u6211\u6709\u4E00\u4EF6\u4E8B\u60C5 (W\u01D2 y\u01D2u y\xED ji\xE0n sh\xECq\xEDng).
       I was told that you know where my... my grandma is, \u90ED\u54C1\u7389 (Gu\u014D
       P\u01D0ny\xF9)."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -6846,6 +6896,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 1
     text: "Trace \u4E8B (sh\xEC), meaning \u201Cthing.\u201D"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -6862,6 +6913,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: <i>*Don't want them to get suspicious of me.*</i>
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -6873,6 +6925,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "Woah! \u6211 (W\u01D2) never \u542C\u8BF4\u8FC7\u90ED\u54C1\u7389\u6709\u4E2A
       (t\u012Bng shu\u014Dgu\xF2 Gu\u014D P\u01D0ny\xF9 y\u01D2u g\xE8) granddaughter?"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -6885,6 +6938,7 @@ MonoBehaviour:
     text: "I haven't seen her in 2 days... \u4F46\u662F\u6211\u542C\u8BF4 (D\xE0nsh\xEC
       w\u01D2 t\u012Bng shu\u014D) she is going to be giving her stuff to the trader
       who passes by here."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -6895,6 +6949,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "Fill in the blank: ___\u77E5\u9053\u5979\u5728\u54EA\u91CC\u5417\uFF1F"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -6912,6 +6967,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "\u4F60\u77E5\u9053\u5979\u5728\u54EA\u91CC\u5417\uFF1F (N\u01D0 zh\u012Bd\xE0o
       t\u0101 z\xE0i n\u01CEl\u01D0 ma?)"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -6924,6 +6980,7 @@ MonoBehaviour:
     text: "\u6211\u6628\u5929\u770B\u5230\u5434\u53D4\u6768 (W\u01D2 zu\xF3ti\u0101n
       k\xE0n d\xE0o W\xFA Sh\u016By\xE1ng), who is our trader. He said he was meeting
       \u90ED\u54C1\u7389 (Gu\u014D P\u01D0ny\xF9) at the bridge across the river."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -6935,6 +6992,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "Maybe if you hurry, you will be able to catch them. \u5F88\u591A\u522B\u4EBA
       (H\u011Bndu\u014D bi\xE9r\xE9n) will be there, so be careful."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -6944,7 +7002,8 @@ MonoBehaviour:
   - speakerName: game
     expression: normal
     panelStyle: 1
-    text: "Trace \u522B\u4EBA (bi\xE9r\xE9n), which means \u201Cother.\u201D"
+    text: "Trace \u522B\u4EBA (bi\xE9r\xE9n), which means \u201Cother people.\u201D"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -6962,6 +7021,7 @@ MonoBehaviour:
     expression: excited
     panelStyle: 0
     text: "\u8C22\u8C22\uFF01 (Xi\xE8xie!)"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -6972,6 +7032,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 1
     text: <i>Quick! Hurry to the bridge before you miss your chance!</i>
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -6983,6 +7044,7 @@ MonoBehaviour:
     expression: panic
     panelStyle: 0
     text: "Hurry! \u5434\u53D4\u6768 is waiting at the bridge across the river."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -7017,6 +7079,12 @@ MonoBehaviour:
   endComicPanels: []
   endComicNextScene: 
   endComicPromptSprite: {fileID: 0}
+  playTraceCutscene: 0
+  traceCutsceneResumeStep: 0
+  beforeTracePanels: []
+  afterTraceAnimation: {fileID: 0}
+  afterTraceFinalPanel: {fileID: 0}
+  traceCutscenePromptSprite: {fileID: 0}
   unlockOnComplete: 1
   wallToUnlock: {fileID: 324422041}
   regionToUnlock: {fileID: 104130290}
@@ -7188,7 +7256,7 @@ Transform:
   m_GameObject: {fileID: 368804118}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 29.22, y: 19.01, z: 0}
+  m_LocalPosition: {x: 29.22, y: 19.9, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8741,7 +8809,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.7071068, w: 0.7071068}
   m_LocalPosition: {x: -2.2972803, y: 16.359488, z: 0}
-  m_LocalScale: {x: 0.3, y: 0.15, z: 1}
+  m_LocalScale: {x: 0.34071, y: 0.15, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1163802577}
@@ -9066,9 +9134,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -9584,9 +9652,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -10996,9 +11064,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -12094,9 +12162,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -12781,9 +12849,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: 2323805345494481954, guid: db71797e968666c46ba665043cebad72, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -13195,9 +13263,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -13333,9 +13401,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -13471,8 +13539,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 995576332666775122, guid: 05f7b58f12a1b074d9c0b90c755c2c4b, type: 3}
@@ -14530,9 +14598,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -14759,9 +14827,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -16018,7 +16086,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1163802577}
-  - component: {fileID: 1163802576}
   m_Layer: 0
   m_Name: background
   m_TagString: Untagged
@@ -16026,19 +16093,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!210 &1163802576
-SortingGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1163802575}
-  m_Enabled: 1
-  m_SortingLayerID: -1500971143
-  m_SortingLayer: 1
-  m_SortingOrder: 0
-  m_SortAtRoot: 0
-  m_Sort3DAs2D: 0
 --- !u!4 &1163802577
 Transform:
   m_ObjectHideFlags: 0
@@ -17913,9 +17967,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -18183,7 +18237,7 @@ Transform:
   m_GameObject: {fileID: 1315124350}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 9.948409, y: 20.66946, z: 0}
+  m_LocalPosition: {x: 8.46, y: 20.66946, z: 0}
   m_LocalScale: {x: 0.45, y: 0.45, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -19657,9 +19711,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -20482,9 +20536,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -20940,8 +20994,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 995576332666775122, guid: 05f7b58f12a1b074d9c0b90c755c2c4b, type: 3}
@@ -21307,9 +21361,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -22452,9 +22506,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -5081166116598403071, guid: 1da25c7ba0dd57f4bb0ab254631db4cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -22910,7 +22964,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.7071068, w: 0.7071068}
   m_LocalPosition: {x: -2.31, y: 21.72, z: 0}
-  m_LocalScale: {x: 0.3, y: 0.15, z: 1}
+  m_LocalScale: {x: 0.33642, y: 0.15, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1163802577}
@@ -23464,8 +23518,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 995576332666775122, guid: 05f7b58f12a1b074d9c0b90c755c2c4b, type: 3}
@@ -23813,7 +23867,7 @@ Transform:
   m_GameObject: {fileID: 1819925480}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 7.6000013, y: -43.666656, z: -0.43}
+  m_LocalPosition: {x: 7.6000013, y: -35.2, z: -0.43}
   m_LocalScale: {x: 0.3333333, y: 0.6666666, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -24873,8 +24927,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1500971143
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -4659293256208509442, guid: 74e2be113b752d54c81b0d9d2064cec3, type: 3}
@@ -28005,6 +28059,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "Respect your elders! \u5C0A\u91CD\u8001\u4EBA\uFF01"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28026,6 +28081,12 @@ MonoBehaviour:
   endComicPanels: []
   endComicNextScene: 
   endComicPromptSprite: {fileID: 0}
+  playTraceCutscene: 0
+  traceCutsceneResumeStep: 0
+  beforeTracePanels: []
+  afterTraceAnimation: {fileID: 0}
+  afterTraceFinalPanel: {fileID: 0}
+  traceCutscenePromptSprite: {fileID: 0}
   unlockOnComplete: 0
   wallToUnlock: {fileID: 0}
   regionToUnlock: {fileID: 0}
@@ -28074,6 +28135,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "Excuse me! Excuse me! \u4F60\u662F\u90ED\u54C1\u7389\u5417\uFF1F (N\u01D0
       sh\xEC Gu\u014D P\u01D0ny\xF9 ma?)"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28085,6 +28147,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "\u5BF9\u5440\u3002\u4F60\u662F\u8C01\u5440\uFF1F (Du\xEC ya. N\u01D0 sh\xEC
       sh\xE9i ya?)"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28096,6 +28159,7 @@ MonoBehaviour:
     panelStyle: 0
     text: "\u6211\u662F\u90ED\u5C0F\u6708\u3002 (W\u01D2 sh\xEC Gu\u014D Xi\u01CEoyu\xE8.)
       I think this is your book...?"
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28106,6 +28170,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: Yes, it is... How did you get it?
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28117,6 +28182,7 @@ MonoBehaviour:
     panelStyle: 0
     text: I'm from the future, and I got teleported back in time with this book in
       hand. It has taught me a lot.
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28127,6 +28193,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "Ah.. yes...It\u2019s a magic book that helps correlate you to learn chinese."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28137,6 +28204,7 @@ MonoBehaviour:
     expression: confused
     panelStyle: 0
     text: Wait, but how are you here?
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28148,6 +28216,7 @@ MonoBehaviour:
     panelStyle: 0
     text: I have a bracelet that apparently you made, but I accidentally broke it
       and the charms too.
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28158,6 +28227,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "Charms\u2026? I believe I have just the thing for you."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28167,7 +28237,7 @@ MonoBehaviour:
   - speakerName: game voice
     expression: normal
     panelStyle: 1
-    text:
+    text: 
     panelIllustration: {fileID: -8007809796452785402, guid: 358290e695aa32546b4b7aded206143a, type: 3}
     action: 0
     nextStep: -1
@@ -28179,6 +28249,7 @@ MonoBehaviour:
     expression: excited
     panelStyle: 0
     text: Yes, that's exactly it! Thank you!
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28190,6 +28261,7 @@ MonoBehaviour:
     panelStyle: 0
     text: I made it with the oasis water of Dunhuang, as well as crystals of azurite.
       Try casting a spell!
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28200,6 +28272,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: Okay...
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28210,6 +28283,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 1
     text: "Trace \u6C34 (shu\u01D0) to cast the spell."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28226,6 +28300,7 @@ MonoBehaviour:
     expression: excited
     panelStyle: 0
     text: It works! Thank you, thank you!
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28237,6 +28312,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "Take care of the book\u2014and your new charm."
+    panelIllustration: {fileID: 0}
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28521,8 +28597,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1371232619
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 0}
