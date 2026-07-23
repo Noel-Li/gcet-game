@@ -45,6 +45,10 @@ public sealed class ComicSequence : MonoBehaviour
     private float inputReadyAt;
     private bool loadingNextScene;
     private bool runtimeCanvas;
+    private CutsceneAnimation timedAnimation;
+    private Sprite timedFinalPanel;
+    private bool playingTimedAnimation;
+    private float nextTimedFrameAt;
 
     private void Awake()
     {
@@ -66,6 +70,10 @@ public sealed class ComicSequence : MonoBehaviour
             return;
         }
         var canvasObj = new GameObject("ComicCanvas");
+        // Keep the runtime UI owned by this sequence. FinishWithoutScene destroys the sequence host;
+        // parenting the Canvas here guarantees the final panel disappears with it instead of becoming
+        // an orphaned full-screen root that permanently covers gameplay.
+        canvasObj.transform.SetParent(transform, false);
         var canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         // Render above the Dialogue canvas (sortingOrder 100) so the cutscene covers an active conversation.
@@ -126,6 +134,31 @@ public sealed class ComicSequence : MonoBehaviour
         return sequence;
     }
 
+    /// <summary>
+    /// Plays every frame of an animation exactly once, then holds a final still until Space is pressed.
+    /// The runtime overlay is removed afterward, revealing the already-restored gameplay scene.
+    /// </summary>
+    public static ComicSequence PlayAnimationThenPanel(
+        CutsceneAnimation animation,
+        Sprite finalPanel,
+        Sprite promptSprite,
+        System.Action onComplete = null)
+    {
+        var go = new GameObject("AnimatedComicSequence");
+        var sequence = go.AddComponent<ComicSequence>();
+        sequence.timedAnimation = animation;
+        sequence.timedFinalPanel = finalPanel;
+        sequence.nextSceneName = "";
+        sequence.pressSpacePrompt = promptSprite;
+        sequence.OnFinished = null;
+        if (onComplete != null)
+        {
+            sequence.OnFinished += onComplete;
+        }
+        sequence.BeginTimedAnimation();
+        return sequence;
+    }
+
     /// <summary>Reset to the first panel and start accepting advance input. Safe to call once after assigning panels at runtime.</summary>
     public void Begin()
     {
@@ -134,6 +167,24 @@ public sealed class ComicSequence : MonoBehaviour
         inputReadyAt = Time.unscaledTime + initialInputDelay;
         ShowCurrentPanel();
         IsPlaying = true;
+    }
+
+    private void BeginTimedAnimation()
+    {
+        panelIndex = 0;
+        EnsureRuntimeCanvas();
+        loadingNextScene = false;
+        IsPlaying = true;
+
+        if (timedAnimation != null && timedAnimation.FrameCount > 0)
+        {
+            playingTimedAnimation = true;
+            ShowSprite(timedAnimation.GetFrame(0));
+            nextTimedFrameAt = Time.unscaledTime + timedAnimation.GetFrameDuration(0);
+            return;
+        }
+
+        ShowTimedFinalPanel();
     }
 
     /// <summary>Build the bottom-right "press space" prompt onto the runtime canvas. No-op when no prompt sprite is assigned.</summary>
@@ -159,7 +210,18 @@ public sealed class ComicSequence : MonoBehaviour
 
     private void Update()
     {
-        if (!IsPlaying || loadingNextScene || Time.unscaledTime < inputReadyAt)
+        if (!IsPlaying || loadingNextScene)
+        {
+            return;
+        }
+
+        if (playingTimedAnimation)
+        {
+            AdvanceTimedAnimation();
+            return;
+        }
+
+        if (Time.unscaledTime < inputReadyAt)
         {
             return;
         }
@@ -203,11 +265,46 @@ public sealed class ComicSequence : MonoBehaviour
         }
 
         panelIndex = Mathf.Clamp(panelIndex, 0, comicPanels.Length - 1);
-        comicImage.sprite = comicPanels[panelIndex];
+        ShowSprite(comicPanels[panelIndex]);
+    }
+
+    private void ShowSprite(Sprite sprite)
+    {
+        if (comicImage == null)
+        {
+            return;
+        }
+
+        comicImage.sprite = sprite;
         // The comic art is authored at the 1920x1080 reference resolution. Stretching
         // with the Canvas avoids side bars in wider Game views while keeping every
         // edge of the panel visible.
         comicImage.preserveAspect = false;
+    }
+
+    private void AdvanceTimedAnimation()
+    {
+        if (Time.unscaledTime < nextTimedFrameAt)
+        {
+            return;
+        }
+
+        panelIndex++;
+        if (timedAnimation != null && panelIndex < timedAnimation.FrameCount)
+        {
+            ShowSprite(timedAnimation.GetFrame(panelIndex));
+            nextTimedFrameAt = Time.unscaledTime + timedAnimation.GetFrameDuration(panelIndex);
+            return;
+        }
+
+        playingTimedAnimation = false;
+        ShowTimedFinalPanel();
+    }
+
+    private void ShowTimedFinalPanel()
+    {
+        ShowSprite(timedFinalPanel);
+        inputReadyAt = Time.unscaledTime + initialInputDelay;
     }
 
     private void LoadNextScene()

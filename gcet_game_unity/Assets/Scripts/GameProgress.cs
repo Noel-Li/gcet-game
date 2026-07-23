@@ -21,6 +21,7 @@ public class GameProgress : MonoBehaviour
 
     [SerializeField] private int resumeStep = -1;
     private bool dialogueResumed;
+    [SerializeField] private bool postTraceCutscenePending;
 
     [Header("Opening Dialogue")]
     [Tooltip("Persists across scene reloads so the player's opening line is shown only on the first arrival in game1.")]
@@ -152,9 +153,11 @@ public class GameProgress : MonoBehaviour
         int charactersToComplete = 1,
         string ownerKey = null,
         IList<string> charactersToTrace = null,
-        bool launchedFromReview = false)
+        bool launchedFromReview = false,
+        bool playPostTraceCutscene = false)
     {
         reviewTraceActive = launchedFromReview;
+        postTraceCutscenePending = !launchedFromReview && playPostTraceCutscene;
         resumeStep = stepToResume;
         requiredTraceCharacters.Clear();
         if (charactersToTrace != null)
@@ -240,6 +243,19 @@ public class GameProgress : MonoBehaviour
         }
 
         dialogueResumed = true;
+        return true;
+    }
+
+    /// <summary>Consumes the optional post-trace cutscene for the NPC that owns the completed tracing task.</summary>
+    public bool TryConsumePostTraceCutscene(string ownerKey)
+    {
+        if (!postTraceCutscenePending ||
+            !string.Equals(traceOwnerKey, ownerKey ?? string.Empty, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        postTraceCutscenePending = false;
         return true;
     }
 

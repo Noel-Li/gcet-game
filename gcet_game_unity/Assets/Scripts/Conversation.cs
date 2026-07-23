@@ -40,6 +40,26 @@ public class Conversation : MonoBehaviour
     [Tooltip("Optional 'Press Space to Continue' prompt shown bottom-right of the ending cutscene, matching the starting ComicScene.")]
     [SerializeField] private Sprite endComicPromptSprite;
 
+    [Header("Cutscene around a trace")]
+    [Tooltip("Enable to surround one specific tracing handoff with comic panels. The resume-step field selects that trace without affecting other writing tasks in this conversation.")]
+    [SerializeField] private bool playTraceCutscene;
+
+    [Min(0)]
+    [Tooltip("The Dialogue step index saved as the trace resume target. Only a trace returning to this step uses the cutscene.")]
+    [SerializeField] private int traceCutsceneResumeStep;
+
+    [Tooltip("Space-advanced panels shown before the selected trace begins.")]
+    [SerializeField] private Sprite[] beforeTracePanels = new Sprite[0];
+
+    [Tooltip("One-time frame animation shown after the selected trace finishes.")]
+    [SerializeField] private CutsceneAnimation afterTraceAnimation;
+
+    [Tooltip("Still panel shown after the post-trace animation finishes. Space closes it and reveals gameplay.")]
+    [SerializeField] private Sprite afterTraceFinalPanel;
+
+    [Tooltip("'Press Space' prompt shown at the bottom-right of both trace cutscenes.")]
+    [SerializeField] private Sprite traceCutscenePromptSprite;
+
     [Header("Gate unlock")]
     [Tooltip("If enabled, talking to this NPC unlocks the chosen wall — gating the player's forward progress. Leave disabled for flavour NPCs that open no gate.")]
     [SerializeField] private bool unlockOnComplete;
@@ -89,6 +109,15 @@ public class Conversation : MonoBehaviour
         : new Sprite[0];
     public string EndComicNextScene => endComicNextScene;
     public Sprite EndComicPromptSprite => endComicPromptSprite;
+
+    public bool PlayTraceCutscene => playTraceCutscene;
+    public int TraceCutsceneResumeStep => traceCutsceneResumeStep;
+    public Sprite[] BeforeTracePanels => beforeTracePanels != null
+        ? (Sprite[])beforeTracePanels.Clone()
+        : new Sprite[0];
+    public CutsceneAnimation AfterTraceAnimation => afterTraceAnimation;
+    public Sprite AfterTraceFinalPanel => afterTraceFinalPanel;
+    public Sprite TraceCutscenePromptSprite => traceCutscenePromptSprite;
 
     private static List<DialogueStep> DefaultSteps()
     {
@@ -141,7 +170,7 @@ public class Conversation : MonoBehaviour
             {
                 speakerName = "game voice",
                 panelStyle = DialoguePanelStyle.GameVoice,
-                text = "你叫什么名字？\nSelect the correct translation:",
+                text = "What did the soldier just say?",
                 useMultipleChoicePanel = true,
                 choices = new List<DialogueChoice>
                 {
@@ -357,7 +386,7 @@ public class Conversation : MonoBehaviour
             {
                 speakerName = "game voice",
                 panelStyle = DialoguePanelStyle.GameVoice,
-                text = "你叫什么名字？\nSelect the correct translation:",
+                text = "What did the soldier just say?",
                 useMultipleChoicePanel = true,
                 choices = new List<DialogueChoice>
                 {

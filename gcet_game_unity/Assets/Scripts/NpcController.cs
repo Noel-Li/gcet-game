@@ -301,8 +301,31 @@ public class NpcController : MonoBehaviour
         HidePrompt();
         FacePlayer();
 
-        // Resume at the step saved before entering the tracing scene.
-        Dialogue.Instance.ResumeAfterWriting();
+        // The selected story trace may reveal a one-time animated comic before control returns to gameplay.
+        // The resume is consumed above, so the callback below is the only path that can reopen/finish the dialogue.
+        bool playPostTraceCutscene = GameProgress.Instance.TryConsumePostTraceCutscene(TraceOwnerKey)
+            && conversation != null
+            && (conversation.AfterTraceAnimation != null || conversation.AfterTraceFinalPanel != null);
+
+        if (playPostTraceCutscene)
+        {
+            ComicSequence.PlayAnimationThenPanel(
+                conversation.AfterTraceAnimation,
+                conversation.AfterTraceFinalPanel,
+                conversation.TraceCutscenePromptSprite,
+                () =>
+                {
+                    if (Dialogue.Instance != null)
+                    {
+                        Dialogue.Instance.ResumeAfterWriting();
+                    }
+                });
+        }
+        else
+        {
+            // Resume at the step saved before entering the tracing scene.
+            Dialogue.Instance.ResumeAfterWriting();
+        }
 
         // The main scene reload that hands back from the tracing scene re-creates every InvisibleWall with
         // Locked=true, so the gate that let the player in is instantly sealed shut again — and nothing else
@@ -355,6 +378,11 @@ public class NpcController : MonoBehaviour
             conversation.GetGameVoiceBackground(),
             conversation.GetMultipleChoiceBackground());
         dialogue.SetTraceOwner(TraceOwnerKey);
+        dialogue.SetTraceCutscene(
+            conversation.PlayTraceCutscene,
+            conversation.TraceCutsceneResumeStep,
+            conversation.BeforeTracePanels,
+            conversation.TraceCutscenePromptSprite);
     }
 
     /// <summary>

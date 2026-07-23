@@ -24,6 +24,9 @@ public class DialogueStep
     [TextArea(2, 4)]
     public string text;
 
+    [Tooltip("Optional artwork displayed inside the current dialogue panel. Useful for Game Voice story items such as a charm or clue.")]
+    public Sprite panelIllustration;
+
     /// <summary>Action taken when the player advances past this line. None continues the chat; Writing launches the hanzi tracing scene; GoTop tells the player to head upstairs.</summary>
     public DialogueAction action;
 
@@ -102,6 +105,7 @@ public enum DialogueAction
     None,
     Writing,
     GoTop,
+    Cutscene,
 }
 
 /// <summary>
@@ -196,6 +200,7 @@ public class Dialogue : MonoBehaviour
     private Image choicePanelImage;
     private Sprite fallbackPanelSprite;
     private Image portraitImage;
+    private Image illustrationImage;
     private TextMeshProUGUI nameTag;
     private TextMeshProUGUI body;
 
@@ -211,6 +216,11 @@ public class Dialogue : MonoBehaviour
     private readonly List<string> pendingTraceCharacters = new List<string>();
     private string traceOwnerKey;
     private bool waitingInput;
+
+    private bool playTraceCutscene;
+    private int traceCutsceneResumeStep = -1;
+    private Sprite[] beforeTracePanels = new Sprite[0];
+    private Sprite traceCutscenePromptSprite;
 
     private void Awake()
     {
@@ -271,6 +281,15 @@ public class Dialogue : MonoBehaviour
     public void SetTraceOwner(string ownerKey)
     {
         traceOwnerKey = ownerKey;
+    }
+
+    /// <summary>Configures the optional comic that precedes one specific tracing handoff.</summary>
+    public void SetTraceCutscene(bool enabled, int resumeStep, Sprite[] panels, Sprite promptSprite)
+    {
+        playTraceCutscene = enabled;
+        traceCutsceneResumeStep = enabled ? resumeStep : -1;
+        beforeTracePanels = panels != null ? (Sprite[])panels.Clone() : new Sprite[0];
+        traceCutscenePromptSprite = promptSprite;
     }
 
     /// <summary>Sets the current speaker art. Kept separate from the dialogue lines so expressions can be swapped later.</summary>
@@ -414,6 +433,15 @@ public class Dialogue : MonoBehaviour
     {
         DialogueStep current = steps[index];
 
+        // A Cutscene step pauses this dialogue, plays the configured panels, then reveals the following line.
+        // This places an instruction after the artwork without requiring a filler dialogue panel before it.
+        if (current.action == DialogueAction.Cutscene)
+        {
+            int continueAt = toIndex ?? (current.nextStep >= 0 ? current.nextStep : index + 1);
+            PlayCutsceneThenContinue(continueAt);
+            return;
+        }
+
         // Writing / GoTop fire their action exactly once — when leaving the line — no matter how we reach the next step. This keeps the "hands off to the hanzi scene then resume" flow correct whether the player clicked through normally or a Writing choice redirected them.
         if (current.action == DialogueAction.Writing)
         {
@@ -484,6 +512,65 @@ public class Dialogue : MonoBehaviour
 
     private void LaunchWriting()
     {
+        bool useTraceCutscene = playTraceCutscene && pendingResumeStep == traceCutsceneResumeStep;
+        BeginTrace(useTraceCutscene);
+    }
+
+    private void PlayCutsceneThenContinue(int continueAt)
+    {
+        if (!playTraceCutscene || beforeTracePanels.Length == 0)
+        {
+            if (continueAt >= steps.Count)
+            {
+                ReachEnd();
+                return;
+            }
+
+            index = continueAt;
+            RenderCurrent();
+            ArmInput();
+            return;
+        }
+
+        bool wasOpen = open;
+        open = false;
+        waitingInput = false;
+        canvas.gameObject.SetActive(false);
+        if (wasOpen)
+        {
+            OpenStateChanged?.Invoke(false);
+        }
+
+        ComicSequence.Play(
+            beforeTracePanels,
+            "",
+            traceCutscenePromptSprite,
+            () => ResumeAfterCutscene(continueAt));
+    }
+
+    private void ResumeAfterCutscene(int continueAt)
+    {
+        if (this == null)
+        {
+            return;
+        }
+
+        if (continueAt < 0 || continueAt >= steps.Count)
+        {
+            ReachEnd();
+            return;
+        }
+
+        index = continueAt;
+        open = true;
+        canvas.gameObject.SetActive(true);
+        OpenStateChanged?.Invoke(true);
+        RenderCurrent();
+        ArmInput();
+    }
+
+    private void BeginTrace(bool requestPostTraceCutscene)
+    {
         if (GameProgress.Instance == null)
         {
             var carrier = new GameObject("GameProgress");
@@ -493,7 +580,9 @@ public class Dialogue : MonoBehaviour
             pendingResumeStep,
             pendingRequiredTraceCount,
             traceOwnerKey,
-            pendingTraceCharacters);
+            pendingTraceCharacters,
+            launchedFromReview: false,
+            playPostTraceCutscene: requestPostTraceCutscene);
     }
 
     private void SetPendingTraceCharacters(List<string> characterNames)
@@ -550,6 +639,7 @@ public class Dialogue : MonoBehaviour
         string speakerName = !string.IsNullOrEmpty(step.speakerName) ? step.speakerName : "???";
 
         bool isGameVoice = step.panelStyle == DialoguePanelStyle.GameVoice;
+        bool hasIllustration = step.panelIllustration != null;
         bool hasChoices = step.choices != null && step.choices.Count > 0;
         bool usesSeparateChoicePanel = hasChoices && step.useMultipleChoicePanel;
         Sprite background = isGameVoice ? ResolveGameVoiceBackground() : FindBackground(speakerName);
@@ -565,7 +655,7 @@ public class Dialogue : MonoBehaviour
         body.text = FormatDialogueText(step.text);
         body.color = hasPanelArtwork ? speakerBackgroundTextColor : textColor;
         nameTag.gameObject.SetActive(!isGameVoice && !hasSpeakerBackground);
-        body.gameObject.SetActive(true);
+        body.gameObject.SetActive(!hasIllustration || !string.IsNullOrWhiteSpace(step.text));
 
         float screenW = Screen.width > 0 ? Screen.width : 1280f;
         float screenH = Screen.height > 0 ? Screen.height : 720f;
@@ -590,6 +680,20 @@ public class Dialogue : MonoBehaviour
             panelImage.color = hasPanelArtwork ? Color.white : panelColor;
             panelImage.SetAllDirty();
             panelImage.SetVerticesDirty();
+        }
+
+        if (illustrationImage != null)
+        {
+            illustrationImage.sprite = step.panelIllustration;
+            illustrationImage.enabled = hasIllustration;
+            var illustrationRect = illustrationImage.GetComponent<RectTransform>();
+            illustrationRect.anchorMin = new Vector2(0f, 1f);
+            illustrationRect.anchorMax = new Vector2(0f, 1f);
+            illustrationRect.pivot = new Vector2(0f, 1f);
+            illustrationRect.anchoredPosition = new Vector2(Pad, -Pad);
+            illustrationRect.sizeDelta = new Vector2(
+                Mathf.Max(1f, panelWidth - Pad * 2f),
+                Mathf.Max(1f, panelHeight - Pad * 2f));
         }
 
         // The supplied artwork includes a portrait window. Keep optional portrait art inside that window instead of
@@ -1311,6 +1415,13 @@ public class Dialogue : MonoBehaviour
         prt.pivot = new Vector2(0f, 0f);
         prt.anchoredPosition = Vector2.zero;
         prt.sizeDelta = Vector2.zero;
+
+        var illustrationObj = new GameObject("Illustration");
+        illustrationObj.transform.SetParent(panelObj.transform, false);
+        illustrationImage = illustrationObj.AddComponent<Image>();
+        illustrationImage.raycastTarget = false;
+        illustrationImage.preserveAspect = true;
+        illustrationImage.enabled = false;
 
         var nameObj = new GameObject("NameTag");
         nameObj.transform.SetParent(panelObj.transform, false);

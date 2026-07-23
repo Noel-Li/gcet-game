@@ -3235,7 +3235,7 @@ MonoBehaviour:
     expression: normal
     panelStyle: 0
     text: "\u8C22\u8C22\uFF01 (Xi\xE8xie!)"
-    action: 0
+    action: 3
     nextStep: -1
     requiredTraceCount: 1
     traceCharacters: []
@@ -3307,6 +3307,14 @@ MonoBehaviour:
   endComicPanels: []
   endComicNextScene: 
   endComicPromptSprite: {fileID: 0}
+  playTraceCutscene: 1
+  traceCutsceneResumeStep: 12
+  beforeTracePanels:
+  - {fileID: -3138681932233765058, guid: df153a0278c8e5c4883edcba36d7da2d, type: 3}
+  - {fileID: 2014010393860271820, guid: 7407264e5d18cbd4c90eb55d79d779f3, type: 3}
+  afterTraceAnimation: {fileID: 11400000, guid: a4646aad78043334e634e3b3e788a914, type: 2}
+  afterTraceFinalPanel: {fileID: 2325178406300415783, guid: 0fa1a00cc7340124fba329a4c13df828, type: 3}
+  traceCutscenePromptSprite: {fileID: -5858099061022299432, guid: 09c234a8dfbdee449bdcd66690f76c54, type: 3}
   unlockOnComplete: 1
   wallToUnlock: {fileID: 1240246070}
   regionToUnlock: {fileID: 782562736}
@@ -4310,7 +4318,7 @@ MonoBehaviour:
   - speakerName: game voice
     expression: normal
     panelStyle: 1
-    text: "\u4F60\u53EB\u4EC0\u4E48\u540D\u5B57\uFF1F\nSelect the correct translation:"
+    text: What did the soldier just say?
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -4566,7 +4574,7 @@ MonoBehaviour:
   - speakerName: game voice
     expression: normal
     panelStyle: 1
-    text: "\u4F60\u53EB\u4EC0\u4E48\u540D\u5B57\uFF1F\nSelect the correct translation:"
+    text: What did the soldier just say?
     action: 0
     nextStep: -1
     requiredTraceCount: 1
@@ -28156,6 +28164,17 @@ MonoBehaviour:
     traceCharacters: []
     choices: []
     useMultipleChoicePanel: 0
+  - speakerName: game voice
+    expression: normal
+    panelStyle: 1
+    text:
+    panelIllustration: {fileID: -8007809796452785402, guid: 358290e695aa32546b4b7aded206143a, type: 3}
+    action: 0
+    nextStep: -1
+    requiredTraceCount: 1
+    traceCharacters: []
+    choices: []
+    useMultipleChoicePanel: 0
   - speakerName: "\u90ED\u5C0F\u6708"
     expression: excited
     panelStyle: 0
@@ -28197,7 +28216,7 @@ MonoBehaviour:
     traceCharacters: []
     choices:
     - label: "Trace \u6C34"
-      targetStep: 13
+      targetStep: 14
       action: 1
       requiredTraceCount: 1
       traceCharacters:
@@ -28254,14 +28273,16 @@ MonoBehaviour:
   multipleChoiceBackground: {fileID: -9018818332010216090, guid: dd1d2b4546a5cb34a817cf814d3cecf5, type: 3}
   playEndComic: 1
   endComicPanels:
-  - {fileID: 6188951069893892178, guid: d2e0781e452f59144b1e5435b488f4e0, type: 3}
-  - {fileID: -3501889833286323744, guid: 8fbdadf469010e8428a57612208ccccd, type: 3}
-  - {fileID: -3855900064470187131, guid: 188d1128e581f5b4ca8e201031ef51e7, type: 3}
-  - {fileID: 8178377429917557293, guid: 4e01e56d4816c7e42800dbb23c1f41e3, type: 3}
-  - {fileID: 3598375752720953634, guid: ed39833f5427d8c4aa50c0453b269a4b, type: 3}
-  - {fileID: -5686248928360940233, guid: a36917918b3786a478e351e33b815283, type: 3}
+  - {fileID: 1038398239890259889, guid: c3ca908dfbe07374aa5fdd606920f8bf, type: 3}
+  - {fileID: 3465286685962602723, guid: 1d618fa2d662a964784c90745fda3ca1, type: 3}
   endComicNextScene: EndScene
   endComicPromptSprite: {fileID: -5858099061022299432, guid: 09c234a8dfbdee449bdcd66690f76c54, type: 3}
+  playTraceCutscene: 1
+  traceCutsceneResumeStep: 14
+  beforeTracePanels: []
+  afterTraceAnimation: {fileID: 0}
+  afterTraceFinalPanel: {fileID: -8007809796452785402, guid: 358290e695aa32546b4b7aded206143a, type: 3}
+  traceCutscenePromptSprite: {fileID: -5858099061022299432, guid: 09c234a8dfbdee449bdcd66690f76c54, type: 3}
   unlockOnComplete: 0
   wallToUnlock: {fileID: 0}
   regionToUnlock: {fileID: 0}
